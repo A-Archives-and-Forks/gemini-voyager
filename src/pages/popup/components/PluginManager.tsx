@@ -23,7 +23,7 @@ import type { PluginManifest, PluginSettingValue, SettingField } from '@/feature
 import { Card, CardContent, CardTitle } from '../../../components/ui/card';
 import { Switch } from '../../../components/ui/switch';
 import { useLanguage } from '../../../contexts/LanguageContext';
-import { IconChatGPT, IconClaude } from './WebsiteLogos';
+import { IconChatGPT, IconClaude, IconDeepSeek } from './WebsiteLogos';
 
 type EnabledMap = Record<string, boolean>;
 type SettingsMap = Record<string, Record<string, PluginSettingValue>>;
@@ -52,6 +52,7 @@ async function requestPluginContentScriptSync(): Promise<boolean> {
 const SITE_BADGES: Record<string, { Icon: typeof IconClaude; color: string }> = {
   claude: { Icon: IconClaude, color: '#d97757' },
   chatgpt: { Icon: IconChatGPT, color: '#0ea5e9' },
+  deepseek: { Icon: IconDeepSeek, color: '#4d6bfe' },
 };
 
 /**
@@ -68,13 +69,16 @@ export function platformBadge(
   const brand = plugin.theme?.brand;
   const current = currentSiteId ? SITE_BADGES[currentSiteId] : undefined;
   if (current) return { icon: <current.Icon />, color: brand ?? current.color };
-  const host = plugin.matches
-    .map((m) => m.replace(/^[a-z*]+:\/\//i, '').replace(/\/.*$/, ''))
-    .join(' ');
-  if (host.includes('claude.ai'))
+  const hosts = plugin.matches.flatMap((pattern) => {
+    const match = /^(?:https?|\*):\/\/([^/]+)\//i.exec(pattern);
+    return match ? [match[1]] : [];
+  });
+  if (hosts.includes('claude.ai'))
     return { icon: <IconClaude />, color: brand ?? SITE_BADGES.claude.color };
-  if (host.includes('chatgpt.com') || host.includes('openai.com'))
+  if (hosts.includes('chatgpt.com') || hosts.includes('chat.openai.com'))
     return { icon: <IconChatGPT />, color: brand ?? SITE_BADGES.chatgpt.color };
+  if (hosts.includes('chat.deepseek.com'))
+    return { icon: <IconDeepSeek />, color: brand ?? SITE_BADGES.deepseek.color };
   return null;
 }
 
