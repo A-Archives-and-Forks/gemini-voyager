@@ -489,3 +489,14 @@ drop, or hover layout.
   not the same as making it safe to click.
 - **Guard:** `src/pages/content/prompt/index.ts` (`openTooltipLinksInNewTab`, called from the
   tooltip's `paint`).
+
+## A template fill action must match the button the user opened
+
+- **Trap:** The fill button chose Copy or Insert when the surface opened, but its submit callback
+  read the current `PROMPT_INSERT_ON_CLICK` preference. Changing that preference from the extension
+  popup while filling a template left the button unchanged and silently switched its action.
+- **Rule:** Capture the delivery mode when opening the fill surface and use it for both the label
+  and submission, including Keep as is. A later opening or a plain prompt click uses the latest
+  preference; a setting change must not discard values already being entered.
+- **Guard:** `src/pages/content/prompt/__tests__/templateFillAction.test.ts` exercises the real
+  manager's fill surface and storage listener, then checks delivery before and after reopening.

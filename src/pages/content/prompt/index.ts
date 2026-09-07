@@ -1827,8 +1827,8 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
           });
         }
 
-        const deliverPromptText = (body: string): void => {
-          void activatePromptText(body, promptInsertOnClick, {
+        const deliverPromptText = (body: string, insertOnClick = promptInsertOnClick): void => {
+          void activatePromptText(body, insertOnClick, {
             copyText,
             expandInputCollapseIfNeeded,
             insertTextIntoChatInput,
@@ -1852,6 +1852,9 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
             return;
           }
           templateFill?.close();
+          // Keep this surface's label and action together if the popup changes
+          // the preference while the user is filling it in.
+          const insertOnClick = promptInsertOnClick;
           templateFill = openTemplateFill({
             text: it.text,
             name: it.name,
@@ -1862,7 +1865,7 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
               // and that setting is off by default - so a fixed "Insert" told
               // most users the composer was about to change when the body was
               // only going to the clipboard.
-              insert: promptInsertOnClick
+              insert: insertOnClick
                 ? i18n.t('pm_fill_insert') || 'Insert'
                 : i18n.t('pm_fill_copy') || 'Copy',
               keepRaw: i18n.t('pm_fill_keep_raw') || 'Keep as is',
@@ -1870,7 +1873,7 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
             },
             onSubmit: (filled) => {
               templateFill = null;
-              deliverPromptText(filled);
+              deliverPromptText(filled, insertOnClick);
             },
             onCancel: () => {
               templateFill = null;
