@@ -159,6 +159,10 @@
     "message": "挿入",
     "description": "Insert the prompt with the entered variable values"
   },
+  "pm_fill_copy": {
+    "message": "コピー",
+    "description": "Copy the prompt with the entered variable values"
+  },
   "pm_fill_keep_raw": {
     "message": "そのまま挿入",
     "description": "Insert the prompt body with its placeholders untouched"
@@ -1576,6 +1580,18 @@
   "batch_delete_confirm": {
     "message": "{count} 件の会話を削除してもよろしいですか？この操作は取り消せません。",
     "description": "Batch delete confirmation message"
+  },
+  "folder_batch_remove_confirm": {
+    "message": "選択した {count} 件の会話をこのフォルダから削除しますか？",
+    "description": "Confirmation before removing the selected conversations from a folder"
+  },
+  "folder_multi_select_count": {
+    "message": "{count} 件選択中",
+    "description": "Number of conversations currently selected in multi-select mode"
+  },
+  "folder_multi_select_exit": {
+    "message": "複数選択モードを終了",
+    "description": "Tooltip for the button that leaves multi-select mode"
   },
   "batch_delete_in_progress": {
     "message": "削除中... ({current}/{total})",

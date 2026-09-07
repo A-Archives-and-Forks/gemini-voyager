@@ -12,11 +12,22 @@
  * slash path both resolve through here so the two entry points cannot drift.
  */
 
-/** Placeholder names: no whitespace, no nesting, Latin or CJK. */
-const NAME = String.raw`[\w一-龥.\-]+`;
+/**
+ * Placeholder names: no whitespace, no nesting, any script.
+ *
+ * Written with Unicode property escapes rather than `\w` plus a Han range. The
+ * extension ships ten locales, and `\w` is ASCII-only outside `u` mode, so that
+ * spelling silently refused `{{주제}}`, `{{имя}}`, `{{العنوان}}`, `{{テーマ}}`,
+ * `{{año}}` and `{{thème}}` - `isPromptTemplate` returned false, the fill
+ * surface never opened, and the raw `{{...}}` went to the model. Property
+ * escapes need the `u` flag, which every regex built from `NAME` therefore
+ * carries; Safari has supported them since 11.1, well under our 15.4 floor.
+ * `\p{M}` is included so a decomposed accent stays part of its name.
+ */
+const NAME = String.raw`[\p{L}\p{M}\p{N}._-]+`;
 
 /** `\{{` escapes a literal `{{`, so a prompt can talk about the syntax itself. */
-const SCAN = new RegExp(String.raw`\\\{\{|\{\{\s*(${NAME})\s*\}\}`, 'g');
+const SCAN = new RegExp(String.raw`\\\{\{|\{\{\s*(${NAME})\s*\}\}`, 'gu');
 
 /**
  * `{name}` with a brace on neither side. Deliberately written without a
@@ -28,14 +39,26 @@ const SCAN = new RegExp(String.raw`\\\{\{|\{\{\s*(${NAME})\s*\}\}`, 'g');
  * `convertLegacyBraces`. A leading `{` cannot be followed by another `{`
  * anyway, since `NAME` excludes braces.
  */
-const LEGACY_SINGLE = new RegExp(String.raw`\{\s*(${NAME})\s*\}(?!\})`, 'g');
+const LEGACY_SINGLE = new RegExp(String.raw`\{\s*(${NAME})\s*\}(?!\})`, 'gu');
 
 /**
  * Source for a global matcher over `{{name}}`, exported so anything that has to
  * find placeholders in already-rendered text uses the same name charset as the
- * parser instead of a copy that can drift from it.
+ * parser instead of a copy that can drift from it. Build it with the `u` flag:
+ * `NAME` uses property escapes, which are a syntax error without it.
  */
 export const TEMPLATE_VARIABLE_SOURCE = String.raw`\{\{\s*(${NAME})\s*\}\}`;
+
+/**
+ * A supplied value, or `undefined`. Read through `hasOwnProperty` because a
+ * name is whatever the prompt author typed: `{{constructor}}` and
+ * `{{toString}}` are valid placeholders, and a plain-object lookup answers
+ * those from `Object.prototype` with a function, which the callers below then
+ * call `.trim()` on.
+ */
+function ownValue(values: Record<string, string>, name: string): string | undefined {
+  return Object.prototype.hasOwnProperty.call(values, name) ? values[name] : undefined;
+}
 
 export interface TemplateTextSegment {
   kind: 'text';
@@ -108,7 +131,7 @@ export function fillPromptTemplate(text: string, values: Record<string, string>)
   return parsePromptTemplate(text)
     .map((segment) => {
       if (segment.kind === 'text') return segment.value;
-      const value = values[segment.name];
+      const value = ownValue(values, segment.name);
       return value != null && value.trim() !== '' ? value : `{{${segment.name}}}`;
     })
     .join('');
@@ -117,7 +140,7 @@ export function fillPromptTemplate(text: string, values: Record<string, string>)
 /** Names still unfilled once `values` is applied, in first-appearance order. */
 export function unfilledTemplateVariables(text: string, values: Record<string, string>): string[] {
   return promptTemplateVariables(text).filter((name) => {
-    const value = values[name];
+    const value = ownValue(values, name);
     return value == null || value.trim() === '';
   });
 }

@@ -1235,6 +1235,19 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
       markTooltipOverflow(el);
     }
 
+    /**
+     * This preview hangs over a live conversation. A Markdown link rendered
+     * into it is an ordinary same-tab anchor, so following one navigated the
+     * host page away and took an in-progress chat with it. Everywhere else in
+     * this file an outbound link opens in a new tab; the preview has to match.
+     */
+    function openTooltipLinksInNewTab(root: HTMLElement): void {
+      for (const link of root.querySelectorAll('a[href]')) {
+        link.setAttribute('target', '_blank');
+        link.setAttribute('rel', 'noopener noreferrer');
+      }
+    }
+
     function showTooltip(target: HTMLElement, fullText: string): void {
       const el = ensureTooltipEl();
       const body = tooltipBody;
@@ -1255,6 +1268,7 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
         // dismissed while marked was loading.
         if (token !== tooltipRenderToken || !tooltipEl) return;
         body.innerHTML = DOMPurify.sanitize(html);
+        openTooltipLinksInNewTab(body);
         body.classList.remove('gv-pm-tooltip-raw');
         highlightTemplateVariables(body);
         positionTooltip(target);
@@ -1844,7 +1858,13 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
             anchor: textBtn,
             theme: panel.getAttribute('data-gv-theme') || '',
             labels: {
-              insert: i18n.t('pm_fill_insert') || 'Insert',
+              // `deliverPromptText` copies unless insert-on-click is enabled,
+              // and that setting is off by default - so a fixed "Insert" told
+              // most users the composer was about to change when the body was
+              // only going to the clipboard.
+              insert: promptInsertOnClick
+                ? i18n.t('pm_fill_insert') || 'Insert'
+                : i18n.t('pm_fill_copy') || 'Copy',
               keepRaw: i18n.t('pm_fill_keep_raw') || 'Keep as is',
               title: i18n.t('pm_fill_title') || 'Fill in the variables',
             },
@@ -2079,6 +2099,8 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
 
       settingsBtn.textContent = i18n.t('pm_settings');
       settingsBtn.title = i18n.t('pm_settings_tooltip');
+      (addForm.querySelector('.gv-pm-convert-braces') as HTMLButtonElement).textContent =
+        i18n.t('pm_convert_braces') || 'Turn {name} into {{name}}';
       (addForm.querySelector('.gv-pm-input-name') as HTMLInputElement).placeholder =
         i18n.t('pm_name_placeholder');
       (addForm.querySelector('.gv-pm-input-text') as HTMLTextAreaElement).placeholder =

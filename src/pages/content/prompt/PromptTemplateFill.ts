@@ -53,7 +53,7 @@ const SLOT_CLASS = 'gv-pm-slot';
 const VAR_CLASS = 'gv-pm-var';
 
 /** Built from the parser's own pattern so the two cannot disagree. */
-const VARIABLE_IN_TEXT = new RegExp(TEMPLATE_VARIABLE_SOURCE, 'g');
+const VARIABLE_IN_TEXT = new RegExp(TEMPLATE_VARIABLE_SOURCE, 'gu');
 
 /**
  * Replace `{{name}}` runs inside rendered markup with chips, so a prompt shows
@@ -151,7 +151,11 @@ export function openTemplateFill(options: TemplateFillOptions): TemplateFillHand
   surface.appendChild(actions);
 
   const readValues = (): Record<string, string> => {
-    const values: Record<string, string> = {};
+    // Null-prototype: a placeholder may legitimately be named `constructor`,
+    // `toString` or `__proto__`, and on a plain object those read back as
+    // inherited non-strings - the `.trim()` below then threw and took the whole
+    // fill surface down before the prompt could be inserted.
+    const values: Record<string, string> = Object.create(null);
     for (const slot of slots) {
       const key = slot.dataset.gvVar;
       if (!key) continue;

@@ -456,3 +456,36 @@ drop, or hover layout.
   is short by its length.
 - **Guard:** `src/features/prompt/model/__tests__/promptTextMatch.test.ts`
   (`finds the boundary inside a line when the person typed straight on`).
+
+## A placeholder name must survive everything the parser accepts
+
+- **Trap:** `NAME` was `[\w一-龥.\-]+`. Outside `u` mode `\w` is ASCII-only, and the Han range that
+  followed it covers neither kana, hangul, Cyrillic, Arabic, nor an accented Latin letter, so
+  `{{テーマ}}`, `{{주제}}`, `{{имя}}`, `{{العنوان}}`, `{{año}}` and `{{thème}}` all failed
+  `isPromptTemplate`: the fill surface never opened and the raw `{{...}}` went to the model, with no
+  error anywhere. Separately, the names the parser did accept included `constructor`, `toString` and
+  `__proto__`, and the fill surface collected them into a plain object — reading one back answered
+  from `Object.prototype` with a non-string, and the `.trim()` that followed threw and took the
+  whole surface down on submit.
+- **Rule:** The charset is `[\p{L}\p{M}\p{N}._-]` and every regex built from it carries `u`
+  (property escapes are a syntax error without it; Safari has had them since 11.1, under our 15.4
+  floor, unlike the lookbehind the same module still avoids). `\p{M}` keeps a decomposed accent part
+  of its name. Because a name is whatever the author typed, never read a value out of a plain object
+  by that name: collect into `Object.create(null)` and read through `hasOwnProperty`.
+- **Guard:** `src/features/prompt/model/__tests__/promptTemplate.test.ts`
+  (`accepts a name written in any locale the extension ships`,
+  `fills a name that collides with an Object prototype member`),
+  `src/pages/content/prompt/__tests__/PromptTemplateFill.test.ts`
+  (`fills a placeholder named after an Object prototype member`).
+
+## A preview that hangs over a live chat must not be able to navigate it
+
+- **Trap:** The prompt hover preview renders the body as Markdown into `document.body`. DOMPurify
+  sanitises the URL of a link but adds no `target`, so following one replaced the current Gemini,
+  Claude or ChatGPT tab and discarded an in-progress conversation. Every other outbound link in the
+  same module already used `window.open(..., '_blank', 'noopener')`.
+- **Rule:** After sanitising rendered Markdown into any surface that floats over the host page,
+  rewrite `a[href]` to `target="_blank"` with `rel="noopener noreferrer"`. Sanitising the markup is
+  not the same as making it safe to click.
+- **Guard:** `src/pages/content/prompt/index.ts` (`openTooltipLinksInNewTab`, called from the
+  tooltip's `paint`).

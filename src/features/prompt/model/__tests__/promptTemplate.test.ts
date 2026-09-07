@@ -33,6 +33,32 @@ describe('promptTemplate', () => {
     );
   });
 
+  it('accepts a name written in any locale the extension ships', () => {
+    // `\w` is ASCII-only outside `u` mode, and the Han range it was paired with
+    // covers neither kana, hangul, Cyrillic, Arabic nor an accented Latin
+    // letter. Every one of these came back as plain text: the fill surface
+    // never opened and the raw `{{...}}` was sent to the model.
+    const names = ['テーマ', 'あだい', '주제', 'имя', 'العنوان', 'tópico', 'año', 'thème'];
+    for (const name of names) {
+      expect(isPromptTemplate(`围绕 {{${name}}} 写`)).toBe(true);
+      expect(promptTemplateVariables(`围绕 {{${name}}} 写`)).toEqual([name]);
+    }
+    // A decomposed accent stays part of its name rather than ending it.
+    expect(promptTemplateVariables('{{café}}')).toEqual(['café']);
+  });
+
+  it('fills a name that collides with an Object prototype member', () => {
+    // `{{constructor}}` is a name a coding prompt plausibly uses. Reading it off
+    // a plain object answered with `Object`, and the `.trim()` that followed
+    // threw before the prompt could be delivered.
+    const text = '解释 {{constructor}} 和 {{toString}}';
+    expect(promptTemplateVariables(text)).toEqual(['constructor', 'toString']);
+    expect(unfilledTemplateVariables(text, {})).toEqual(['constructor', 'toString']);
+    expect(fillPromptTemplate(text, { constructor: '构造函数' })).toBe(
+      '解释 构造函数 和 {{toString}}',
+    );
+  });
+
   it('lets a prompt talk about the syntax itself', () => {
     const text = String.raw`写 \{{name}} 就会变成一个空位`;
     expect(promptTemplateVariables(text)).toEqual([]);

@@ -103,6 +103,25 @@ describe('openTemplateFill', () => {
     handle.close();
   });
 
+  it('fills a placeholder named after an Object prototype member', () => {
+    // The values map used to be a plain object, so `{{constructor}}` read back
+    // as `Object` and the `.trim()` on it threw - the surface died on submit
+    // and the prompt never reached the composer.
+    const onSubmit = vi.fn();
+    const handle = openTemplateFill({
+      text: '解释 {{constructor}} 和 {{toString}}',
+      anchor: anchor(),
+      theme: 'dark',
+      labels,
+      onSubmit,
+    });
+
+    handle.slots[0].textContent = '构造函数';
+    (document.querySelector('.gv-pm-fill .gv-pm-save') as HTMLButtonElement).click();
+
+    expect(onSubmit).toHaveBeenCalledWith('解释 构造函数 和 {{toString}}');
+  });
+
   it('treats a repeated variable as one question', () => {
     const onSubmit = vi.fn();
     const handle = openTemplateFill({
