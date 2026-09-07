@@ -12,7 +12,10 @@ vi.mock('webextension-polyfill', () => ({ default: chrome }));
 
 vi.mock('@/utils/i18n', () => ({
   getTranslationSync: (key: string) => key,
-  getTranslationSyncUnsafe: (key: string) => key,
+  // The selection count is the one message these tests read back as user-visible
+  // text, so it resolves to its real English form; everything else stays a key.
+  getTranslationSyncUnsafe: (key: string) =>
+    key === 'folder_multi_select_count' ? '{count} selected' : key,
   initI18n: () => Promise.resolve(),
 }));
 

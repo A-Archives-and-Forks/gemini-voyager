@@ -245,7 +245,13 @@ function validateFolderData(data: unknown): boolean {
 }
 
 export class AIStudioFolderManager {
-  private t: (key: string) => string = (k) => k;
+  /**
+   * `createTranslator` resolves against the bundled messages on every call, so
+   * it is already correct before `init` awaits `initI18n` - the previous
+   * identity default put raw keys such as `folder_multi_select_count` on screen
+   * for any UI built ahead of that await.
+   */
+  private t: (key: string) => string = createTranslator();
   private dataSession: FolderDataSession | null = new FolderDataSession(
     StorageKeys.FOLDER_DATA_AISTUDIO,
     'aistudio-folders',
@@ -443,6 +449,7 @@ export class AIStudioFolderManager {
   }
 
   async init(): Promise<void> {
+    // Refresh the cached language, then rebind so later calls read it.
     await initI18n();
     this.t = createTranslator();
 
@@ -2446,7 +2453,12 @@ export class AIStudioFolderManager {
     host.classList.toggle('gv-multi-select-mode', this.isLibraryMultiSelectMode);
 
     const count = host.querySelector('[data-selection-count="true"]');
-    if (count) count.textContent = `${this.selectedLibraryPrompts.size} selected`;
+    if (count) {
+      count.textContent = this.t('folder_multi_select_count').replace(
+        '{count}',
+        String(this.selectedLibraryPrompts.size),
+      );
+    }
 
     const actions = host.querySelector('[data-multi-select-actions="true"]');
     if (!actions) return;
@@ -2465,7 +2477,7 @@ export class AIStudioFolderManager {
 
     const exitBtn = document.createElement('button');
     exitBtn.className = 'gv-multi-select-action-btn gv-multi-select-exit-btn';
-    exitBtn.title = 'Exit multi-select mode';
+    exitBtn.title = this.t('folder_multi_select_exit');
     exitBtn.appendChild(this.createIcon('close'));
     exitBtn.addEventListener('click', () => this.exitLibraryMultiSelectMode());
     actions.appendChild(exitBtn);
@@ -2482,7 +2494,7 @@ export class AIStudioFolderManager {
     const text = document.createElement('span');
     text.className = 'gv-multi-select-indicator-text';
     text.dataset.selectionCount = 'true';
-    text.textContent = '0 selected';
+    text.textContent = this.t('folder_multi_select_count').replace('{count}', '0');
     content.appendChild(text);
     indicator.appendChild(content);
 

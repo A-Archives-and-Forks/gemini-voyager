@@ -1016,9 +1016,7 @@ export class FolderSelection {
     if (!this.multiSelectFolderId || this.selectedConversations.size === 0) return;
 
     const count = this.selectedConversations.size;
-    const confirmed = confirm(
-      `Delete ${count} selected conversation${count > 1 ? 's' : ''} from this folder?`,
-    );
+    const confirmed = confirm(t('folder_batch_remove_confirm').replace('{count}', String(count)));
 
     if (!confirmed) return;
 
@@ -1361,7 +1359,7 @@ export class FolderSelection {
     const countElement = multiSelectHost?.querySelector('[data-selection-count="true"]');
     if (countElement) {
       const count = this.selectedConversations.size;
-      countElement.textContent = `${count} selected`;
+      countElement.textContent = t('folder_multi_select_count').replace('{count}', String(count));
     }
 
     // Update action buttons based on source
@@ -1394,7 +1392,7 @@ export class FolderSelection {
       exitBtn.className = 'gv-multi-select-action-btn gv-multi-select-exit-btn';
       exitBtn.innerHTML =
         '<mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true">close</mat-icon>';
-      exitBtn.title = 'Exit multi-select mode';
+      exitBtn.title = t('folder_multi_select_exit');
       exitBtn.addEventListener('click', () => this.exitMultiSelectMode());
       actionsContainer.appendChild(exitBtn);
     } else if (actionsContainer) {

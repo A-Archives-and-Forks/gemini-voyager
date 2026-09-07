@@ -84,7 +84,11 @@ export function createFolderHeaderMenus(): FolderHeaderMenus {
         const iconMarkup = item.iconHtml
           ? `<span class="gv-folder-menu-icon" aria-hidden="true">${item.iconHtml}</span>`
           : `<mat-icon role="img" class="mat-icon notranslate google-symbols mat-ligature-font mat-icon-no-color" aria-hidden="true" style="font-size: 18px; line-height: 1; margin-right: 8px;">${item.icon ?? ''}</mat-icon>`;
-        menuItem.innerHTML = `${iconMarkup}${item.label}`;
+        // `iconHtml` is the one trusted markup slot in this contract; a label
+        // is text and is appended as text, so the menu can never become a DOM
+        // XSS sink for a caller that passes something user-authored.
+        menuItem.innerHTML = iconMarkup;
+        menuItem.appendChild(document.createTextNode(item.label));
         menuItem.addEventListener('click', () => {
           close();
           item.action();
