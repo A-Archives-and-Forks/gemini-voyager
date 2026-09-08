@@ -19,6 +19,30 @@ or prompt commands.
   `src/features/plugins/remote/hostCatalogPolicy.test.ts`,
   `src/features/plugins/remote/hostCatalogRefresh.test.ts` (`ineligible` case).
 
+## Turn-navigator conversation ids are namespaced by site
+
+- **Trap:** The Claude timeline stored starred messages under `claude:conv:<id>` with the prefix
+  hard-coded. Reusing that engine on DeepSeek with the prefix left as-is (or dropped) would file
+  DeepSeek stars under Claude ids, and two sites whose route ids collide would corrupt each
+  other's stars. The Gemini timeline has the same rule (`gemini:conv:<id>`).
+- **Rule:** `TurnNavigator` builds ids from `TurnNavigatorConfig.siteId` plus the site's
+  `conversationIdPattern`; the `turnNavigator` primitive takes both from the site adapter. Claude's
+  config reproduces the historical `claude:conv:<id>` exactly, so existing stars keep resolving.
+- **Guard:** `src/features/plugins/verbs/turnNavigator.test.ts` (`namespaces conversation ids`),
+  `src/features/plugins/builtin/claudeTimeline/index.test.ts` (`builds Claude-scoped conversation
+and turn ids`).
+
+## A builtin with a `native` op must not also be bound as a native handler
+
+- **Trap:** `verifyNativeHandlerBindings` used to require one handler per builtin id. After the
+  formula-copy, Vim and timeline builtins switched to `native` ops, keeping their id bindings would
+  run the feature twice (once through the primitive, once through the handler) and a missing
+  binding would log a wiring error for a plugin that needs none.
+- **Rule:** `NATIVE_BUILTIN_PLUGIN_IDS` lists only builtins without native ops; a manifest gets
+  either a `native` op or a handler binding, never both.
+- **Guard:** `src/features/plugins/builtin/builtin.test.ts` (native-op expectations) and the
+  binding verification in `src/pages/content/pluginNativeRegistration.ts` at startup.
+
 ## A primitive-backed plugin keeps its mounted version until the page reloads
 
 - **Trap:** A catalog refresh remounts declarative plugins live, which is right for CSS and DOM
@@ -235,3 +259,21 @@ while an active plugin has domOps`).
 - **Guard:** `src/pages/content/prompt/__tests__/customSiteCoverage.test.ts`
   (`queues a toggle-off that lands while the startup mount is in flight`,
   `ignores a startup read that is older than a change already handled`).
+
+## Data-supplied regular expressions follow the safe subset
+
+- **Trap:** `conversationIdPattern` reaches the content thread from site.json, plugin params and
+  the remote catalog, and `turnNavigator` executed it against the URL path after a syntax check
+  only. A pattern such as `^/(a+)+$` backtracks exponentially: a remote catalog entry could stall
+  every page of that host.
+- **Rule:** Validate with `isSafeRegexSource` (`sites/safeRegex.ts`): no lookarounds, no
+  backreferences, no `*`/`+`/`{…}` repetition of a group that holds a quantifier or an alternation
+  at any depth (`(a+)+`, `((a+))+`, `(a|aa)+`; a regex on the source misses the nested and
+  alternation forms, so the check is a small scanner), at most 200 characters and at most
+  `MAX_SAFE_REGEX_QUANTIFIERS` quantifiers (adjacent `a*a*…` terms are polynomial with the count as
+  the exponent); bound the subject with `MAX_REGEX_INPUT_LENGTH`. This is defence in depth for a
+  catalog the project publishes itself, not a proof of bounded matching cost. Apply the same policy
+  wherever a pattern comes from data.
+- **Guard:** `src/features/plugins/sites/safeRegex.test.ts`,
+  `src/features/plugins/verbs/turnNavigator.test.ts`
+  (`validates selectors, the id pattern and the rail side`).
