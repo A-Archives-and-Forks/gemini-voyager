@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Check, Eye, Pin, Puzzle, Settings } from 'lucide-react';
+import { Check, Eye, Pin, Settings } from 'lucide-react';
 
 import type { ToolbarPinBrowser } from '@/features/onboarding/toolbarPin';
 
@@ -9,6 +9,18 @@ const ACTION_ICON: Record<Exclude<ToolbarPinBrowser, 'unsupported'>, React.React
   edge: <Eye className="h-3.5 w-3.5" />,
   firefox: <Settings className="h-3.5 w-3.5" />,
 };
+
+/**
+ * Chrome's Extensions button is the Material Symbols "extension" glyph, not a
+ * generic jigsaw piece; matching it lets the user recognise the real button.
+ */
+function ExtensionsGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+      <path d="M8.8 21H5q-.825 0-1.413-.588T3 19v-3.8q1.2 0 2.1-.763T6 12.5q0-1.175-.9-1.937T3 9.8V6q0-.825.588-1.413T5 4h4q0-1.05.725-1.775T11.5 1.5q1.05 0 1.775.725T14 4h4q.825 0 1.413.588T20 6v4q1.05 0 1.775.725T22.5 12.5q0 1.05-.725 1.775T20 15v4q0 .825-.588 1.413T18 21h-3.8q0-1.25-.788-2.125T11.5 18q-1.125 0-1.912.875T8.8 21ZM5 19h2.3q.625-1.5 1.813-2.25T11.5 16q1.2 0 2.388.75T15.7 19H18v-6h2q.225 0 .363-.138T20.5 12.5q0-.225-.137-.363T20 12h-2V6h-6V4q0-.225-.137-.363T11.5 3.5q-.225 0-.363.138T11 4v2H5v2.2q1.35.5 2.175 1.675T8 12.5q0 1.425-.825 2.6T5 16.8V19Zm6.5-6.5Z" />
+    </svg>
+  );
+}
 
 interface ToolbarMockProps {
   browser: Exclude<ToolbarPinBrowser, 'unsupported'>;
@@ -56,11 +68,11 @@ export function ToolbarMock({ browser, pinned }: ToolbarMockProps) {
         </div>
         <div
           className={[
-            'text-foreground/70 relative flex h-7 w-7 items-center justify-center rounded-full',
+            'bg-secondary text-foreground/80 relative flex h-7 w-7 items-center justify-center rounded-full',
             pinned ? '' : 'gv-welcome-ring',
           ].join(' ')}
         >
-          <Puzzle className="h-4 w-4" />
+          <ExtensionsGlyph />
         </div>
       </div>
 
