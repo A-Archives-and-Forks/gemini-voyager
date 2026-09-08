@@ -230,6 +230,14 @@
     "message": "اسحب لإعادة الترتيب (مفتاحا ↑/↓)",
     "description": "Prompt list reorder handle"
   },
+  "pm_move_up": {
+    "message": "نقل لأعلى",
+    "description": "Move prompt one place earlier"
+  },
+  "pm_move_down": {
+    "message": "نقل لأسفل",
+    "description": "Move prompt one place later"
+  },
   "pm_saved": {
     "message": "تم الحفظ",
     "description": "Saved notice"

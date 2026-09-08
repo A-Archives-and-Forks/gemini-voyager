@@ -230,6 +230,14 @@
     "message": "Перетащите, чтобы изменить порядок (клавиши ↑/↓)",
     "description": "Prompt list reorder handle"
   },
+  "pm_move_up": {
+    "message": "Переместить вверх",
+    "description": "Move prompt one place earlier"
+  },
+  "pm_move_down": {
+    "message": "Переместить вниз",
+    "description": "Move prompt one place later"
+  },
   "pm_saved": {
     "message": "Сохранено",
     "description": "Saved notice"

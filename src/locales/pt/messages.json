@@ -230,6 +230,14 @@
     "message": "Arraste para reordenar (teclas ↑/↓)",
     "description": "Prompt list reorder handle"
   },
+  "pm_move_up": {
+    "message": "Mover para cima",
+    "description": "Move prompt one place earlier"
+  },
+  "pm_move_down": {
+    "message": "Mover para baixo",
+    "description": "Move prompt one place later"
+  },
   "pm_saved": {
     "message": "Salvo",
     "description": "Saved notice"

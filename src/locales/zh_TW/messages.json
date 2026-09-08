@@ -230,6 +230,14 @@
     "message": "拖曳調整順序（↑/↓ 鍵）",
     "description": "Prompt list reorder handle"
   },
+  "pm_move_up": {
+    "message": "上移",
+    "description": "Move prompt one place earlier"
+  },
+  "pm_move_down": {
+    "message": "下移",
+    "description": "Move prompt one place later"
+  },
   "pm_saved": {
     "message": "已儲存",
     "description": "儲存提示"

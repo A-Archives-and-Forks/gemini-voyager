@@ -71,6 +71,7 @@ import { extractPlainTitle } from './compactTitle';
 import { activatePromptText } from './promptClickAction';
 import { getPromptNameConflictIds, isPromptNameTaken, normalizePromptName } from './promptName';
 import { createPromptReorder } from './promptReorder';
+import { createPromptRowSurfaces } from './promptRowMenu';
 import { getScrollHintState } from './scrollHint';
 import { formatStarredMessageTime } from './starredLibrary';
 import { sanitizeSelectedTags } from './tagFilterState';
@@ -486,6 +487,9 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
     let pmHiddenByUser = false;
     let changelogBadgeActive = false;
     let promptInsertOnClick = false;
+    // Experiment: when on, the row itself takes the drag and its primary action
+    // moves to pointerup. Flip it to compare against the handle before choosing.
+    let promptRowDrag = false;
 
     try {
       const result = await browser.storage.sync.get({ gvHidePromptManager: false });
@@ -512,8 +516,10 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
     try {
       const result = await browser.storage.sync.get({
         [StorageKeys.PROMPT_INSERT_ON_CLICK]: false,
+        [StorageKeys.PROMPT_ROW_DRAG]: false,
       });
       promptInsertOnClick = result?.[StorageKeys.PROMPT_INSERT_ON_CLICK] === true;
+      promptRowDrag = result?.[StorageKeys.PROMPT_ROW_DRAG] === true;
     } catch (error) {
       pmLogger.warn('Failed to check prompt click mode setting, falling back to copy behavior', {
         error,
@@ -1724,6 +1730,9 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
 
     /* Manual ordering (#1009): the list renders `items` in stored order, so a
      * move is a splice plus one write. The gesture lives in promptReorder.ts. */
+    const rowSurfaces = createPromptRowSurfaces();
+    /** Rebuilt every render; a whole-row tap resolves its action through this. */
+    const rowActivators = new Map<string, () => void>();
     const reorder = createPromptReorder<PromptItem>({
       list,
       getItems: () => items,
@@ -1732,8 +1741,66 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
         renderList();
         void writeStorage(STORAGE_KEYS.items, items);
       },
-      onDragStart: () => hideTooltip(),
+      onDragStart: () => {
+        hideTooltip();
+        rowSurfaces.close();
+      },
+      onTap: (id) => rowActivators.get(id)?.(),
     });
+
+    /** Loads the add form with a prompt's fields; shared by the button and the row menu. */
+    function startEdit(it: PromptItem): void {
+      (addForm.querySelector('.gv-pm-input-name') as HTMLInputElement).value = it.name ?? '';
+      (addForm.querySelector('.gv-pm-input-text') as HTMLTextAreaElement).value = it.text;
+      syncConvertBracesVisibility();
+      (addForm.querySelector('.gv-pm-input-tags') as HTMLInputElement).value = (it.tags || []).join(
+        ', ',
+      );
+      addForm.classList.remove('gv-hidden');
+      (addForm.querySelector('.gv-pm-input-name') as HTMLInputElement).focus();
+      editingId = it.id;
+    }
+
+    function confirmDelete(it: PromptItem, anchor: HTMLElement): void {
+      rowSurfaces.openConfirm({
+        anchor,
+        message: i18n.t('pm_delete_confirm') || 'Delete this prompt?',
+        confirmLabel: i18n.t('pm_delete') || 'Delete',
+        cancelLabel: i18n.t('pm_cancel') || 'Cancel',
+        onConfirm: () => {
+          items = items.filter((x) => x.id !== it.id);
+          void writeStorage(STORAGE_KEYS.items, items);
+          renderTags();
+          renderList();
+          setNotice(i18n.t('pm_deleted') || 'Deleted', 'ok');
+        },
+      });
+    }
+
+    function openRowMenu(it: PromptItem, row: HTMLElement, point: { x: number; y: number }): void {
+      hideTooltip();
+      rowSurfaces.openMenu(point, [
+        { label: i18n.t('pm_edit') || 'Edit', icon: 'edit', onSelect: () => startEdit(it) },
+        {
+          label: i18n.t('pm_delete') || 'Delete',
+          icon: 'delete',
+          danger: true,
+          onSelect: () => confirmDelete(it, row),
+        },
+        {
+          label: i18n.t('pm_move_up') || 'Move up',
+          icon: 'up',
+          disabled: !reorder.canMove(it.id, -1),
+          onSelect: () => reorder.moveBy(it.id, -1),
+        },
+        {
+          label: i18n.t('pm_move_down') || 'Move down',
+          icon: 'down',
+          disabled: !reorder.canMove(it.id, 1),
+          onSelect: () => reorder.moveBy(it.id, 1),
+        },
+      ]);
+    }
 
     function renderList(): void {
       if (panelView !== 'prompts') {
@@ -1771,6 +1838,7 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
         );
       });
       list.innerHTML = '';
+      rowActivators.clear();
       if (filtered.length === 0) {
         const empty = createEl('div', 'gv-pm-empty');
         empty.textContent = i18n.t('pm_empty') || 'No prompts yet';
@@ -1891,13 +1959,24 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
           });
         };
 
-        textBtn.addEventListener('mousedown', (e) => {
-          if (e.button !== 0) return;
-          e.preventDefault();
-          e.stopPropagation();
-          activateRow();
-        });
+        rowActivators.set(it.id, activateRow);
+        // In row-drag mode the gesture owns the press, and the tap that never
+        // travelled comes back through the controller's onTap.
+        if (!promptRowDrag) {
+          textBtn.addEventListener('mousedown', (e) => {
+            if (e.button !== 0) return;
+            e.preventDefault();
+            e.stopPropagation();
+            activateRow();
+          });
+        }
         textBtn.addEventListener('keydown', (e) => {
+          if (e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10')) {
+            e.preventDefault();
+            const box = row.getBoundingClientRect();
+            openRowMenu(it, row, { x: box.left + 28, y: box.bottom - 2 });
+            return;
+          }
           if (e.key !== 'Enter' && e.key !== ' ') return;
           e.preventDefault();
           e.stopPropagation();
@@ -1910,18 +1989,9 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
         const editBtn = createEl('button', 'gv-pm-edit');
         editBtn.setAttribute('aria-label', i18n.t('pm_edit') || 'Edit');
         //editBtn.textContent = '✏️';
-        editBtn.addEventListener('click', async (e) => {
+        editBtn.addEventListener('click', (e) => {
           e.stopPropagation();
-          // Start inline edit using the add form fields
-          (addForm.querySelector('.gv-pm-input-name') as HTMLInputElement).value = it.name ?? '';
-          (addForm.querySelector('.gv-pm-input-text') as HTMLTextAreaElement).value = it.text;
-          syncConvertBracesVisibility();
-          (addForm.querySelector('.gv-pm-input-tags') as HTMLInputElement).value = (
-            it.tags || []
-          ).join(', ');
-          addForm.classList.remove('gv-hidden');
-          (addForm.querySelector('.gv-pm-input-name') as HTMLInputElement).focus();
-          editingId = it.id;
+          startEdit(it);
         });
         const bottom = createEl('div', 'gv-pm-bottom');
         const meta = createEl('div', 'gv-pm-item-meta');
@@ -1947,64 +2017,9 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
         const actions = createEl('div', 'gv-pm-actions');
         const del = createEl('button', 'gv-pm-del');
         del.title = i18n.t('pm_delete') || 'Delete';
-        del.addEventListener('click', async (e) => {
+        del.addEventListener('click', (e) => {
           e.stopPropagation();
-          // inline confirm popover (floating)
-          if (document.body.querySelector('.gv-pm-confirm')) return; // one at a time
-          const pop = document.createElement('div');
-          pop.className = 'gv-pm-confirm';
-          const msg = document.createElement('span');
-          msg.textContent = i18n.t('pm_delete_confirm') || 'Delete this prompt?';
-          const yes = document.createElement('button');
-          yes.className = 'gv-pm-confirm-yes';
-          yes.textContent = i18n.t('pm_delete') || 'Delete';
-          const no = document.createElement('button');
-          no.textContent = i18n.t('pm_cancel') || 'Cancel';
-          pop.appendChild(msg);
-          pop.appendChild(yes);
-          pop.appendChild(no);
-          document.body.appendChild(pop);
-          // position near button
-          const r = del.getBoundingClientRect();
-          const vw = window.innerWidth;
-          const side: 'left' | 'right' = r.right + 220 > vw ? 'left' : 'right';
-          const top = Math.max(8, r.top + window.scrollY - 6);
-          const left =
-            side === 'right'
-              ? r.right + window.scrollX + 10
-              : r.left + window.scrollX - pop.offsetWidth - 10;
-          pop.style.top = `${Math.round(top)}px`;
-          pop.style.left = `${Math.round(Math.max(8, left))}px`;
-          pop.setAttribute('data-side', side);
-          const cleanup = () => {
-            try {
-              pop.remove();
-            } catch {}
-            window.removeEventListener('keydown', onKey);
-            window.removeEventListener('click', onOutside, true);
-          };
-          const onOutside = (ev: MouseEvent) => {
-            const t = ev.target as HTMLElement;
-            if (!t.closest('.gv-pm-confirm')) cleanup();
-          };
-          const onKey = (ev: KeyboardEvent) => {
-            if (ev.key === 'Escape') cleanup();
-          };
-          window.addEventListener('click', onOutside, true);
-          window.addEventListener('keydown', onKey, { passive: true });
-          no.addEventListener('click', (ev) => {
-            ev.stopPropagation();
-            cleanup();
-          });
-          yes.addEventListener('click', async (ev) => {
-            ev.stopPropagation();
-            items = items.filter((x) => x.id !== it.id);
-            await writeStorage(STORAGE_KEYS.items, items);
-            cleanup();
-            renderTags();
-            renderList();
-            setNotice(i18n.t('pm_deleted') || 'Deleted', 'ok');
-          });
+          confirmDelete(it, del);
         });
 
         // Append text container instead of textBtn
@@ -2013,7 +2028,13 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
         // The reorder handle leads the actions cluster in both view modes, so
         // it reads [⠿] [✎] [🗑] from left to right. A single visible row has
         // nothing to reorder against, so the handle is left out entirely.
-        if (filtered.length > 1) {
+        row.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          openRowMenu(it, row, { x: e.clientX, y: e.clientY });
+        });
+        if (promptRowDrag) {
+          reorder.bindRow(row, it.id);
+        } else if (filtered.length > 1) {
           const reorderBtn = createEl('button', 'gv-pm-reorder');
           reorderBtn.type = 'button';
           reorderBtn.title = i18n.t('pm_reorder') || 'Drag to reorder (↑/↓ keys)';
@@ -2351,6 +2372,10 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
       if (area === 'sync' && changes[StorageKeys.PROMPT_INSERT_ON_CLICK]) {
         promptInsertOnClick = changes[StorageKeys.PROMPT_INSERT_ON_CLICK].newValue === true;
       }
+      if (area === 'sync' && changes[StorageKeys.PROMPT_ROW_DRAG]) {
+        promptRowDrag = changes[StorageKeys.PROMPT_ROW_DRAG].newValue === true;
+        renderActiveList();
+      }
       if ((area === 'sync' || area === 'local') && changes[StorageKeys.PROMPT_VIEW_MODE]) {
         const nextMode = changes[StorageKeys.PROMPT_VIEW_MODE].newValue;
         if ((nextMode === 'compact' || nextMode === 'comfortable') && nextMode !== viewMode) {
@@ -2602,6 +2627,7 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
           window.removeEventListener('pointerup', onTriggerDragEnd);
           // Drops the reorder listeners and auto-scroll frame on a mid-drag teardown.
           reorder.destroy();
+          rowSurfaces.destroy();
           tagsWrap.removeEventListener('scroll', syncTagScrollHint);
 
           chrome.storage?.onChanged?.removeListener(storageChangeHandler);

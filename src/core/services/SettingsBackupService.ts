@@ -73,6 +73,7 @@ export const BACKUPABLE_SYNC_SETTINGS_DEFAULTS = {
   [StorageKeys.PROMPT_THEME]: null,
   [StorageKeys.PROMPT_INSERT_ON_CLICK]: false,
   [StorageKeys.PROMPT_VIEW_MODE]: 'compact',
+  [StorageKeys.PROMPT_ROW_DRAG]: false,
   [StorageKeys.PROMPT_PANEL_VIEW]: 'prompts',
   [StorageKeys.SLASH_PROMPT_ENABLED]: true,
   [StorageKeys.LANGUAGE]: null,

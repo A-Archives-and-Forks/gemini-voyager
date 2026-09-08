@@ -230,6 +230,14 @@
     "message": "Glisser pour réordonner (touches ↑/↓)",
     "description": "Prompt list reorder handle"
   },
+  "pm_move_up": {
+    "message": "Monter",
+    "description": "Move prompt one place earlier"
+  },
+  "pm_move_down": {
+    "message": "Descendre",
+    "description": "Move prompt one place later"
+  },
   "pm_saved": {
     "message": "Enregistré",
     "description": "Saved notice"

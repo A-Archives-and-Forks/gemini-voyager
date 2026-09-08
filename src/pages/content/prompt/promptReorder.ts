@@ -32,11 +32,23 @@ export type PromptReorderDeps<T extends { id: string }> = {
   commit: (items: T[]) => void;
   /** Fires once a drag passes the threshold, so hover previews can close. */
   onDragStart?: () => void;
+  /**
+   * Whole-row mode only: a press that never travelled. The row's primary
+   * action moves here from mousedown, which is what lets the row itself take
+   * the drag without stealing the click.
+   */
+  onTap?: (id: string) => void;
 };
 
 export type PromptReorderController = {
   /** Wires one rendered row and its handle. Rebuilt rows are simply rebound. */
   bind: (row: HTMLElement, handle: HTMLElement, id: string) => void;
+  /** Wires a row that drags from anywhere except its own buttons. */
+  bindRow: (row: HTMLElement, id: string) => void;
+  /** One step through the rows the user can see. Returns whether it moved. */
+  moveBy: (id: string, direction: -1 | 1) => boolean;
+  /** Whether a step in that direction exists, for disabling a menu entry. */
+  canMove: (id: string, direction: -1 | 1) => boolean;
   destroy: () => void;
 };
 
@@ -49,6 +61,8 @@ type Session = {
   pointerY: number;
   /** Set once the pointer passes the threshold, so a plain click is not a move. */
   active: boolean;
+  /** Whole-row gestures fall back to the row's primary action when they stall. */
+  fromRow: boolean;
   placement: DropPlacement | null;
   autoScrollFrame: number | null;
 };
@@ -149,7 +163,9 @@ export function createPromptReorder<T extends { id: string }>(
     current.row.classList.remove('gv-pm-item-dragging');
     list.classList.remove('gv-pm-list-reordering');
     paintIndicator(null);
-    if (shouldCommit && current.active) apply(current.id, current.placement);
+    if (!shouldCommit) return;
+    if (current.active) apply(current.id, current.placement);
+    else if (current.fromRow) deps.onTap?.(current.id);
   }
 
   function onPointerUp(ev: PointerEvent): void {
@@ -170,7 +186,13 @@ export function createPromptReorder<T extends { id: string }>(
     end(false);
   }
 
-  function begin(ev: PointerEvent, row: HTMLElement, handle: HTMLElement, id: string): void {
+  function begin(
+    ev: PointerEvent,
+    row: HTMLElement,
+    handle: HTMLElement,
+    id: string,
+    fromRow = false,
+  ): void {
     if (ev.button !== 0) return;
     // Keep the press away from the panel drag handler, focus and text selection.
     ev.preventDefault();
@@ -184,6 +206,7 @@ export function createPromptReorder<T extends { id: string }>(
       startY: ev.clientY,
       pointerY: ev.clientY,
       active: false,
+      fromRow,
       placement: null,
       autoScrollFrame: null,
     };
@@ -211,13 +234,20 @@ export function createPromptReorder<T extends { id: string }>(
     }
   }
 
+  function placementForStep(id: string, direction: -1 | 1): DropPlacement | null {
+    return stepPlacement(
+      rows().map((row) => row.dataset.gvPromptId || ''),
+      id,
+      direction,
+    );
+  }
+
   function onHandleKeyDown(ev: KeyboardEvent, id: string): void {
     const direction = ev.key === 'ArrowUp' ? -1 : ev.key === 'ArrowDown' ? 1 : 0;
     if (direction === 0) return;
     ev.preventDefault();
     ev.stopPropagation();
-    const visibleIds = rows().map((row) => row.dataset.gvPromptId || '');
-    if (apply(id, stepPlacement(visibleIds, id, direction))) refocus(id);
+    if (apply(id, placementForStep(id, direction))) refocus(id);
   }
 
   return {
@@ -227,6 +257,16 @@ export function createPromptReorder<T extends { id: string }>(
       handle.addEventListener('keydown', (ev) => onHandleKeyDown(ev, id));
       handle.addEventListener('click', (ev) => ev.stopPropagation());
     },
+    bindRow: (row, id) => {
+      row.dataset.gvPromptId = id;
+      row.addEventListener('pointerdown', (ev) => {
+        // Anything that is already a control keeps its own click.
+        if ((ev.target as HTMLElement | null)?.closest('button, a, input, textarea')) return;
+        begin(ev, row, row, id, true);
+      });
+    },
+    moveBy: (id, direction) => apply(id, placementForStep(id, direction)),
+    canMove: (id, direction) => placementForStep(id, direction) !== null,
     destroy: () => end(false),
   };
 }

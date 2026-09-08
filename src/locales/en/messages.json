@@ -230,6 +230,14 @@
     "message": "Drag to reorder (↑/↓ keys)",
     "description": "Prompt list reorder handle"
   },
+  "pm_move_up": {
+    "message": "Move up",
+    "description": "Move prompt one place earlier"
+  },
+  "pm_move_down": {
+    "message": "Move down",
+    "description": "Move prompt one place later"
+  },
   "pm_saved": {
     "message": "Saved",
     "description": "Saved notice"

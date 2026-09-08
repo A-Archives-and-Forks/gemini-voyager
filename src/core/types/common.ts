@@ -102,6 +102,8 @@ export const StorageKeys = {
   PROMPT_THEME: 'gvPromptTheme',
   PROMPT_INSERT_ON_CLICK: 'gvPromptInsertOnClick',
   PROMPT_VIEW_MODE: 'gvPromptViewMode',
+  /** Experiment: drag a row from anywhere instead of from its handle. */
+  PROMPT_ROW_DRAG: 'gvPromptRowDrag',
   PROMPT_PANEL_VIEW: 'gvPromptPanelView',
   SLASH_PROMPT_ENABLED: 'gvSlashPromptEnabled',
   // Persisted tag filter for the prompt manager (#729). chrome.storage.local

@@ -230,6 +230,14 @@
     "message": "드래그하여 순서 변경 (↑/↓ 키)",
     "description": "Prompt list reorder handle"
   },
+  "pm_move_up": {
+    "message": "위로 이동",
+    "description": "Move prompt one place earlier"
+  },
+  "pm_move_down": {
+    "message": "아래로 이동",
+    "description": "Move prompt one place later"
+  },
   "pm_saved": {
     "message": "저장됨",
     "description": "Saved notice"

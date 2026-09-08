@@ -230,6 +230,14 @@
     "message": "ドラッグして並べ替え（↑/↓ キー）",
     "description": "Prompt list reorder handle"
   },
+  "pm_move_up": {
+    "message": "上に移動",
+    "description": "Move prompt one place earlier"
+  },
+  "pm_move_down": {
+    "message": "下に移動",
+    "description": "Move prompt one place later"
+  },
   "pm_saved": {
     "message": "保存しました",
     "description": "Saved notice"

@@ -29,7 +29,7 @@ function pointerEvent(type: string, clientY: number): MouseEvent {
 
 let teardown: (() => void) | null = null;
 
-function mount(ids: string[]) {
+function mount(ids: string[], options: { bindRow?: boolean } = {}) {
   const list = document.createElement('div');
   list.className = 'gv-pm-list';
   setRect(list, 0, ids.length * ROW_HEIGHT);
@@ -40,11 +40,13 @@ function mount(ids: string[]) {
     items = next;
   });
   const onDragStart = vi.fn();
+  const onTap = vi.fn();
   const controller = createPromptReorder<Item>({
     list,
     getItems: () => items,
     commit,
     onDragStart,
+    onTap,
   });
 
   const rows = new Map<string, HTMLElement>();
@@ -57,7 +59,8 @@ function mount(ids: string[]) {
     handle.className = 'gv-pm-reorder';
     row.appendChild(handle);
     list.appendChild(row);
-    controller.bind(row, handle, id);
+    if (options.bindRow) controller.bindRow(row, id);
+    else controller.bind(row, handle, id);
     rows.set(id, row);
     handles.set(id, handle);
   });
@@ -78,6 +81,7 @@ function mount(ids: string[]) {
     drag,
     handles,
     onDragStart,
+    onTap,
     order: () => items.map((it) => it.id),
     rows,
   };
@@ -154,6 +158,50 @@ describe('prompt reorder gesture', () => {
 
     expect(panel.order()).toEqual(['a', 'c', 'b']);
     expect(document.activeElement).toBe(handle);
+  });
+
+  it('reports a tap when a whole-row press never travelled', () => {
+    const panel = mount(['a', 'b', 'c'], { bindRow: true });
+
+    panel.rows.get('b')!.dispatchEvent(pointerEvent('pointerdown', 60));
+    window.dispatchEvent(pointerEvent('pointerup', 60));
+
+    expect(panel.onTap).toHaveBeenCalledWith('b');
+    expect(panel.commit).not.toHaveBeenCalled();
+  });
+
+  it('treats a whole-row press that travelled as a move, not a tap', () => {
+    const panel = mount(['a', 'b', 'c'], { bindRow: true });
+
+    panel.rows.get('c')!.dispatchEvent(pointerEvent('pointerdown', 100));
+    window.dispatchEvent(pointerEvent('pointermove', 10));
+    window.dispatchEvent(pointerEvent('pointerup', 10));
+
+    expect(panel.order()).toEqual(['c', 'a', 'b']);
+    expect(panel.onTap).not.toHaveBeenCalled();
+  });
+
+  it('leaves buttons inside the row to their own click', () => {
+    const panel = mount(['a', 'b', 'c'], { bindRow: true });
+    const row = panel.rows.get('b')!;
+    const button = document.createElement('button');
+    row.appendChild(button);
+
+    button.dispatchEvent(pointerEvent('pointerdown', 60));
+    window.dispatchEvent(pointerEvent('pointerup', 60));
+
+    expect(panel.onTap).not.toHaveBeenCalled();
+    expect(panel.commit).not.toHaveBeenCalled();
+  });
+
+  it('steps and reports reachability for the row menu', () => {
+    const panel = mount(['a', 'b', 'c']);
+
+    expect(panel.controller.canMove('a', -1)).toBe(false);
+    expect(panel.controller.canMove('a', 1)).toBe(true);
+    expect(panel.controller.moveBy('a', 1)).toBe(true);
+    expect(panel.order()).toEqual(['b', 'a', 'c']);
+    expect(panel.controller.moveBy('c', 1)).toBe(false);
   });
 
   it('stops arrow moves at the ends of the list', () => {
