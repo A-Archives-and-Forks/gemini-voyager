@@ -322,6 +322,16 @@ export const NON_SETTINGS_BACKUP_POLICIES = {
     disposition: 'device-local',
     reason: 'This legacy hint belongs to the local sidebar layout.',
   },
+  [StorageKeys.WELCOME_PAGE_SHOWN]: {
+    storage: 'local',
+    disposition: 'device-local',
+    reason: 'The welcome page opens once per browser profile install.',
+  },
+  [StorageKeys.TOOLBAR_PIN_HINT_DISMISSED]: {
+    storage: 'local',
+    disposition: 'device-local',
+    reason: 'The toolbar pin state is per browser profile.',
+  },
   [StorageKeys.CHANGELOG_DISMISSED_VERSION]: {
     storage: 'local',
     disposition: 'operational',

@@ -3017,5 +3017,73 @@
   "promptHistoryStorageFailed": {
     "message": "提示詞歷史儲存失敗，請檢查擴充功能儲存空間。",
     "description": "Prompt History storage error (#923)"
+  },
+  "welcomeTitle": {
+    "message": "歡迎使用 Voyager",
+    "description": "Welcome page heading"
+  },
+  "welcomeSubtitle": {
+    "message": "兩步就緒。",
+    "description": "Welcome page subheading"
+  },
+  "welcomeStepPinTitle": {
+    "message": "把 Voyager 釘選到工具列",
+    "description": "Welcome page: title of the pin-to-toolbar step"
+  },
+  "welcomeStepPinBody": {
+    "message": "Voyager 的設定都在工具列圖示裡，釘選之後每次少點一步。",
+    "description": "Welcome page: why pinning helps"
+  },
+  "welcomePinStepsChrome": {
+    "message": "點選右上角的拼圖圖示，再點 Voyager 旁邊的圖釘。",
+    "description": "Welcome page: how to pin on Chrome-like browsers"
+  },
+  "welcomePinStepsEdge": {
+    "message": "點選右上角的「擴充功能」按鈕，再點 Voyager 旁邊的眼睛圖示。",
+    "description": "Welcome page: how to pin on Microsoft Edge"
+  },
+  "welcomePinStepsFirefox": {
+    "message": "點選右上角的「擴充功能」按鈕，打開 Voyager 旁邊的齒輪選單，選擇「釘選到工具列」。",
+    "description": "Welcome page: how to pin on Firefox"
+  },
+  "welcomePinWaiting": {
+    "message": "等待釘選…",
+    "description": "Welcome page: live status while the icon is not pinned yet"
+  },
+  "welcomePinDone": {
+    "message": "已釘選，Voyager 在工具列上了。",
+    "description": "Welcome page: live status once the icon is pinned"
+  },
+  "welcomeArrowLabel": {
+    "message": "在這裡",
+    "description": "Welcome page: label beside the arrow pointing at the browser toolbar"
+  },
+  "welcomeStepOpenTitle": {
+    "message": "打開 Gemini",
+    "description": "Welcome page: title of the open-Gemini step"
+  },
+  "welcomeStepOpenBody": {
+    "message": "Voyager 住在對話頁裡。打開 Gemini，會有一段簡短的導覽帶你熟悉。",
+    "description": "Welcome page: why to open Gemini"
+  },
+  "welcomeOpenGemini": {
+    "message": "打開 Gemini",
+    "description": "Welcome page: primary button"
+  },
+  "welcomeOtherSites": {
+    "message": "Claude、ChatGPT 和 DeepSeek 在 Voyager 彈出視窗裡開啟。",
+    "description": "Welcome page: note under the supported-sites list"
+  },
+  "welcomeStepDone": {
+    "message": "完成",
+    "description": "Welcome page: badge on a completed step"
+  },
+  "popupPinHint": {
+    "message": "把 Voyager 釘選到工具列，下次少點一步。",
+    "description": "Popup: reminder to pin the extension icon"
+  },
+  "popupPinHintDismiss": {
+    "message": "關閉",
+    "description": "Popup: dismiss the pin reminder"
   }
 }

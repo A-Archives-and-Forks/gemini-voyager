@@ -110,6 +110,7 @@ export default mergeConfig(
       rollupOptions: {
         input: {
           sakuraRenderer: resolve(__dirname, 'src/pages/sakuraRenderer/index.html'),
+          welcome: resolve(__dirname, 'src/pages/welcome/index.html'),
         },
       },
     },

@@ -3017,5 +3017,73 @@
   "promptHistoryStorageFailed": {
     "message": "Не удалось сохранить историю. Проверьте хранилище расширения.",
     "description": "Prompt History storage error (#923)"
+  },
+  "welcomeTitle": {
+    "message": "Добро пожаловать в Voyager",
+    "description": "Welcome page heading"
+  },
+  "welcomeSubtitle": {
+    "message": "Два быстрых шага, и всё готово.",
+    "description": "Welcome page subheading"
+  },
+  "welcomeStepPinTitle": {
+    "message": "Закрепите Voyager на панели инструментов",
+    "description": "Welcome page: title of the pin-to-toolbar step"
+  },
+  "welcomeStepPinBody": {
+    "message": "Настройки Voyager открываются через значок на панели инструментов. Закрепите его, чтобы каждый раз экономить один клик.",
+    "description": "Welcome page: why pinning helps"
+  },
+  "welcomePinStepsChrome": {
+    "message": "Нажмите значок пазла в правом верхнем углу, затем кнопку закрепления рядом с Voyager.",
+    "description": "Welcome page: how to pin on Chrome-like browsers"
+  },
+  "welcomePinStepsEdge": {
+    "message": "Нажмите кнопку «Расширения» в правом верхнем углу, затем значок глаза рядом с Voyager.",
+    "description": "Welcome page: how to pin on Microsoft Edge"
+  },
+  "welcomePinStepsFirefox": {
+    "message": "Нажмите кнопку «Расширения» в правом верхнем углу, откройте меню шестерёнки рядом с Voyager и выберите «Закрепить на панели инструментов».",
+    "description": "Welcome page: how to pin on Firefox"
+  },
+  "welcomePinWaiting": {
+    "message": "Ожидание закрепления…",
+    "description": "Welcome page: live status while the icon is not pinned yet"
+  },
+  "welcomePinDone": {
+    "message": "Закреплено. Voyager на вашей панели инструментов.",
+    "description": "Welcome page: live status once the icon is pinned"
+  },
+  "welcomeArrowLabel": {
+    "message": "Вот здесь",
+    "description": "Welcome page: label beside the arrow pointing at the browser toolbar"
+  },
+  "welcomeStepOpenTitle": {
+    "message": "Открыть Gemini",
+    "description": "Welcome page: title of the open-Gemini step"
+  },
+  "welcomeStepOpenBody": {
+    "message": "Voyager работает внутри страницы чата. Откройте Gemini, и короткий тур покажет, что где.",
+    "description": "Welcome page: why to open Gemini"
+  },
+  "welcomeOpenGemini": {
+    "message": "Открыть Gemini",
+    "description": "Welcome page: primary button"
+  },
+  "welcomeOtherSites": {
+    "message": "Claude, ChatGPT и DeepSeek включаются во всплывающем окне Voyager.",
+    "description": "Welcome page: note under the supported-sites list"
+  },
+  "welcomeStepDone": {
+    "message": "Готово",
+    "description": "Welcome page: badge on a completed step"
+  },
+  "popupPinHint": {
+    "message": "Закрепите Voyager на панели инструментов, чтобы в следующий раз обойтись без лишнего клика.",
+    "description": "Popup: reminder to pin the extension icon"
+  },
+  "popupPinHintDismiss": {
+    "message": "Закрыть",
+    "description": "Popup: dismiss the pin reminder"
   }
 }

@@ -3017,5 +3017,73 @@
   "promptHistoryStorageFailed": {
     "message": "No se pudo guardar el historial. Revisa el almacenamiento de la extensión.",
     "description": "Prompt History storage error (#923)"
+  },
+  "welcomeTitle": {
+    "message": "Bienvenido a Voyager",
+    "description": "Welcome page heading"
+  },
+  "welcomeSubtitle": {
+    "message": "Dos pasos rápidos y listo.",
+    "description": "Welcome page subheading"
+  },
+  "welcomeStepPinTitle": {
+    "message": "Fija Voyager a tu barra de herramientas",
+    "description": "Welcome page: title of the pin-to-toolbar step"
+  },
+  "welcomeStepPinBody": {
+    "message": "Los ajustes de Voyager están detrás de su icono en la barra de herramientas. Fijarlo te ahorra un clic cada vez.",
+    "description": "Welcome page: why pinning helps"
+  },
+  "welcomePinStepsChrome": {
+    "message": "Haz clic en el icono del puzle arriba a la derecha y luego en la chincheta junto a Voyager.",
+    "description": "Welcome page: how to pin on Chrome-like browsers"
+  },
+  "welcomePinStepsEdge": {
+    "message": "Haz clic en el botón Extensiones arriba a la derecha y luego en el icono del ojo junto a Voyager.",
+    "description": "Welcome page: how to pin on Microsoft Edge"
+  },
+  "welcomePinStepsFirefox": {
+    "message": "Haz clic en el botón Extensiones arriba a la derecha, abre el menú del engranaje junto a Voyager y elige «Fijar a la barra de herramientas».",
+    "description": "Welcome page: how to pin on Firefox"
+  },
+  "welcomePinWaiting": {
+    "message": "Esperando a que lo fijes…",
+    "description": "Welcome page: live status while the icon is not pinned yet"
+  },
+  "welcomePinDone": {
+    "message": "Fijado. Voyager está en tu barra de herramientas.",
+    "description": "Welcome page: live status once the icon is pinned"
+  },
+  "welcomeArrowLabel": {
+    "message": "Aquí arriba",
+    "description": "Welcome page: label beside the arrow pointing at the browser toolbar"
+  },
+  "welcomeStepOpenTitle": {
+    "message": "Abrir Gemini",
+    "description": "Welcome page: title of the open-Gemini step"
+  },
+  "welcomeStepOpenBody": {
+    "message": "Voyager vive dentro de la página de chat. Abre Gemini y un breve recorrido te mostrará todo.",
+    "description": "Welcome page: why to open Gemini"
+  },
+  "welcomeOpenGemini": {
+    "message": "Abrir Gemini",
+    "description": "Welcome page: primary button"
+  },
+  "welcomeOtherSites": {
+    "message": "Claude, ChatGPT y DeepSeek se activan desde la ventana de Voyager.",
+    "description": "Welcome page: note under the supported-sites list"
+  },
+  "welcomeStepDone": {
+    "message": "Hecho",
+    "description": "Welcome page: badge on a completed step"
+  },
+  "popupPinHint": {
+    "message": "Fija Voyager a la barra de herramientas para ahorrarte un clic la próxima vez.",
+    "description": "Popup: reminder to pin the extension icon"
+  },
+  "popupPinHintDismiss": {
+    "message": "Cerrar",
+    "description": "Popup: dismiss the pin reminder"
   }
 }

@@ -112,6 +112,13 @@ export default mergeConfig(
     build: {
       ...baseBuildOptions,
       outDir,
+      rollupOptions: {
+        input: {
+          // Opened by the background on first install; nothing in the manifest
+          // references it, so it must be a build input of its own.
+          welcome: resolve(__dirname, 'src/pages/welcome/index.html'),
+        },
+      },
     },
   }),
 );

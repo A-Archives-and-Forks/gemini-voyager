@@ -232,6 +232,12 @@ export const StorageKeys = {
   // already seen, so every coachmark shows at most once per user across devices.
   // See src/pages/content/coachmark.
   COACHMARKS_SEEN: 'gvCoachmarksSeen',
+  // First-run welcome page (src/pages/welcome). Local because it records what
+  // this browser profile has already been shown, not a preference.
+  WELCOME_PAGE_SHOWN: 'gvWelcomePageShown',
+  // Popup "pin Voyager to the toolbar" hint. Local: the toolbar is per browser
+  // profile, so a dismissal on one device must not hide it on another.
+  TOOLBAR_PIN_HINT_DISMISSED: 'gvToolbarPinHintDismissed',
 
   // Folder spacing
   GV_FOLDER_SPACING: 'gvFolderSpacing',

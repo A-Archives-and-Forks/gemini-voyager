@@ -3017,5 +3017,73 @@
   "promptHistoryStorageFailed": {
     "message": "Prompt history could not be saved. Check extension storage.",
     "description": "Prompt History storage error (#923)"
+  },
+  "welcomeTitle": {
+    "message": "Welcome to Voyager",
+    "description": "Welcome page heading"
+  },
+  "welcomeSubtitle": {
+    "message": "Two quick steps and you're set.",
+    "description": "Welcome page subheading"
+  },
+  "welcomeStepPinTitle": {
+    "message": "Pin Voyager to your toolbar",
+    "description": "Welcome page: title of the pin-to-toolbar step"
+  },
+  "welcomeStepPinBody": {
+    "message": "Voyager's settings live behind its toolbar icon. Pinning it saves a click every time.",
+    "description": "Welcome page: why pinning helps"
+  },
+  "welcomePinStepsChrome": {
+    "message": "Click the puzzle icon at the top right, then the pin next to Voyager.",
+    "description": "Welcome page: how to pin on Chrome-like browsers"
+  },
+  "welcomePinStepsEdge": {
+    "message": "Click the Extensions button at the top right, then the eye icon next to Voyager.",
+    "description": "Welcome page: how to pin on Microsoft Edge"
+  },
+  "welcomePinStepsFirefox": {
+    "message": "Click the Extensions button at the top right, open the gear menu next to Voyager and choose “Pin to Toolbar”.",
+    "description": "Welcome page: how to pin on Firefox"
+  },
+  "welcomePinWaiting": {
+    "message": "Waiting for the pin…",
+    "description": "Welcome page: live status while the icon is not pinned yet"
+  },
+  "welcomePinDone": {
+    "message": "Pinned. Voyager is on your toolbar.",
+    "description": "Welcome page: live status once the icon is pinned"
+  },
+  "welcomeArrowLabel": {
+    "message": "Up here",
+    "description": "Welcome page: label beside the arrow pointing at the browser toolbar"
+  },
+  "welcomeStepOpenTitle": {
+    "message": "Open Gemini",
+    "description": "Welcome page: title of the open-Gemini step"
+  },
+  "welcomeStepOpenBody": {
+    "message": "Voyager lives inside the chat page. Open Gemini and a short tour will show you around.",
+    "description": "Welcome page: why to open Gemini"
+  },
+  "welcomeOpenGemini": {
+    "message": "Open Gemini",
+    "description": "Welcome page: primary button"
+  },
+  "welcomeOtherSites": {
+    "message": "Claude, ChatGPT and DeepSeek are turned on from the Voyager popup.",
+    "description": "Welcome page: note under the supported-sites list"
+  },
+  "welcomeStepDone": {
+    "message": "Done",
+    "description": "Welcome page: badge on a completed step"
+  },
+  "popupPinHint": {
+    "message": "Pin Voyager to the toolbar to skip a click next time.",
+    "description": "Popup: reminder to pin the extension icon"
+  },
+  "popupPinHintDismiss": {
+    "message": "Dismiss",
+    "description": "Popup: dismiss the pin reminder"
   }
 }

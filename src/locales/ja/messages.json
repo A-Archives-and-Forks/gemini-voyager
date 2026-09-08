@@ -3017,5 +3017,73 @@
   "promptHistoryStorageFailed": {
     "message": "プロンプト履歴を保存できませんでした。拡張機能のストレージを確認してください。",
     "description": "Prompt History storage error (#923)"
+  },
+  "welcomeTitle": {
+    "message": "Voyager へようこそ",
+    "description": "Welcome page heading"
+  },
+  "welcomeSubtitle": {
+    "message": "2 ステップで準備完了です。",
+    "description": "Welcome page subheading"
+  },
+  "welcomeStepPinTitle": {
+    "message": "Voyager をツールバーに固定する",
+    "description": "Welcome page: title of the pin-to-toolbar step"
+  },
+  "welcomeStepPinBody": {
+    "message": "Voyager の設定はツールバーのアイコンから開きます。固定しておけば毎回ワンクリック省けます。",
+    "description": "Welcome page: why pinning helps"
+  },
+  "welcomePinStepsChrome": {
+    "message": "右上のパズルアイコンをクリックし、Voyager の横のピンをクリックします。",
+    "description": "Welcome page: how to pin on Chrome-like browsers"
+  },
+  "welcomePinStepsEdge": {
+    "message": "右上の「拡張機能」ボタンをクリックし、Voyager の横の目のアイコンをクリックします。",
+    "description": "Welcome page: how to pin on Microsoft Edge"
+  },
+  "welcomePinStepsFirefox": {
+    "message": "右上の「拡張機能」ボタンをクリックし、Voyager の横の歯車メニューから「ツールバーにピン留め」を選びます。",
+    "description": "Welcome page: how to pin on Firefox"
+  },
+  "welcomePinWaiting": {
+    "message": "固定を待っています…",
+    "description": "Welcome page: live status while the icon is not pinned yet"
+  },
+  "welcomePinDone": {
+    "message": "固定しました。Voyager はツールバーにあります。",
+    "description": "Welcome page: live status once the icon is pinned"
+  },
+  "welcomeArrowLabel": {
+    "message": "ここです",
+    "description": "Welcome page: label beside the arrow pointing at the browser toolbar"
+  },
+  "welcomeStepOpenTitle": {
+    "message": "Gemini を開く",
+    "description": "Welcome page: title of the open-Gemini step"
+  },
+  "welcomeStepOpenBody": {
+    "message": "Voyager はチャットページの中で動きます。Gemini を開くと、短いツアーが案内します。",
+    "description": "Welcome page: why to open Gemini"
+  },
+  "welcomeOpenGemini": {
+    "message": "Gemini を開く",
+    "description": "Welcome page: primary button"
+  },
+  "welcomeOtherSites": {
+    "message": "Claude、ChatGPT、DeepSeek は Voyager のポップアップから有効にします。",
+    "description": "Welcome page: note under the supported-sites list"
+  },
+  "welcomeStepDone": {
+    "message": "完了",
+    "description": "Welcome page: badge on a completed step"
+  },
+  "popupPinHint": {
+    "message": "Voyager をツールバーに固定すると、次回からワンクリック省けます。",
+    "description": "Popup: reminder to pin the extension icon"
+  },
+  "popupPinHintDismiss": {
+    "message": "閉じる",
+    "description": "Popup: dismiss the pin reminder"
   }
 }

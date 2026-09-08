@@ -40,6 +40,18 @@ behavior, or bundled public assets.
   `bun run build:chrome && grep -c '"declarativeContent"' dist_chrome/manifest.json` must be `1`,
   while `manifest.json` / `manifest.dev.json` must be `0`.
 
+## Extension pages outside the manifest need their own build input
+
+- **Trap:** CRXJS only bundles HTML pages the manifest references (popup, options, sidebar).
+  A page the background opens with `runtime.getURL` (the first-run welcome page) is silently
+  missing from `dist_*`, and each browser config owns its own `rollupOptions.input`, so adding
+  it to one config leaves the other builds broken.
+- **Rule:** List `src/pages/welcome/index.html` in `rollupOptions.input` of the Chrome, Firefox
+  and Safari configs. Do not add it to `web_accessible_resources`; the page is for the extension
+  origin only. Safari needs no `project.pbxproj` change because `src/` is already a registered
+  top-level resource.
+- **Guard:** `src/pages/welcome/__tests__/welcomePageWiring.test.ts`.
+
 ## Safari notification clicks must be owned by the containing app
 
 - **Trap:** Safari displayed the native completion notification, but its Open Conversation action

@@ -103,6 +103,7 @@ import { StarredHistory } from './components/StarredHistory';
 import { StorageManager } from './components/StorageManager';
 import { StorageQuotaCard } from './components/StorageQuotaCard';
 import { ThemeColorButton } from './components/ThemeColorButton';
+import { ToolbarPinHint } from './components/ToolbarPinHint';
 import {
   IconChatGPT,
   IconClaude,
@@ -2791,6 +2792,8 @@ export default function Popup({ sourceTabId }: PopupProps = {}) {
       </div>
 
       <div className="flex flex-col gap-4 p-5">
+        {/* Below the search box, above the update banner (order -2, earlier in DOM). */}
+        <ToolbarPinHint style={{ order: -2 }} />
         {!isPluginSite && (
           <div style={{ order: -3 }} className="relative">
             <Search

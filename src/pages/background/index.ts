@@ -63,6 +63,7 @@ import {
   highlightImportExportService,
 } from '@/features/backup/services/HighlightImportExportService';
 import { PromptImportExportService } from '@/features/backup/services/PromptImportExportService';
+import { registerWelcomePageOnInstall } from '@/features/onboarding/welcomePage';
 import {
   chatGptHandoffTabIdResponse,
   handleChatGptHandoffExpiryMessage,
@@ -140,6 +141,7 @@ const responseCompleteNotificationTargets = new Map<
 >();
 let nativeOpenConversationPort: ReturnType<typeof browser.runtime.connectNative> | null = null;
 const remoteAnnouncementService = startRemoteAnnouncementBackgroundService();
+registerWelcomePageOnInstall();
 // Remote plugin catalog: the only network writer. Content scripts and the popup
 // only ever ask; this decides (interval, switch, backoff, single flight).
 const hostCatalogRefresher = new HostCatalogRefresher();

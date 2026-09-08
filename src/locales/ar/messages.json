@@ -3017,5 +3017,73 @@
   "promptHistoryStorageFailed": {
     "message": "تعذّر حفظ سجل المطالبات. تحقّق من مساحة تخزين الإضافة.",
     "description": "Prompt History storage error (#923)"
+  },
+  "welcomeTitle": {
+    "message": "مرحبًا بك في Voyager",
+    "description": "Welcome page heading"
+  },
+  "welcomeSubtitle": {
+    "message": "خطوتان سريعتان وتكون جاهزًا.",
+    "description": "Welcome page subheading"
+  },
+  "welcomeStepPinTitle": {
+    "message": "ثبّت Voyager في شريط الأدوات",
+    "description": "Welcome page: title of the pin-to-toolbar step"
+  },
+  "welcomeStepPinBody": {
+    "message": "إعدادات Voyager خلف أيقونته في شريط الأدوات. تثبيتها يوفر عليك نقرة في كل مرة.",
+    "description": "Welcome page: why pinning helps"
+  },
+  "welcomePinStepsChrome": {
+    "message": "انقر أيقونة الإضافات (قطعة الأحجية) في أعلى النافذة، ثم انقر الدبوس بجوار Voyager.",
+    "description": "Welcome page: how to pin on Chrome-like browsers"
+  },
+  "welcomePinStepsEdge": {
+    "message": "انقر زر الإضافات في أعلى النافذة، ثم انقر أيقونة العين بجوار Voyager.",
+    "description": "Welcome page: how to pin on Microsoft Edge"
+  },
+  "welcomePinStepsFirefox": {
+    "message": "انقر زر الإضافات في أعلى النافذة، وافتح قائمة الترس بجوار Voyager واختر «تثبيت في شريط الأدوات».",
+    "description": "Welcome page: how to pin on Firefox"
+  },
+  "welcomePinWaiting": {
+    "message": "في انتظار التثبيت…",
+    "description": "Welcome page: live status while the icon is not pinned yet"
+  },
+  "welcomePinDone": {
+    "message": "تم التثبيت. Voyager في شريط الأدوات الآن.",
+    "description": "Welcome page: live status once the icon is pinned"
+  },
+  "welcomeArrowLabel": {
+    "message": "هنا في الأعلى",
+    "description": "Welcome page: label beside the arrow pointing at the browser toolbar"
+  },
+  "welcomeStepOpenTitle": {
+    "message": "افتح Gemini",
+    "description": "Welcome page: title of the open-Gemini step"
+  },
+  "welcomeStepOpenBody": {
+    "message": "يعمل Voyager داخل صفحة المحادثة. افتح Gemini وستأخذك جولة قصيرة في الميزات.",
+    "description": "Welcome page: why to open Gemini"
+  },
+  "welcomeOpenGemini": {
+    "message": "افتح Gemini",
+    "description": "Welcome page: primary button"
+  },
+  "welcomeOtherSites": {
+    "message": "يتم تفعيل Claude وChatGPT وDeepSeek من نافذة Voyager المنبثقة.",
+    "description": "Welcome page: note under the supported-sites list"
+  },
+  "welcomeStepDone": {
+    "message": "تم",
+    "description": "Welcome page: badge on a completed step"
+  },
+  "popupPinHint": {
+    "message": "ثبّت Voyager في شريط الأدوات لتوفير نقرة في المرة القادمة.",
+    "description": "Popup: reminder to pin the extension icon"
+  },
+  "popupPinHintDismiss": {
+    "message": "إغلاق",
+    "description": "Popup: dismiss the pin reminder"
   }
 }
