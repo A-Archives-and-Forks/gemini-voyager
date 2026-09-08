@@ -174,8 +174,11 @@ export function Welcome() {
       )}
 
       <div className="mx-auto w-full max-w-[640px] px-6 pt-8 pb-20 sm:px-10">
+        {/* The entrance animation leaves a `filter` on every block, which makes
+            each one a stacking context; the header must sit above the steps so
+            its language menu is not painted under them. */}
         <header
-          className="gv-welcome-enter flex items-center justify-between"
+          className="gv-welcome-enter relative z-20 flex items-center justify-between"
           style={{ '--gv-delay': '0ms' } as React.CSSProperties}
         >
           <div className="flex items-center gap-2.5">
