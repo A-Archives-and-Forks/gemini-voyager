@@ -12,11 +12,12 @@ import { createPopupBrandThemeStyle } from '@/pages/popup/utils/brandTheme';
 import type { TranslationKey } from '@/utils/translations';
 
 import { DarkModeToggle } from '../../components/DarkModeToggle';
-import { LanguageSwitcher } from '../../components/LanguageSwitcher';
+import { LanguageSelect } from '../../components/LanguageSelect';
 import { Button } from '../../components/ui/button';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useDarkMode } from '../../hooks/useDarkMode';
 import {
+  IconAIStudio,
   IconChatGPT,
   IconClaude,
   IconDeepSeek,
@@ -116,9 +117,9 @@ function Step({ number, title, done, doneLabel, active, last, delay, children }:
   );
 }
 
-const OTHER_SITES: Array<{ label: string; icon?: React.ReactNode }> = [
+const OTHER_SITES: Array<{ label: string; icon: React.ReactNode }> = [
   { label: 'Gemini', icon: <IconGemini /> },
-  { label: 'AI Studio' },
+  { label: 'AI Studio', icon: <IconAIStudio /> },
   { label: 'Claude', icon: <IconClaude /> },
   { label: 'ChatGPT', icon: <IconChatGPT /> },
   { label: 'DeepSeek', icon: <IconDeepSeek /> },
@@ -185,7 +186,7 @@ export function Welcome() {
           </div>
           <div className="flex items-center gap-1">
             <DarkModeToggle />
-            <LanguageSwitcher />
+            <LanguageSelect />
           </div>
         </header>
 
@@ -266,16 +267,9 @@ export function Welcome() {
               <ul className="text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-medium">
                 {OTHER_SITES.map((site) => (
                   <li key={site.label} className="flex items-center gap-1.5">
-                    {site.icon ? (
-                      <span className="inline-flex h-3.5 w-3.5" aria-hidden="true">
-                        {site.icon}
-                      </span>
-                    ) : (
-                      <span
-                        aria-hidden="true"
-                        className="bg-muted-foreground/60 inline-block h-1.5 w-1.5 rounded-full"
-                      />
-                    )}
+                    <span className="inline-flex h-3.5 w-3.5" aria-hidden="true">
+                      {site.icon}
+                    </span>
                     {site.label}
                   </li>
                 ))}
