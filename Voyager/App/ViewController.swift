@@ -29,6 +29,14 @@ class ViewController: NSViewController {
     color: .secondaryLabelColor
   )
   private let openPreferencesButton = NSButton()
+  // The step after enabling: Voyager lives inside the chat page, so hand the
+  // user to Gemini in Safari where the in-page tour takes over.
+  private let openGeminiButton = NSButton()
+  private let nextStepLabel = ViewController.makeLabel(
+    font: .systemFont(ofSize: 12),
+    color: .secondaryLabelColor
+  )
+  private var activationObserver: NSObjectProtocol?
   private let automaticUpdatesSwitch = NSSwitch()
   private let checkForUpdatesButton = NSButton()
   private let diagnosticsCard = CardView()
@@ -49,6 +57,22 @@ class ViewController: NSViewController {
     updateUpdaterControls(appDelegate)
     updateExtensionState()
     updateDiagnostics(appDelegate)
+
+    // The user enables the extension in Safari's settings and comes back here;
+    // re-read the state so the window moves on to the next step by itself.
+    activationObserver = NotificationCenter.default.addObserver(
+      forName: NSApplication.didBecomeActiveNotification,
+      object: nil,
+      queue: .main
+    ) { [weak self] _ in
+      self?.updateExtensionState()
+    }
+  }
+
+  deinit {
+    if let activationObserver {
+      NotificationCenter.default.removeObserver(activationObserver)
+    }
   }
 
   // MARK: - Interface
@@ -129,12 +153,29 @@ class ViewController: NSViewController {
     openPreferencesButton.target = self
     openPreferencesButton.action = #selector(openPreferences)
 
-    let stack = NSStackView(views: [iconView, titleLabel, stateLabel, openPreferencesButton])
+    openGeminiButton.title = "Open Gemini in Safari"
+    openGeminiButton.bezelStyle = .rounded
+    openGeminiButton.controlSize = .large
+    openGeminiButton.target = self
+    openGeminiButton.action = #selector(openGemini)
+    openGeminiButton.isHidden = true
+
+    nextStepLabel.stringValue = Self.nextStepCopy
+    nextStepLabel.alignment = .center
+    nextStepLabel.maximumNumberOfLines = 3
+    nextStepLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+    nextStepLabel.isHidden = true
+
+    // Once enabled, "Open Gemini" leads and the settings button drops beneath it.
+    let stack = NSStackView(views: [
+      iconView, titleLabel, stateLabel, openGeminiButton, openPreferencesButton, nextStepLabel,
+    ])
     stack.orientation = .vertical
     stack.alignment = .centerX
     stack.spacing = 8
     stack.setCustomSpacing(4, after: titleLabel)
     stack.setCustomSpacing(14, after: stateLabel)
+    stack.setCustomSpacing(10, after: openPreferencesButton)
     return stack
   }
 
@@ -179,10 +220,22 @@ class ViewController: NSViewController {
   // MARK: - Actions
 
   @objc private func openPreferences() {
-    SFSafariApplication.showPreferencesForExtension(withIdentifier: extensionBundleIdentifier) { _ in
-      DispatchQueue.main.async {
-        NSApplication.shared.terminate(nil)
-      }
+    // Stay running: when the user returns after enabling the extension, the
+    // window refreshes and offers the next step instead of having vanished.
+    SFSafariApplication.showPreferencesForExtension(withIdentifier: extensionBundleIdentifier) {
+      _ in
+    }
+  }
+
+  @objc private func openGemini() {
+    guard let url = URL(string: Self.geminiURL) else { return }
+    if let safariURL = NSWorkspace.shared.urlForApplication(
+      withBundleIdentifier: "com.apple.Safari")
+    {
+      NSWorkspace.shared.open(
+        [url], withApplicationAt: safariURL, configuration: NSWorkspace.OpenConfiguration())
+    } else {
+      NSWorkspace.shared.open(url)
     }
   }
 
@@ -214,8 +267,18 @@ class ViewController: NSViewController {
 
       DispatchQueue.main.async {
         self.stateLabel.stringValue = Self.stateCopy(for: isEnabled)
+        self.showNextStep(isEnabled == true)
       }
     }
+  }
+
+  /// Once the extension is on, "Open Gemini" becomes the default action and
+  /// the settings button steps back.
+  private func showNextStep(_ enabled: Bool) {
+    openGeminiButton.isHidden = !enabled
+    nextStepLabel.isHidden = !enabled
+    openGeminiButton.keyEquivalent = enabled ? "\r" : ""
+    openPreferencesButton.keyEquivalent = enabled ? "" : "\r"
   }
 
   private func updateUpdaterControls(_ appDelegate: AppDelegate) {
@@ -260,6 +323,11 @@ class ViewController: NSViewController {
     if #available(macOS 13, *) { return true }
     return false
   }
+
+  private static let geminiURL = "https://gemini.google.com/app"
+
+  private static let nextStepCopy =
+    "Voyager works inside the chat page. On your first visit, click Voyager in Safari's address bar and choose “Always Allow on This Website”."
 
   private static var openPreferencesTitle: String {
     usesSettingsWording ? "Open Safari Extensions…" : "Open Safari Extensions Preferences…"
