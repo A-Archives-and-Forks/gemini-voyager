@@ -777,6 +777,185 @@ describe('DefaultModelManager (default model locker)', () => {
     expect(currentFlashItem.click).toHaveBeenCalledTimes(0);
   });
 
+  it('learns the trigger label of an already-selected Flash variant (one confirming open)', async () => {
+    (chrome.storage.sync.get as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+      (_keys: unknown, callback: (items: Record<string, unknown>) => void) => {
+        callback({ gvDefaultModel: { id: 'flash-38-id', name: '3.8 Flash' } });
+      },
+    );
+    const setSpy = chrome.storage.sync.set as unknown as ReturnType<typeof vi.fn>;
+    setSpy.mockClear();
+
+    history.replaceState({}, '', '/app');
+
+    // Gemini labels the trigger with the short form, so the stored full name
+    // can never be confirmed from the pill alone.
+    const selectorBtn = document.createElement('button');
+    selectorBtn.setAttribute('data-test-id', 'bard-mode-menu-button');
+    selectorBtn.textContent = 'Flash';
+    selectorBtn.click = vi.fn();
+    document.body.appendChild(selectorBtn);
+
+    const pane = document.createElement('div');
+    pane.className = 'cdk-overlay-pane';
+
+    const flashItem = document.createElement('gem-menu-item');
+    flashItem.setAttribute('role', 'menuitem');
+    flashItem.setAttribute('data-mode-id', 'flash-38-id');
+    flashItem.classList.add('selected');
+    flashItem.innerHTML = `
+      <gem-menu-item-content>
+        <div class="label-container"><span class="label">3.8 Flash</span></div>
+      </gem-menu-item-content>
+    `;
+    flashItem.click = vi.fn();
+
+    pane.appendChild(flashItem);
+    document.body.appendChild(pane);
+
+    const { default: DefaultModelManager } = await import('../modelLocker');
+    await DefaultModelManager.getInstance().init();
+    destroyManager = () => DefaultModelManager.getInstance().destroy();
+
+    await vi.advanceTimersByTimeAsync(1500);
+
+    // The picker opens once to read Gemini's own selected row, and the row is
+    // never clicked because it is already the current model.
+    expect(selectorBtn.click).toHaveBeenCalledTimes(1);
+    expect(flashItem.click).toHaveBeenCalledTimes(0);
+
+    const writes = setSpy.mock.calls.map(([payload]) => payload as Record<string, unknown>);
+    expect(writes).toContainEqual({
+      gvDefaultModel: { id: 'flash-38-id', name: '3.8 Flash', pill: 'Flash' },
+    });
+
+    await vi.advanceTimersByTimeAsync(6000);
+    expect(selectorBtn.click).toHaveBeenCalledTimes(1);
+  });
+
+  it('follows a Gemini rename on the same mode id (3.8 Flash -> 3.9 Flash)', async () => {
+    (chrome.storage.sync.get as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+      (_keys: unknown, callback: (items: Record<string, unknown>) => void) => {
+        // Starred back when Gemini called this row "3.8 Flash".
+        callback({ gvDefaultModel: { id: 'flash-slot-id', name: '3.8 Flash' } });
+      },
+    );
+    const setSpy = chrome.storage.sync.set as unknown as ReturnType<typeof vi.fn>;
+    setSpy.mockClear();
+
+    history.replaceState({}, '', '/app');
+
+    const selectorBtn = document.createElement('button');
+    selectorBtn.setAttribute('data-test-id', 'bard-mode-menu-button');
+    selectorBtn.textContent = 'Flash';
+    selectorBtn.click = vi.fn();
+    document.body.appendChild(selectorBtn);
+
+    const pane = document.createElement('div');
+    pane.className = 'cdk-overlay-pane';
+
+    // Same slot, renamed by Google.
+    const renamedItem = document.createElement('gem-menu-item');
+    renamedItem.setAttribute('role', 'menuitem');
+    renamedItem.setAttribute('data-mode-id', 'flash-slot-id');
+    renamedItem.classList.add('selected');
+    renamedItem.innerHTML = `
+      <gem-menu-item-content>
+        <div class="label-container"><span class="label">3.9 Flash</span></div>
+      </gem-menu-item-content>
+    `;
+    renamedItem.click = vi.fn();
+
+    pane.appendChild(renamedItem);
+    document.body.appendChild(pane);
+
+    const { default: DefaultModelManager } = await import('../modelLocker');
+    await DefaultModelManager.getInstance().init();
+    destroyManager = () => DefaultModelManager.getInstance().destroy();
+
+    await vi.advanceTimersByTimeAsync(1500);
+
+    expect(renamedItem.click).toHaveBeenCalledTimes(0);
+
+    const writes = setSpy.mock.calls.map(([payload]) => payload as Record<string, unknown>);
+    expect(writes).toContainEqual({
+      gvDefaultModel: { id: 'flash-slot-id', name: '3.9 Flash', pill: 'Flash' },
+    });
+  });
+
+  it('fast-path: a learned trigger label confirms a Flash variant without opening the picker', async () => {
+    (chrome.storage.sync.get as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+      (_keys: unknown, callback: (items: Record<string, unknown>) => void) => {
+        callback({
+          gvDefaultModel: { id: 'flash-38-id', name: '3.8 Flash', pill: 'Flash' },
+        });
+      },
+    );
+
+    history.replaceState({}, '', '/app');
+
+    const selectorBtn = document.createElement('button');
+    selectorBtn.setAttribute('data-test-id', 'bard-mode-menu-button');
+    selectorBtn.textContent = 'Flash';
+    selectorBtn.click = vi.fn();
+    document.body.appendChild(selectorBtn);
+
+    const { default: DefaultModelManager } = await import('../modelLocker');
+    await DefaultModelManager.getInstance().init();
+    destroyManager = () => DefaultModelManager.getInstance().destroy();
+
+    await vi.advanceTimersByTimeAsync(6000);
+
+    expect(selectorBtn.click).not.toHaveBeenCalled();
+  });
+
+  it('never learns a trigger label that is not the model own short form', async () => {
+    (chrome.storage.sync.get as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+      (_keys: unknown, callback: (items: Record<string, unknown>) => void) => {
+        callback({ gvDefaultModel: { id: 'pro-id', name: '3.1 Pro' } });
+      },
+    );
+    const setSpy = chrome.storage.sync.set as unknown as ReturnType<typeof vi.fn>;
+    setSpy.mockClear();
+
+    history.replaceState({}, '', '/app');
+
+    // A trigger that disagrees with the selected row (stale render or a layout
+    // we do not model): learning "Flash" for 3.1 Pro would teach the fast path
+    // to confirm the wrong model forever.
+    const selectorBtn = document.createElement('button');
+    selectorBtn.setAttribute('data-test-id', 'bard-mode-menu-button');
+    selectorBtn.textContent = 'Flash';
+    selectorBtn.click = vi.fn();
+    document.body.appendChild(selectorBtn);
+
+    const pane = document.createElement('div');
+    pane.className = 'cdk-overlay-pane';
+
+    const proItem = document.createElement('gem-menu-item');
+    proItem.setAttribute('role', 'menuitem');
+    proItem.setAttribute('data-mode-id', 'pro-id');
+    proItem.classList.add('selected');
+    proItem.innerHTML = `
+      <gem-menu-item-content>
+        <div class="label-container"><span class="label">3.1 Pro</span></div>
+      </gem-menu-item-content>
+    `;
+    proItem.click = vi.fn();
+
+    pane.appendChild(proItem);
+    document.body.appendChild(pane);
+
+    const { default: DefaultModelManager } = await import('../modelLocker');
+    await DefaultModelManager.getInstance().init();
+    destroyManager = () => DefaultModelManager.getInstance().destroy();
+
+    await vi.advanceTimersByTimeAsync(1500);
+
+    const writes = setSpy.mock.calls.map(([payload]) => payload as Record<string, unknown>);
+    expect(writes.some((payload) => 'gvDefaultModel' in payload)).toBe(false);
+  });
+
   it('does not inject star buttons into the settings menu (desktop-settings-menu)', async () => {
     const { default: DefaultModelManager } = await import('../modelLocker');
     await DefaultModelManager.getInstance().init();

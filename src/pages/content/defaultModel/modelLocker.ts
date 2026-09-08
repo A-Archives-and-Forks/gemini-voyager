@@ -4,10 +4,13 @@ import { watchRouteChanges } from '../utils/routeWatcher';
 import './styles.css';
 
 type DefaultModelSetting =
-  | { kind: 'id'; id: string; name: string }
-  | { kind: 'name'; name: string };
+  | { kind: 'id'; id: string; name: string; pill?: string }
+  | { kind: 'name'; name: string; pill?: string };
 
-type StoredDefaultModelSetting = { id: string; name: string };
+// `pill` is the short label Gemini renders on the trigger ("Flash") for this
+// model. It is learned from the page, never typed by the user — see
+// `rememberTriggerPillLabel`.
+type StoredDefaultModelSetting = { id: string; name: string; pill?: string };
 
 type ThinkingMode = 'standard' | 'extended';
 
@@ -1356,16 +1359,26 @@ class DefaultModelManager {
     }
   }
 
+  private isWordBoundedIn(needle: string, haystack: string): boolean {
+    const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp(`(^|\\b)${escaped}(\\b|$)`, 'i').test(haystack);
+  }
+
   private modelMatchesLines(target: DefaultModelSetting, lines: string[]): boolean {
     if (!lines.length) return false;
     const modelLine = lines[0].toLowerCase().trim();
     const targetName = target.name.toLowerCase().trim();
     if (!targetName || !modelLine) return false;
-    const escape = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const wholeWordIn = (needle: string, haystack: string) =>
-      new RegExp(`(^|\\b)${escape(needle)}(\\b|$)`, 'i').test(haystack);
+      this.isWordBoundedIn(needle, haystack);
     if (modelLine === targetName) return true;
     if (wholeWordIn(targetName, modelLine)) return true;
+    // A pill label learned while this exact model was Gemini's selected row is
+    // proof, not a guess: it is the only thing that can tell "Flash" (the pill
+    // for 3.8 Flash) apart from "Flash" (the generic label the guard below
+    // refuses to trust). See `rememberTriggerPillLabel`.
+    const learnedPill = target.pill?.toLowerCase().trim();
+    if (learnedPill && modelLine === learnedPill) return true;
     // Gemini's trigger pill shows the short variant ("Pro", "Flash") while menu items
     // expose the full variant ("3.1 Pro", "3 Flash") that we persisted. Accept the
     // reverse direction (line is a word-bounded substring of the stored name) so the
@@ -1373,6 +1386,70 @@ class DefaultModelManager {
     if (['flash', 'fast'].includes(modelLine) && modelLine !== targetName) return false;
     if (modelLine.length >= 2 && wholeWordIn(modelLine, targetName)) return true;
     return false;
+  }
+
+  private isModelItemSelected(item: HTMLElement): boolean {
+    return (
+      item.getAttribute('aria-checked') === 'true' ||
+      item.classList.contains('is-selected') ||
+      item.classList.contains('selected')
+    );
+  }
+
+  /**
+   * Gemini names a model "3.8 Flash" in the picker but labels the trigger pill
+   * "Flash", and nothing in the DOM links the two. `modelMatchesLines` refuses
+   * to accept a bare "Flash" pill for a specific Flash variant — otherwise the
+   * generic label would satisfy any of them — so such a default could never be
+   * confirmed from the pill, and every new chat had to open the picker just to
+   * read the row's selected state.
+   *
+   * The menu we already have open answers it authoritatively: this row carries
+   * the stored model's id and Gemini marks it selected, so whatever the pill
+   * reads right now IS that model's label. Record it, and the next fast-path
+   * check confirms without opening anything. A Gemini rename only costs one
+   * confirming open: the stale label stops matching and is replaced here.
+   *
+   * Learning the label is also the moment a legacy name-only default (older
+   * builds stored just the string) gains the row's stable id.
+   */
+  private async rememberTriggerPillLabel(
+    target: DefaultModelSetting,
+    selectedItem: HTMLElement,
+  ): Promise<void> {
+    const pill = this.readTriggerPillLines()[0]?.trim();
+    if (!pill) return;
+
+    // `data-mode-id` is the stable slot — the id that reads "3.8 Flash" today
+    // is the one FAST_MODEL_IDS still documents as "Gemini 2.0 Flash" — so a
+    // row matched by id can legitimately carry a renamed label. Take the name
+    // from the row we just confirmed, which keeps a starred default readable
+    // ("3.8 Flash" → "3.9 Flash") instead of freezing the name it was starred
+    // under.
+    const rowName = this.getModelNameFromItem(selectedItem).trim();
+    const name = rowName || target.name;
+
+    // Only learn a label that reads as this model's own short form
+    // ("Flash" for "3.8 Flash"). A pill that says something else is either a
+    // stale render or a layout we do not understand; trusting it would teach
+    // the fast path to confirm the wrong model on every later chat.
+    if (!this.isWordBoundedIn(pill, name)) return;
+
+    const id = target.kind === 'id' ? target.id : this.getModelIdFromItem(selectedItem);
+    if (target.pill === pill && target.name === name && (target.kind === 'id' || !id)) return;
+
+    this.currentDefaultModel = id ? { kind: 'id', id, name, pill } : { kind: 'name', name, pill };
+
+    // Only the id form is persistable. A variant without `data-mode-id` keeps
+    // the label for this page rather than inventing a storage shape for it.
+    if (!id) return;
+
+    const toStore: StoredDefaultModelSetting = { id, name, pill };
+    try {
+      await storageService.set(StorageKeys.DEFAULT_MODEL, toStore);
+    } catch (e) {
+      console.error('[Gemini Voyager] Failed to persist the model trigger label', e);
+    }
   }
 
   private thinkingMatchesLines(target: DefaultThinkingLevel, lines: string[]): boolean {
@@ -1477,45 +1554,32 @@ class DefaultModelManager {
       );
       let found = false;
       let switchedModel = false;
+      let matchedItem: HTMLElement | null = null;
+
+      const takeItem = (item: HTMLElement) => {
+        found = true;
+        matchedItem = item;
+        if (!this.isModelItemSelected(item)) {
+          item.click();
+          switchedModel = true;
+          return;
+        }
+        // Already selected, close menu to avoid stuck UI
+        document.body.click();
+        this.stopLockTimer();
+      };
 
       if (targetModel.kind === 'id') {
         const targetItem = items.find((item) => this.getModelIdFromItem(item) === targetModel.id);
 
         if (targetItem instanceof HTMLElement) {
-          const alreadySelected =
-            targetItem.getAttribute('aria-checked') === 'true' ||
-            targetItem.classList.contains('is-selected') ||
-            targetItem.classList.contains('selected');
-
-          if (!alreadySelected) {
-            targetItem.click();
-            switchedModel = true;
-          } else {
-            // Already selected, close menu to avoid stuck UI
-            document.body.click();
-            this.stopLockTimer();
-          }
-
-          found = true;
+          takeItem(targetItem);
         }
       } else {
         for (const item of items) {
           const modelName = this.getModelNameFromItem(item);
           if (normalize(modelName) === targetName) {
-            const alreadySelected =
-              item.getAttribute('aria-checked') === 'true' ||
-              item.classList.contains('is-selected') ||
-              item.classList.contains('selected');
-
-            if (!alreadySelected) {
-              item.click();
-              switchedModel = true;
-            } else {
-              // Already selected, close menu to avoid stuck UI
-              document.body.click();
-              this.stopLockTimer();
-            }
-            found = true;
+            takeItem(item);
             break;
           }
         }
@@ -1526,20 +1590,7 @@ class DefaultModelManager {
         for (const item of items) {
           const text = item.textContent || '';
           if (targetAsWholeWord.test(normalize(text))) {
-            const alreadySelected =
-              item.getAttribute('aria-checked') === 'true' ||
-              item.classList.contains('is-selected') ||
-              item.classList.contains('selected');
-
-            if (!alreadySelected) {
-              item.click();
-              switchedModel = true;
-            } else {
-              // Already selected, close menu to avoid stuck UI
-              document.body.click();
-              this.stopLockTimer();
-            }
-            found = true;
+            takeItem(item);
             break;
           }
         }
@@ -1547,6 +1598,10 @@ class DefaultModelManager {
 
       if (switchedModel) {
         this.focusChatInputAfterAutoSwitch();
+      }
+
+      if (found && !switchedModel && matchedItem) {
+        await this.rememberTriggerPillLabel(targetModel, matchedItem);
       }
 
       if (!found) {
@@ -1904,7 +1959,8 @@ class DefaultModelManager {
       const id = value.id.trim();
       const name = value.name.trim();
       if (!id.length || !name.length) return null;
-      return { kind: 'id', id, name };
+      const pill = typeof value.pill === 'string' ? value.pill.trim() : '';
+      return pill.length ? { kind: 'id', id, name, pill } : { kind: 'id', id, name };
     }
 
     return null;

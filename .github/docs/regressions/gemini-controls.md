@@ -33,6 +33,24 @@ generation traffic detection.
   `.title-and-description` before injecting star buttons.
 - **Guard:** `src/pages/content/defaultModel/__tests__/modelLocker.test.ts`
 
+## The trigger pill's short label must be learned, never guessed
+
+- **Trap:** Gemini names a model `3.8 Flash` in the picker but labels the trigger pill `Flash`, and
+  nothing in the DOM links the two. `modelMatchesLines` deliberately refuses a bare `Flash` pill for
+  a specific Flash variant (otherwise the generic label would satisfy any of them), so such a
+  default could never be confirmed from the pill: every new chat had to open the picker just to read
+  the row's selected state, and a stored name that Gemini has since renamed keeps failing forever.
+  `Pro` is only fine by luck — it is a word-bounded substring of `3.1 Pro`.
+- **Rule:** Learn the label instead of guessing it. While the picker is open, Gemini's own
+  `.selected` / `aria-checked` row is authoritative, so the pill rendered at that moment is that
+  model's label: persist it as `pill` on the stored default (`{ id, name, pill }`) and let the
+  fast path accept it. Learn only a label that reads as the model's own short form
+  (word-bounded inside the stored name) — a pill that says anything else is a stale render, and
+  trusting it would confirm the wrong model on every later chat. A Gemini rename then costs exactly
+  one confirming open, which replaces the stale label.
+- **Guard:** `src/pages/content/defaultModel/__tests__/modelLocker.test.ts` — the learning open, the
+  fast path on a learned label, and the refusal to learn a mismatched pill.
+
 ## Default model auto-apply must yield to active composer input
 
 - **Trap:** Typing in a fresh Gemini chat could lose focus while the page was still loading.
