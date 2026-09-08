@@ -27,6 +27,11 @@ import { PLUGIN_ENGINE_VERSION } from '../constants';
 import { LocalEntitlementProvider } from '../entitlement/LocalEntitlementProvider';
 import { subscribeHostCatalog } from '../remote/hostCatalogCache';
 import { catalogHostFromUrl, hasEnabledPluginForUrl } from '../remote/hostCatalogPolicy';
+import {
+  isSameSiteAdapter,
+  resolveSiteAdapterForUrl,
+  resolveSiteOverride,
+} from '../remote/siteOverride';
 import { engineSatisfied } from '../semver';
 import { matchesAnyPattern } from '../sites/matchPattern';
 import { SiteRegistry } from '../sites/registry';
@@ -133,12 +138,37 @@ export class PluginHost {
     this.started = true;
     const gen = ++this.generation;
     try {
-      this.adapter = this.registry.resolveByUrl(this.url);
+      // Subscribe to this host's catalog BEFORE the adapter read: a background
+      // refresh that CHANGES the catalog while that read is in flight must
+      // still reach this instance. Until the engine exists the change is only
+      // remembered and the initial pass replays it; afterwards every change
+      // reloads + re-mounts on the serialized chain so new/changed plugin CSS
+      // applies live without a page reload.
+      let engineReady = false;
+      let catalogChangedBeforeEngine = false;
+      const host = this.context.host;
+      if (host) {
+        this.unsubscribeCatalog = subscribeHostCatalog(host, () => {
+          if (this.generation !== gen) return;
+          if (!engineReady) {
+            catalogChangedBeforeEngine = true;
+            return;
+          }
+          void this.enqueue(() => this.reloadCatalog(gen));
+        });
+      }
+      // A published site override (plan §3) beats the bundled adapter for
+      // pages it covers; resolved before the engine exists so semantic
+      // selectors use the newest site knowledge from the first mount.
+      const adapter = await this.resolveAdapter();
+      if (this.generation !== gen) return;
+      this.adapter = adapter;
       this.engine = new DeclarativeEngine({ doc: this.doc, adapter: this.adapter });
-      // Subscribe BEFORE the initial reads: a state or catalog write that lands
-      // while they are in flight must still reach this instance. Both
-      // callbacks only enqueue on the serialized chain, so nothing runs ahead
-      // of the initial reconcile below.
+      engineReady = true;
+      // Subscribe BEFORE the initial reads: a state write that lands while
+      // they are in flight must still reach this instance. The callback only
+      // enqueues on the serialized chain, so nothing runs ahead of the
+      // initial reconcile below.
       let stateFromListener: PluginStateMap | null = null;
       this.unsubscribeState = subscribePluginState((next) => {
         if (this.generation !== gen) return;
@@ -146,15 +176,6 @@ export class PluginHost {
         this.state = next;
         void this.enqueue(() => this.reconcile(gen));
       });
-      // A background refresh that CHANGES this host's remote catalog: reload +
-      // re-mount so new/changed plugin CSS applies live without a page reload.
-      const host = this.context.host;
-      if (host) {
-        this.unsubscribeCatalog = subscribeHostCatalog(
-          host,
-          () => void this.enqueue(() => this.reloadCatalog(gen)),
-        );
-      }
       // The initial read runs ON the chain, so a catalog reload the listener
       // queued meanwhile runs after it and its fresher listing wins.
       await this.enqueue(async () => {
@@ -165,6 +186,9 @@ export class PluginHost {
         // A listener revision that arrived mid-read is newer than what we read.
         this.state = stateFromListener ?? state;
         await this.reconcile(gen);
+        // A catalog write that landed before the engine existed may have
+        // swapped the site adapter this engine was built with: replay it.
+        if (catalogChangedBeforeEngine) await this.reloadCatalog(gen);
       });
       if (this.generation !== gen) return;
       logger.info('PluginHost started', {
@@ -209,16 +233,29 @@ export class PluginHost {
     return op;
   }
 
-  /** Reload manifests from the (refreshed) catalog and re-mount so new CSS applies. */
+  /**
+   * Reload manifests from the (refreshed) catalog and re-mount so new CSS
+   * applies. A changed site adapter (remote override arrived or was
+   * withdrawn) rebuilds the engine so semantic selectors resolve against it.
+   */
   private async reloadCatalog(gen: number): Promise<void> {
     const engine = this.engine;
     if (!engine || this.generation !== gen) return;
-    const manifests = await this.loadManifests();
+    const [manifests, adapter] = await Promise.all([this.loadManifests(), this.resolveAdapter()]);
     if (this.generation !== gen) return;
     this.manifests = manifests;
     engine.unmountAll();
     this.pushedSettings.clear();
+    if (!isSameSiteAdapter(adapter, this.adapter)) {
+      this.adapter = adapter;
+      this.engine = new DeclarativeEngine({ doc: this.doc, adapter });
+    }
     await this.reconcile(gen);
+  }
+
+  private async resolveAdapter(): Promise<SiteAdapter | null> {
+    const override = await resolveSiteOverride(this.sources, this.context);
+    return resolveSiteAdapterForUrl(this.url, this.registry, override);
   }
 
   private async reconcile(gen: number): Promise<void> {

@@ -100,6 +100,56 @@ describe('custom site coverage reconciler', () => {
     expect(started).toBe(0);
   });
 
+  it('queues a toggle-off that lands while the startup mount is in flight', async () => {
+    let release!: (instance: PromptManagerInstance) => void;
+    const pending = new Promise<PromptManagerInstance>((resolve) => {
+      release = resolve;
+    });
+    const slowStart = vi.fn(() => pending);
+    const coverage = createCustomSiteCoverageReconciler({ host: HOST, start: slowStart });
+    coverage.applyInitial(true);
+    // The user switches the site off before the first mount resolves.
+    coverage.handleChange(change([]), 'sync');
+    release(instance());
+    await flush(coverage);
+    expect(slowStart).toHaveBeenCalledTimes(1);
+    expect(destroyed).toBe(1);
+    // Nothing stays mounted: a later re-add mounts again.
+    coverage.handleChange(change([HOST]), 'sync');
+    await flush(coverage);
+    expect(slowStart).toHaveBeenCalledTimes(2);
+  });
+
+  it('tears down a mount that resolves after destroy() and ignores later applies', async () => {
+    let release!: (instance: PromptManagerInstance) => void;
+    const pending = new Promise<PromptManagerInstance>((resolve) => {
+      release = resolve;
+    });
+    const slowStart = vi.fn(() => pending);
+    const coverage = createCustomSiteCoverageReconciler({ host: HOST, start: slowStart });
+    coverage.applyInitial(true);
+    await vi.waitFor(() => expect(slowStart).toHaveBeenCalledTimes(1));
+    // The plugin is torn down while the startup mount is still in flight.
+    coverage.destroy();
+    release(instance());
+    await flush(coverage);
+    expect(destroyed).toBe(1);
+    // Nothing mounts after teardown.
+    coverage.handleChange(change([HOST]), 'sync');
+    await flush(coverage);
+    expect(slowStart).toHaveBeenCalledTimes(1);
+  });
+
+  it('ignores a startup read that is older than a change already handled', async () => {
+    const coverage = createCustomSiteCoverageReconciler({ host: HOST, start });
+    coverage.handleChange(change([]), 'sync');
+    await flush(coverage);
+    // The pre-subscription read said "covered", but the listener already saw the removal.
+    coverage.applyInitial(true);
+    await flush(coverage);
+    expect(started).toBe(0);
+  });
+
   it('does not destroy twice when teardown follows a removal', async () => {
     const coverage = createCustomSiteCoverageReconciler({ host: HOST, start, initial: instance() });
 

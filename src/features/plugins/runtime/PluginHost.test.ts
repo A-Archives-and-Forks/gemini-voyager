@@ -415,6 +415,173 @@ describe('PluginHost remote catalog', () => {
   });
 });
 
+describe('PluginHost site override (plan §3)', () => {
+  const semanticPlugin: PluginManifest = {
+    ...manifest(['https://claude.ai/*'], 'voyager.semantic'),
+    contributes: {
+      domOps: [
+        {
+          op: 'addClass',
+          target: { kind: 'semantic', key: 'userTurn' },
+          className: 'gv-plugin-turn',
+        },
+      ],
+    },
+  };
+
+  function overrideAdapter(userTurn: string, brandColor = '#101010') {
+    return {
+      id: 'claude',
+      label: 'Claude (remote)',
+      matches: ['https://claude.ai/*'],
+      selectors: { userTurn },
+      theme: { hostSelector: ':root', lightSelector: ':root', darkSelector: ':root.dark' },
+      brandColor,
+      capabilities: new Set(['chat' as const]),
+    };
+  }
+
+  it('resolves semantic selectors against the published site instead of the bundled adapter', async () => {
+    document.body.innerHTML =
+      '<div data-testid="user-message">bundled</div><div class="remote-turn">remote</div>';
+    mockState({ 'voyager.semantic': { enabled: true, installedAt: 1 } });
+    const source: PluginSource = {
+      id: 'host-catalog',
+      kind: 'remote',
+      async list() {
+        return [semanticPlugin];
+      },
+      async isAuthoritative() {
+        return true;
+      },
+      async siteOverride() {
+        return overrideAdapter('.remote-turn');
+      },
+    };
+    const host = new PluginHost({
+      url: 'https://claude.ai/chat/1',
+      sources: [source],
+      doc: document,
+      requestCatalogRefresh: () => {},
+      isTopFrame: true,
+    });
+    await host.start();
+    expect(host.activeAdapter?.label).toBe('Claude (remote)');
+    expect(document.querySelector('.remote-turn')?.classList.contains('gv-plugin-turn')).toBe(true);
+    expect(
+      document.querySelector('[data-testid="user-message"]')?.classList.contains('gv-plugin-turn'),
+    ).toBe(false);
+    host.stop();
+    document.body.innerHTML = '';
+  });
+
+  it('rebuilds the engine when a catalog change swaps the site adapter', async () => {
+    document.body.innerHTML = '<div class="first-turn"></div><div class="second-turn"></div>';
+    mockState({ 'voyager.semantic': { enabled: true, installedAt: 1 } });
+    let selector = '.first-turn';
+    const source: PluginSource = {
+      id: 'host-catalog',
+      kind: 'remote',
+      async list() {
+        return [semanticPlugin];
+      },
+      async isAuthoritative() {
+        return true;
+      },
+      async siteOverride() {
+        return overrideAdapter(selector);
+      },
+    };
+    const host = new PluginHost({
+      url: 'https://claude.ai/chat/1',
+      sources: [source],
+      doc: document,
+      requestCatalogRefresh: () => {},
+      isTopFrame: true,
+    });
+    await host.start();
+    expect(document.querySelector('.first-turn')?.classList.contains('gv-plugin-turn')).toBe(true);
+
+    selector = '.second-turn';
+    const listeners = (chrome.storage.onChanged.addListener as unknown as Mock).mock.calls;
+    for (const [listener] of listeners) {
+      listener(
+        {
+          'gvPluginHostCatalog:claude.ai': {
+            oldValue: { status: 'ok', extensionVersion: 'x', manifests: [] },
+            newValue: { status: 'ok', extensionVersion: 'x', manifests: [], site: { id: 'v2' } },
+          },
+        },
+        'local',
+      );
+    }
+    await flush();
+    expect(document.querySelector('.first-turn')?.classList.contains('gv-plugin-turn')).toBe(false);
+    expect(document.querySelector('.second-turn')?.classList.contains('gv-plugin-turn')).toBe(true);
+    host.stop();
+    expect(document.querySelector('.second-turn')?.classList.contains('gv-plugin-turn')).toBe(
+      false,
+    );
+    document.body.innerHTML = '';
+  });
+
+  it('applies a site override written while the initial adapter read is in flight', async () => {
+    document.body.innerHTML = '<div class="first-turn"></div><div class="second-turn"></div>';
+    mockState({ 'voyager.semantic': { enabled: true, installedAt: 1 } });
+    let selector = '.first-turn';
+    let reads = 0;
+    const source: PluginSource = {
+      id: 'host-catalog',
+      kind: 'remote',
+      async list() {
+        return [semanticPlugin];
+      },
+      async isAuthoritative() {
+        return true;
+      },
+      async siteOverride() {
+        const adapter = overrideAdapter(selector);
+        if (reads++ === 0) {
+          // The background refresh lands after this read started: the value
+          // being returned is already stale when the engine is built from it.
+          selector = '.second-turn';
+          for (const [listener] of (chrome.storage.onChanged.addListener as unknown as Mock).mock
+            .calls) {
+            listener(
+              {
+                'gvPluginHostCatalog:claude.ai': {
+                  oldValue: { status: 'ok', extensionVersion: 'x', manifests: [] },
+                  newValue: {
+                    status: 'ok',
+                    extensionVersion: 'x',
+                    manifests: [],
+                    site: { id: 'v2' },
+                  },
+                },
+              },
+              'local',
+            );
+          }
+        }
+        return adapter;
+      },
+    };
+    const host = new PluginHost({
+      url: 'https://claude.ai/chat/1',
+      sources: [source],
+      doc: document,
+      requestCatalogRefresh: () => {},
+      isTopFrame: true,
+    });
+    await host.start();
+    await flush();
+    expect(document.querySelector('.second-turn')?.classList.contains('gv-plugin-turn')).toBe(true);
+    expect(document.querySelector('.first-turn')?.classList.contains('gv-plugin-turn')).toBe(false);
+    host.stop();
+    document.body.innerHTML = '';
+  });
+});
+
 /** Deliver a plugin-state change to every storage.onChanged subscriber. */
 function fireStateChange(state: Record<string, unknown>): void {
   const listeners = (chrome.storage.onChanged.addListener as unknown as Mock).mock.calls;
