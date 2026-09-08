@@ -3287,9 +3287,11 @@ body.dark-theme .gv-pm-del.armed {
   --gv-icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black"><path d="M3 17.46V21h3.54L17.81 9.73l-3.54-3.54L3 17.46ZM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83Z"/></svg>');
 }
 
-/* Material Symbols outlined "drag_indicator" — matches Gemini's native action icons. */
+/* Three rules, the iOS list-reorder convention. A six-dot grid packs far more
+ * texture into the same 24px box than the single-stroke pencil and bin beside
+ * it, and it doubles as a multi-select affordance elsewhere. */
 .gv-pm-reorder::before {
-  --gv-icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black"><path d="M11 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2Zm-2-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2Zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2Zm6 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2Zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2Zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2Z"/></svg>');
+  --gv-icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black"><rect x="4" y="6.25" width="16" height="1.75" rx="0.875"/><rect x="4" y="11.125" width="16" height="1.75" rx="0.875"/><rect x="4" y="16" width="16" height="1.75" rx="0.875"/></svg>');
 }
 
 /* Material Symbols outlined "delete" — matches Gemini's native action icons. */
@@ -10920,11 +10922,10 @@ body.light-theme .gv-pm-view-mode.gv-pm-view-mode-compact,
 .gv-pm-item-compact .gv-pm-item-text-container {
   align-items: center;
   gap: 6px;
-  /* Reserve a comfortable cushion for the absolutely-positioned right-side
-   * cluster (chip + ▼ expand + ✎ edit + 🗑 delete). Wider than before so
-   * longer tag labels like "paper reading" can render in full without the
-   * meta container having to hard-clip them. */
-  padding-right: 196px;
+  /* Reserve room for the absolutely-positioned action cluster. The tag chips
+   * moved in here beside the title, so the cushion only has to clear the three
+   * icon buttons — the title gets the rest of the width back. */
+  padding-right: 84px;
   /* Base rule sets width:100%; with default content-box, the 196px padding
    * above would be added on top of the full width, forcing each row 196px
    * wider than the panel and introducing a stray horizontal scrollbar. */
@@ -10936,6 +10937,9 @@ body.light-theme .gv-pm-view-mode.gv-pm-view-mode-compact,
   line-height: 1.4;
   align-self: center;
   min-width: 0;
+  /* Shrink to the title so the chips sit right after it instead of being
+   * pushed to the far edge. */
+  flex: 0 1 auto;
 }
 
 /* Compact title: a single-line plaintext headline. A fixed ch-based max-width
@@ -10983,6 +10987,7 @@ body.light-theme .gv-pm-view-mode.gv-pm-view-mode-compact,
   opacity: 0.75;
   transition: opacity 0.15s ease;
   gap: 4px;
+  min-width: 0;
 }
 
 .gv-pm-item-compact:hover .gv-pm-item-meta {
@@ -11004,15 +11009,17 @@ body.light-theme .gv-pm-view-mode.gv-pm-view-mode-compact,
   line-height: 1.5;
 }
 
-/* Actions: always laid out (so height never shifts), always visible at subtle
- * opacity, ramp to full opacity on row hover. Smaller than comfortable mode. */
+/* Actions: always laid out (so height never shifts) but invisible at rest, so
+ * a row at rest is title + tags and nothing else. Hover or keyboard focus
+ * brings them in. Layout never changes, only opacity. */
 .gv-pm-item-compact .gv-pm-actions {
   gap: 2px;
-  opacity: 0.55;
+  opacity: 0;
   transition: opacity 0.15s ease;
 }
 
-.gv-pm-item-compact:hover .gv-pm-actions {
+.gv-pm-item-compact:hover .gv-pm-actions,
+.gv-pm-item-compact:focus-within .gv-pm-actions {
   opacity: 1;
 }
 
@@ -11034,7 +11041,7 @@ body.light-theme .gv-pm-view-mode.gv-pm-view-mode-compact,
 /* RTL: mirror the absolute-positioned action bar to the left edge. */
 body.gv-rtl .gv-pm-item-compact .gv-pm-item-text-container {
   padding-right: 0;
-  padding-left: 196px;
+  padding-left: 84px;
 }
 
 body.gv-rtl .gv-pm-item-compact .gv-pm-bottom {

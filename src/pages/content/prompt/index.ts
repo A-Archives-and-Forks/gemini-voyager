@@ -1789,9 +1789,7 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
         // to maximize density; comfortable mode shows the rich Markdown preview,
         // clamped to five lines. Either way the full body is one hover away.
         const compactCollapsed = viewMode === 'compact';
-        if (compactCollapsed) {
-          row.classList.add('gv-pm-item-compact');
-        }
+        if (compactCollapsed) row.classList.add('gv-pm-item-compact');
 
         // Render Markdown + KaTeX preview (sanitized)
         const md = document.createElement('div');
@@ -2025,7 +2023,9 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
         }
         actions.appendChild(editBtn);
         actions.appendChild(del);
-        bottom.appendChild(meta);
+        // Compact keeps the chips with the title they label, leaving the
+        // trailing side to the actions alone — see contentStyle.css.
+        (compactCollapsed ? textContainer : bottom).appendChild(meta);
         bottom.appendChild(actions);
         row.appendChild(bottom);
         frag.appendChild(row);
