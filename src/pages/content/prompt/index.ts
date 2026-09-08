@@ -70,6 +70,7 @@ import {
 import { extractPlainTitle } from './compactTitle';
 import { activatePromptText } from './promptClickAction';
 import { getPromptNameConflictIds, isPromptNameTaken, normalizePromptName } from './promptName';
+import { createPromptReorder } from './promptReorder';
 import { getScrollHintState } from './scrollHint';
 import { formatStarredMessageTime } from './starredLibrary';
 import { sanitizeSelectedTags } from './tagFilterState';
@@ -1049,7 +1050,6 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
     let dragOffset = { x: 0, y: 0 };
     let draggingTrigger = false;
     let editingId: string | null = null;
-    let expandedItems: Set<string> = new Set<string>(); // Track expanded prompt items
     let viewMode: PMViewMode = 'compact';
     let panelView: PMPanelView = 'prompts';
     let promptSearchValue = '';
@@ -1722,6 +1722,19 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
       requestAnimationFrame(syncTagScrollHint);
     }
 
+    /* Manual ordering (#1009): the list renders `items` in stored order, so a
+     * move is a splice plus one write. The gesture lives in promptReorder.ts. */
+    const reorder = createPromptReorder<PromptItem>({
+      list,
+      getItems: () => items,
+      commit: (next) => {
+        items = next;
+        renderList();
+        void writeStorage(STORAGE_KEYS.items, items);
+      },
+      onDragStart: () => hideTooltip(),
+    });
+
     function renderList(): void {
       if (panelView !== 'prompts') {
         renderStarredList();
@@ -1769,15 +1782,13 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
       for (const it of filtered) {
         const row = createEl('div', 'gv-pm-item');
 
-        // Create text container with expand/collapse functionality
         const textContainer = createEl('div', 'gv-pm-item-text-container');
         const textBtn = createEl('button', 'gv-pm-item-text');
 
         // Compact mode collapses each prompt to a single-line plaintext title
-        // to maximize density; expanding promotes the row back to the rich
-        // Markdown preview used in comfortable mode.
-        const isExpanded = expandedItems.has(it.id);
-        const compactCollapsed = viewMode === 'compact' && !isExpanded;
+        // to maximize density; comfortable mode shows the rich Markdown preview,
+        // clamped to five lines. Either way the full body is one hover away.
+        const compactCollapsed = viewMode === 'compact';
         if (compactCollapsed) {
           row.classList.add('gv-pm-item-compact');
         }
@@ -1794,32 +1805,33 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
           // Attach a lightweight, fast-opening hover tooltip for peek.
           attachPromptTooltip(textBtn, it.text, panel);
         } else {
-          // Apply collapsed class if not expanded (comfortable mode: 5-line clamp)
-          if (!isExpanded) {
-            md.classList.add('gv-md-collapsed');
-          }
+          md.classList.add('gv-md-collapsed');
         }
 
         // Insert element into DOM first, then render to ensure KaTeX can detect document mode correctly
         textBtn.appendChild(md);
 
         if (!compactCollapsed) {
+          const paintMarkdown = (html: string): void => {
+            md.innerHTML = DOMPurify.sanitize(html);
+            // Placeholders become chips so the list shows which prompts
+            // are templates, and where their variables sit.
+            highlightTemplateVariables(md);
+            // Past the five-line clamp, the hover preview is how the rest is read.
+            if (md.scrollHeight - md.clientHeight > 1) {
+              attachPromptTooltip(textBtn, it.text, panel);
+            }
+          };
           // Defer rendering to next frame to ensure element is fully attached
           requestAnimationFrame(() => {
             void ensureMarkdown()
               .then(() => {
                 const out = marked.parse(it.text as string);
                 if (typeof out === 'string') {
-                  md.innerHTML = DOMPurify.sanitize(out);
-                  // Placeholders become chips so the list shows which prompts
-                  // are templates, and where their variables sit.
-                  highlightTemplateVariables(md);
-                } else {
-                  return out.then((html: string) => {
-                    md.innerHTML = DOMPurify.sanitize(html);
-                    highlightTemplateVariables(md);
-                  });
+                  paintMarkdown(out);
+                  return;
                 }
+                return out.then(paintMarkdown);
               })
               .catch(() => {
                 md.textContent = it.text;
@@ -1894,30 +1906,7 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
           activateRow();
         });
 
-        // Add expand/collapse button
-        const expandBtn = createEl('button', 'gv-pm-expand-btn');
-        expandBtn.innerHTML = isExpanded ? '▲' : '▼';
-        expandBtn.title = isExpanded
-          ? i18n.t('pm_collapse') || 'Collapse'
-          : i18n.t('pm_expand') || 'Expand';
-        expandBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          if (expandedItems.has(it.id)) {
-            expandedItems.delete(it.id);
-          } else {
-            expandedItems.add(it.id);
-          }
-          renderList();
-        });
-
         textContainer.appendChild(textBtn);
-        // In compact mode the expand button is moved into the right-side
-        // actions cluster (see below) so all right-aligned controls form a
-        // single group and can't overlap each other. In comfortable mode
-        // it stays inline with the text for progressive disclosure.
-        if (!compactCollapsed) {
-          textContainer.appendChild(expandBtn);
-        }
 
         // Edit button
         const editBtn = createEl('button', 'gv-pm-edit');
@@ -2023,10 +2012,16 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
         // Append text container instead of textBtn
         row.appendChild(textContainer);
 
-        // In compact mode, expand sits at the left of edit/del so the cluster
-        // reads [chip] [▼] [✎] [🗑] from left to right — one cohesive group.
-        if (compactCollapsed) {
-          actions.appendChild(expandBtn);
+        // The reorder handle leads the actions cluster in both view modes, so
+        // it reads [⠿] [✎] [🗑] from left to right. A single visible row has
+        // nothing to reorder against, so the handle is left out entirely.
+        if (filtered.length > 1) {
+          const reorderBtn = createEl('button', 'gv-pm-reorder');
+          reorderBtn.type = 'button';
+          reorderBtn.title = i18n.t('pm_reorder') || 'Drag to reorder (↑/↓ keys)';
+          reorderBtn.setAttribute('aria-label', reorderBtn.title);
+          reorder.bind(row, reorderBtn, it.id);
+          actions.appendChild(reorderBtn);
         }
         actions.appendChild(editBtn);
         actions.appendChild(del);
@@ -2411,9 +2406,12 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
       }
       // Handle prompt data changes from cloud sync (local storage)
       if (area === 'local' && changes?.gvPromptItems) {
-        pmLogger.info('Prompt data changed in chrome.storage.local, reloading...');
         const newItems = changes.gvPromptItems.newValue;
-        if (Array.isArray(newItems)) {
+        // The panel's own writes echo back through this listener. Rebuilding
+        // the list and flashing "Synced" for data the panel already holds is
+        // noise, and reordering writes on every drop.
+        if (Array.isArray(newItems) && JSON.stringify(newItems) !== JSON.stringify(items)) {
+          pmLogger.info('Prompt data changed in chrome.storage.local, reloading...');
           items = newItems;
           renderTags();
           renderActiveList();
@@ -2602,6 +2600,8 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
           window.removeEventListener('pointermove', onDragMove);
           window.removeEventListener('pointerup', endDrag);
           window.removeEventListener('pointerup', onTriggerDragEnd);
+          // Drops the reorder listeners and auto-scroll frame on a mid-drag teardown.
+          reorder.destroy();
           tagsWrap.removeEventListener('scroll', syncTagScrollHint);
 
           chrome.storage?.onChanged?.removeListener(storageChangeHandler);

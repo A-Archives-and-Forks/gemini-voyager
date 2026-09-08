@@ -2976,50 +2976,76 @@ body.dark-theme .gv-md-collapsed::after {
   background: none;
 }
 
-.gv-pm-expand-btn {
+/* Reorder handle: the same icon button as edit/delete, plus the grab cursor
+ * and the `touch-action: none` a pointer-driven drag needs to own the gesture. */
+.gv-pm-reorder {
   background: transparent;
-  border: none;
-  color: rgba(156, 163, 175, 0.6);
-  padding: 2px 4px;
-  border-radius: 4px;
-  font-size: 10px;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: all 0.15s ease;
-  line-height: 1;
-  height: 20px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  color: rgba(229, 231, 235, 0.5);
+  cursor: grab;
+  touch-action: none;
 }
 
-.gv-pm-expand-btn:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: #d1d5db;
+.gv-pm-reorder:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e5e7eb;
 }
 
-.theme-host.light-theme .gv-pm-expand-btn,
-body.light-theme .gv-pm-expand-btn {
-  border: none;
-  color: rgba(107, 114, 128, 0.5);
+/* The press is preventDefault'ed, so :active never lands during a drag — the
+ * list carries the state instead. */
+.gv-pm-list-reordering,
+.gv-pm-list-reordering .gv-pm-reorder {
+  cursor: grabbing;
 }
 
-.theme-host.light-theme .gv-pm-expand-btn:hover,
-body.light-theme .gv-pm-expand-btn:hover {
-  background: rgba(0, 0, 0, 0.04);
-  color: #374151;
+.gv-pm-list-reordering {
+  user-select: none;
 }
 
-.theme-host.dark-theme .gv-pm-expand-btn,
-body.dark-theme .gv-pm-expand-btn {
-  border: none;
-  color: rgba(156, 163, 175, 0.6);
+.gv-pm-item-dragging {
+  opacity: 0.4;
 }
 
-.theme-host.dark-theme .gv-pm-expand-btn:hover,
-body.dark-theme .gv-pm-expand-btn:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: #d1d5db;
+/* The gap the row would land in. Rows are already `position: relative` and
+ * leave ::after free; the 4px inset keeps the rule off the rounded corners. */
+.gv-pm-item[data-gv-drop]::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--gv-pm-brand, var(--gv-pm-brand-default));
+  pointer-events: none;
+}
+
+.gv-pm-item[data-gv-drop='before']::after {
+  top: -3px;
+}
+
+.gv-pm-item[data-gv-drop='after']::after {
+  bottom: -3px;
+}
+
+.theme-host.light-theme .gv-pm-reorder,
+body.light-theme .gv-pm-reorder {
+  color: rgba(31, 41, 55, 0.4);
+}
+
+.theme-host.light-theme .gv-pm-reorder:hover,
+body.light-theme .gv-pm-reorder:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #1f2937;
+}
+
+.theme-host.dark-theme .gv-pm-reorder,
+body.dark-theme .gv-pm-reorder {
+  color: rgba(229, 231, 235, 0.5);
+}
+
+.theme-host.dark-theme .gv-pm-reorder:hover,
+body.dark-theme .gv-pm-reorder:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e5e7eb;
 }
 
 .theme-host.light-theme .gv-pm-item,
@@ -3055,7 +3081,8 @@ body.dark-theme .gv-pm-item-text {
 }
 
 .gv-pm-edit,
-.gv-pm-del {
+.gv-pm-del,
+.gv-pm-reorder {
   width: 28px;
   height: 28px;
   border-radius: 8px;
@@ -3244,7 +3271,8 @@ body.dark-theme .gv-pm-del.armed {
 }
 
 .gv-pm-edit::before,
-.gv-pm-del::before {
+.gv-pm-del::before,
+.gv-pm-reorder::before {
   content: '';
   width: 16px;
   height: 16px;
@@ -3257,6 +3285,11 @@ body.dark-theme .gv-pm-del.armed {
 /* Material Symbols outlined "edit" — matches Gemini's native action icons. */
 .gv-pm-edit::before {
   --gv-icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black"><path d="M3 17.46V21h3.54L17.81 9.73l-3.54-3.54L3 17.46ZM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83Z"/></svg>');
+}
+
+/* Material Symbols outlined "drag_indicator" — matches Gemini's native action icons. */
+.gv-pm-reorder::before {
+  --gv-icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black"><path d="M11 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2Zm-2-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2Zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2Zm6 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2Zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2Zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2Z"/></svg>');
 }
 
 /* Material Symbols outlined "delete" — matches Gemini's native action icons. */
@@ -4013,14 +4046,13 @@ body.dark-theme .gv-pm-notice.err {
   background: none;
 }
 
-.gv-pm-panel[data-gv-theme='dark'] .gv-pm-expand-btn {
-  border: none;
-  color: rgba(156, 163, 175, 0.6);
+.gv-pm-panel[data-gv-theme='dark'] .gv-pm-reorder {
+  color: rgba(229, 231, 235, 0.5);
 }
 
-.gv-pm-panel[data-gv-theme='dark'] .gv-pm-expand-btn:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: #d1d5db;
+.gv-pm-panel[data-gv-theme='dark'] .gv-pm-reorder:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e5e7eb;
 }
 
 .gv-pm-panel[data-gv-theme='dark'] .gv-pm-item {
@@ -4250,14 +4282,13 @@ body.dark-theme .gv-pm-notice.err {
   background: rgba(0, 0, 0, 0.05);
 }
 
-.gv-pm-panel[data-gv-theme='light'] .gv-pm-expand-btn {
-  border: none;
-  color: rgba(107, 114, 128, 0.5);
+.gv-pm-panel[data-gv-theme='light'] .gv-pm-reorder {
+  color: rgba(31, 41, 55, 0.4);
 }
 
-.gv-pm-panel[data-gv-theme='light'] .gv-pm-expand-btn:hover {
-  background: rgba(0, 0, 0, 0.04);
-  color: #374151;
+.gv-pm-panel[data-gv-theme='light'] .gv-pm-reorder:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #1f2937;
 }
 
 .gv-pm-panel[data-gv-theme='light'] .gv-pm-item {
@@ -10986,28 +11017,18 @@ body.light-theme .gv-pm-view-mode.gv-pm-view-mode-compact,
 }
 
 .gv-pm-item-compact .gv-pm-edit,
-.gv-pm-item-compact .gv-pm-del {
+.gv-pm-item-compact .gv-pm-del,
+.gv-pm-item-compact .gv-pm-reorder {
   width: 24px;
   height: 24px;
   border-radius: 6px;
 }
 
 .gv-pm-item-compact .gv-pm-edit::before,
-.gv-pm-item-compact .gv-pm-del::before {
+.gv-pm-item-compact .gv-pm-del::before,
+.gv-pm-item-compact .gv-pm-reorder::before {
   width: 14px;
   height: 14px;
-}
-
-.gv-pm-item-compact .gv-pm-expand-btn {
-  align-self: center;
-  width: 24px;
-  height: 24px;
-  font-size: 9px;
-  opacity: 0.55;
-}
-
-.gv-pm-item-compact:hover .gv-pm-expand-btn {
-  opacity: 1;
 }
 
 /* RTL: mirror the absolute-positioned action bar to the left edge. */

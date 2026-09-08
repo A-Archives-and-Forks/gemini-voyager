@@ -226,6 +226,10 @@
     "message": "折りたたむ",
     "description": "Collapse prompt text"
   },
+  "pm_reorder": {
+    "message": "ドラッグして並べ替え（↑/↓ キー）",
+    "description": "Prompt list reorder handle"
+  },
   "pm_saved": {
     "message": "保存しました",
     "description": "Saved notice"

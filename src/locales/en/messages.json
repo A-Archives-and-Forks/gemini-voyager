@@ -226,6 +226,10 @@
     "message": "Collapse",
     "description": "Collapse prompt text"
   },
+  "pm_reorder": {
+    "message": "Drag to reorder (↑/↓ keys)",
+    "description": "Prompt list reorder handle"
+  },
   "pm_saved": {
     "message": "Saved",
     "description": "Saved notice"

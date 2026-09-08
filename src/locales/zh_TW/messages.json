@@ -226,6 +226,10 @@
     "message": "收起",
     "description": "收起提示詞文字"
   },
+  "pm_reorder": {
+    "message": "拖曳調整順序（↑/↓ 鍵）",
+    "description": "Prompt list reorder handle"
+  },
   "pm_saved": {
     "message": "已儲存",
     "description": "儲存提示"

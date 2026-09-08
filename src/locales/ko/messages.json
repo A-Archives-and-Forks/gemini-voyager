@@ -226,6 +226,10 @@
     "message": "접기",
     "description": "Collapse prompt text"
   },
+  "pm_reorder": {
+    "message": "드래그하여 순서 변경 (↑/↓ 키)",
+    "description": "Prompt list reorder handle"
+  },
   "pm_saved": {
     "message": "저장됨",
     "description": "Saved notice"

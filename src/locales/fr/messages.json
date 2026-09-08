@@ -226,6 +226,10 @@
     "message": "Réduire",
     "description": "Collapse prompt text"
   },
+  "pm_reorder": {
+    "message": "Glisser pour réordonner (touches ↑/↓)",
+    "description": "Prompt list reorder handle"
+  },
   "pm_saved": {
     "message": "Enregistré",
     "description": "Saved notice"

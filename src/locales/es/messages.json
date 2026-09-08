@@ -226,6 +226,10 @@
     "message": "Contraer",
     "description": "Collapse prompt text"
   },
+  "pm_reorder": {
+    "message": "Arrastra para reordenar (teclas ↑/↓)",
+    "description": "Prompt list reorder handle"
+  },
   "pm_saved": {
     "message": "Guardado",
     "description": "Saved notice"
