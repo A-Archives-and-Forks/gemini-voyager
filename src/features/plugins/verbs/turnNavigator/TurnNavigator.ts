@@ -63,6 +63,12 @@ const PENDING_NAVIGATION_TIMEOUT_MS = 8000;
 const PENDING_NAVIGATION_HOP_MS = 200;
 const LONG_JUMP_VIEWPORTS = 3;
 const COMPACT_VIEW_SETTING = 'compactView';
+/** Compact ticks keep this pitch until the conversation outgrows the track. */
+const COMPACT_TICK_PITCH_PX = 10;
+/** Room kept at both track ends so the outermost ticks are never clipped. */
+const COMPACT_TRACK_PADDING_PX = 16;
+/** Cluster height used before the track has a layout (first paint, tests). */
+const COMPACT_FALLBACK_SPAN_PX = 240;
 
 export function buildConversationId(
   config: Pick<TurnNavigatorConfig, 'siteId' | 'conversationIdPattern'>,
@@ -474,11 +480,18 @@ export class TurnNavigator {
 
     const beforeFirstAnchor: Marker[] = [];
     const afterKnownIndex = new Map<number, Marker[]>();
+    // Fresh centre minus remembered centre per anchor: how far Claude's
+    // re-measuring has shifted this region since the neighbours were seen.
+    const anchorDrift = new Map<number, number>();
     let lastAnchor = -1;
     for (let i = 0; i < mounted.length; i++) {
       const knownIndex = matchedKnownIndex[i];
       if (knownIndex >= 0) {
         const survivor = known[knownIndex];
+        anchorDrift.set(
+          knownIndex,
+          this.computeElementCenter(mounted[i].element) - survivor.center,
+        );
         survivor.element = mounted[i].element;
         survivor.summary = mounted[i].summary;
         mounted[i].element.dataset.gvTurnId = survivor.id;
@@ -495,14 +508,54 @@ export class TurnNavigator {
       }
     }
 
-    const firstAnchorKnownIndex = matchedKnownIndex[firstMatch];
+    // Anchors fix the order of the turns they match; a block of new turns is
+    // then filed by scroll position among the known turns between its two
+    // bounding anchors. "Right next to the anchor" is not enough: Claude keeps
+    // the latest turn mounted while the reader sits at the top, and that lone
+    // tail anchor would drag the conversation's opening turns behind the
+    // bottom window. Known centres are compared after the nearest anchor's
+    // drift so re-measured content does not skew the comparison.
+    const anchors = matchedKnownIndex.filter((index) => index >= 0);
+    const insertBefore = new Map<number, Marker[]>();
+    // A known turn between two anchors is assumed to have drifted like the
+    // anchor nearer to it; anchors on different sides of a re-measured region
+    // can carry very different drifts.
+    const driftAt = (index: number, prev: number | undefined, next: number | undefined): number => {
+      const prevDrift = prev === undefined ? undefined : anchorDrift.get(prev);
+      const nextDrift = next === undefined ? undefined : anchorDrift.get(next);
+      if (prevDrift === undefined) return nextDrift ?? 0;
+      if (nextDrift === undefined) return prevDrift;
+      return index - prev! <= next! - index ? prevDrift : nextDrift;
+    };
+    const file = (block: Marker[], prev: number | undefined, next: number | undefined): void => {
+      if (!block.length) return;
+      const lo = prev === undefined ? 0 : prev + 1;
+      const hi = next ?? known.length;
+      let at = hi;
+      for (let index = lo; index < hi; index++) {
+        if (known[index].center + driftAt(index, prev, next) > block[0].center) {
+          at = index;
+          break;
+        }
+      }
+      const bucket = insertBefore.get(at);
+      if (bucket) bucket.push(...block);
+      else insertBefore.set(at, block);
+    };
+    file(beforeFirstAnchor, undefined, anchors[0]);
+    anchors.forEach((anchor, rank) => {
+      const block = afterKnownIndex.get(anchor);
+      if (block) file(block, anchor, anchors[rank + 1]);
+    });
+
     const result: Marker[] = [];
     known.forEach((marker, index) => {
-      if (index === firstAnchorKnownIndex) result.push(...beforeFirstAnchor);
+      const block = insertBefore.get(index);
+      if (block) result.push(...block);
       result.push(marker);
-      const extras = afterKnownIndex.get(index);
-      if (extras) result.push(...extras);
     });
+    const tail = insertBefore.get(known.length);
+    if (tail) result.push(...tail);
     return result;
   }
 
@@ -551,6 +604,9 @@ export class TurnNavigator {
       dot.classList.toggle('starred', marker.starred);
       dot.classList.toggle('active', marker.id === this.activeTurnId);
       dot.addEventListener('click', (event) => {
+        // The compact rail is itself the preview-panel toggle: a tick click
+        // must jump, not toggle the panel it bubbles up to.
+        event.stopPropagation();
         if (Date.now() < this.suppressClickUntil) {
           event.preventDefault();
           return;
@@ -572,12 +628,31 @@ export class TurnNavigator {
     });
   }
 
+  /**
+   * Compact ticks keep a fixed pitch and spread over the whole track; the
+   * pitch only shrinks once a conversation outgrows the track. A fixed-height
+   * cluster turned every long conversation into an unreadable barcode.
+   */
   private buildCompactMarkerOffsets(): number[] {
     const count = this.markers.length;
     if (count === 0) return [];
-    const gap = count > 1 ? Math.min(10, 240 / (count - 1)) : 0;
+    const trackHeight = this.trackContent?.parentElement?.clientHeight ?? 0;
+    const span =
+      trackHeight > 0
+        ? Math.max(0, trackHeight - COMPACT_TRACK_PADDING_PX * 2)
+        : COMPACT_FALLBACK_SPAN_PX;
+    const gap = count > 1 ? Math.min(COMPACT_TICK_PITCH_PX, span / (count - 1)) : 0;
     const center = (count - 1) / 2;
     return this.markers.map((_, index) => (index - center) * gap);
+  }
+
+  /** Re-space the existing compact ticks after the track changes height. */
+  private applyCompactOffsets(): void {
+    if (this.timelineStyle !== 'compact') return;
+    const offsets = this.buildCompactMarkerOffsets();
+    this.markers.forEach((marker, index) => {
+      marker.dotElement?.style.setProperty('--timeline-compact-offset', `${offsets[index] ?? 0}px`);
+    });
   }
 
   private startLongPress(dot: Dot): void {
@@ -664,7 +739,9 @@ export class TurnNavigator {
   }
 
   private scheduleTooltip(dot: Dot): void {
-    if (this.disposed) return;
+    // Compact ticks are clickable but stay quiet: the preview panel already
+    // lists every turn while the rail is hovered.
+    if (this.disposed || this.timelineStyle === 'compact') return;
     void this.stopTooltipTimer?.();
     this.stopTooltipTimer = this.scope.timer(() => {
       this.stopTooltipTimer = null;
@@ -673,7 +750,7 @@ export class TurnNavigator {
   }
 
   private showTooltip(dot: Dot): void {
-    if (!this.tooltip || !dot.isConnected) return;
+    if (!this.tooltip || !dot.isConnected || this.timelineStyle === 'compact') return;
     const marker = this.markers.find((item) => item.id === dot.dataset.targetTurnId);
     if (!marker?.summary) return;
 
@@ -780,12 +857,11 @@ export class TurnNavigator {
         this.scrollMarkerIntoView(marker.element);
         return;
       }
-      // Long jump to a mounted turn: smooth-scrolling across a virtualized
-      // conversation drifts as Claude re-measures content mid-flight — jump
-      // instantly, then let the homing loop fine-aim once the region settles.
+      // Long jump to a mounted turn: Claude re-measures content once the
+      // landing region mounts, so let the homing loop fine-aim after the jump.
       this.beginPendingNavigation(marker);
       this.pendingNavigationProbed = true;
-      this.scrollToOffset(center, 'auto');
+      this.scrollToOffset(center, 'instant');
       this.schedulePendingNavigationHop();
       return;
     }
@@ -913,7 +989,7 @@ export class TurnNavigator {
       ? marker.center
       : (this.pendingNavigationLo + this.pendingNavigationHi) / 2;
     this.pendingNavigationProbed = true;
-    this.scrollToOffset(probe, 'auto');
+    this.scrollToOffset(probe, 'instant');
     this.schedulePendingNavigationHop();
   };
 
@@ -946,6 +1022,7 @@ export class TurnNavigator {
   };
 
   private handleResize = (): void => {
+    this.applyCompactOffsets();
     this.scheduleRefresh();
     this.previewPanel?.reposition();
   };
@@ -1041,7 +1118,12 @@ export class TurnNavigator {
     );
   }
 
-  private scrollToOffset(center: number, behavior: ScrollBehavior = 'smooth'): void {
+  /**
+   * Every jump is instant. Smooth scrolling drifts across a virtualized
+   * conversation as Claude re-measures content mid-flight, and mixing smooth
+   * short hops with instant long ones read as erratic navigation.
+   */
+  private scrollToOffset(center: number, behavior: ScrollBehavior = 'instant'): void {
     const top = Math.max(0, center - this.getViewportHeight() * ACTIVE_ANCHOR);
     const target = this.scrollTarget;
     if (!target || target === window) {
@@ -1059,7 +1141,7 @@ export class TurnNavigator {
     if (target === window) {
       const top =
         this.getScrollTop() + rect.top + rect.height / 2 - this.getViewportHeight() * ACTIVE_ANCHOR;
-      window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+      window.scrollTo({ top: Math.max(0, top), behavior: 'instant' });
       return;
     }
     const container = target as HTMLElement;
@@ -1070,7 +1152,7 @@ export class TurnNavigator {
       containerRect.top -
       container.clientHeight * ACTIVE_ANCHOR +
       rect.height / 2;
-    if (container.scrollTo) container.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+    if (container.scrollTo) container.scrollTo({ top: Math.max(0, top), behavior: 'instant' });
     else container.scrollTop = Math.max(0, top);
   }
 }

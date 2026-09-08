@@ -125,7 +125,7 @@ describe('Claude timeline', () => {
     expect(dots).toHaveLength(2);
 
     dots[0].dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
+    expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'instant' });
     expect(dots[0].classList.contains('active')).toBe(true);
     expect(dots[0].getAttribute('aria-current')).toBe('true');
   });
@@ -199,6 +199,47 @@ describe('Claude timeline', () => {
     );
   });
 
+  it('spreads compact ticks over the whole track instead of a fixed cluster', async () => {
+    for (let index = 0; index < 60; index += 1) addTurn(`prompt ${index}`);
+    startClaudeTimeline({ compactView: true });
+    await flush();
+
+    const track = document.querySelector<HTMLElement>('.timeline-track')!;
+    Object.defineProperty(track, 'clientHeight', { configurable: true, value: 1000 });
+    window.dispatchEvent(new Event('resize'));
+
+    const offsets = queryDots().map((dot) =>
+      dot.style.getPropertyValue('--timeline-compact-offset'),
+    );
+    expect(offsets[0]).toBe('-295px');
+    expect(offsets[30]).toBe('5px');
+    expect(offsets[59]).toBe('295px');
+  });
+
+  it('jumps from a compact tick without toggling the preview panel or a tooltip', async () => {
+    addTurn('first prompt');
+    const second = addTurn('second prompt');
+    second.getBoundingClientRect = vi.fn(() => ({ top: 700, bottom: 740, height: 40 }) as DOMRect);
+    startClaudeTimeline({ compactView: true });
+    await flush();
+
+    const bar = document.querySelector<HTMLElement>('.gemini-timeline-bar')!;
+    expect(bar.getAttribute('aria-expanded')).toBe('false');
+    const dot = queryDots()[1];
+    dot.dispatchEvent(new PointerEvent('pointerenter', { bubbles: true }));
+    vi.advanceTimersByTime(1000);
+    expect(
+      document.getElementById('gv-turn-navigator-tooltip')?.classList.contains('visible'),
+    ).toBe(false);
+
+    dot.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(window.scrollTo).toHaveBeenCalledWith({ top: 450, behavior: 'instant' });
+    expect(bar.getAttribute('aria-expanded')).toBe('false');
+    expect(document.querySelector('.timeline-preview-panel')?.classList.contains('visible')).toBe(
+      false,
+    );
+  });
+
   it('updates active dot from the current viewport', async () => {
     const first = addTurn('first prompt');
     const second = addTurn('second prompt');
@@ -247,7 +288,7 @@ describe('Claude timeline', () => {
     expect(dots[1].classList.contains('active')).toBe(false);
   });
 
-  it('keeps clicked dot active while smooth scroll is settling', async () => {
+  it('keeps clicked dot active while the jump settles', async () => {
     const first = addTurn('first prompt');
     const second = addTurn('second prompt');
     first.getBoundingClientRect = vi.fn(() => ({ top: 0, bottom: 40, height: 40 }) as DOMRect);
@@ -275,7 +316,7 @@ describe('Claude timeline', () => {
     await flush();
 
     queryDots()[1].click();
-    expect(window.scrollTo).toHaveBeenCalledWith({ top: 450, behavior: 'smooth' });
+    expect(window.scrollTo).toHaveBeenCalledWith({ top: 450, behavior: 'instant' });
   });
 
   it('long-presses a dot to star it', async () => {
@@ -482,6 +523,96 @@ describe('Claude timeline', () => {
     expect(dotLabels()).toEqual(['one', 'two', 'three', 'four', 'five']);
   });
 
+  it('keeps the opening turns ahead of the bottom window when Claude leaves the latest turn mounted', async () => {
+    const rect = (top: number) => vi.fn(() => ({ top, bottom: top + 40, height: 40 }) as DOMRect);
+    // Loaded at the bottom: only the last turns are mounted.
+    const lateOne = addTurn('late one');
+    const lateTwo = addTurn('late two');
+    const last = addTurn('last prompt');
+    lateOne.getBoundingClientRect = rect(38000);
+    lateTwo.getBoundingClientRect = rect(38500);
+    last.getBoundingClientRect = rect(39000);
+    startClaudeTimeline();
+    await flush();
+    expect(dotLabels()).toEqual(['late one', 'late two', 'last prompt']);
+
+    // Scrolled to the top: Claude mounts the opening turns, unmounts the late
+    // ones, but keeps the latest turn mounted (and re-measured further down).
+    lateOne.remove();
+    lateTwo.remove();
+    const first = createTurn('first prompt');
+    const second = createTurn('second prompt');
+    first.getBoundingClientRect = rect(100);
+    second.getBoundingClientRect = rect(1200);
+    document.body.insertBefore(second, last);
+    document.body.insertBefore(first, second);
+    last.getBoundingClientRect = rect(41600);
+    await settleRefresh();
+
+    expect(dotLabels()).toEqual([
+      'first prompt',
+      'second prompt',
+      'late one',
+      'late two',
+      'last prompt',
+    ]);
+  });
+
+  it('places a new turn by the drift of its nearer anchor when the two anchors drifted differently', async () => {
+    const rect = (top: number) => vi.fn(() => ({ top, bottom: top + 40, height: 40 }) as DOMRect);
+    const a = addTurn('turn a');
+    const b = addTurn('turn b');
+    const c = addTurn('turn c');
+    const d = addTurn('turn d');
+    a.getBoundingClientRect = rect(1000);
+    b.getBoundingClientRect = rect(2000);
+    c.getBoundingClientRect = rect(3000);
+    d.getBoundingClientRect = rect(4000);
+    startClaudeTimeline();
+    await flush();
+
+    // b and c unmount; a stays where it was, d is re-measured 2000px lower, and
+    // a new turn x mounts between them at 2600. Under a's drift (0) x sits
+    // after b; only under d's drift would it land before b.
+    b.remove();
+    c.remove();
+    const x = createTurn('turn x');
+    x.getBoundingClientRect = rect(2600);
+    document.body.insertBefore(x, d);
+    d.getBoundingClientRect = rect(6000);
+    await settleRefresh();
+
+    expect(dotLabels()).toEqual(['turn a', 'turn b', 'turn x', 'turn c', 'turn d']);
+  });
+
+  it('files a bottom window behind the known opening turns when the first turn stays mounted', async () => {
+    const rect = (top: number) => vi.fn(() => ({ top, bottom: top + 40, height: 40 }) as DOMRect);
+    const first = addTurn('first prompt');
+    const second = addTurn('second prompt');
+    const third = addTurn('third prompt');
+    first.getBoundingClientRect = rect(100);
+    second.getBoundingClientRect = rect(1200);
+    third.getBoundingClientRect = rect(2300);
+    startClaudeTimeline();
+    await flush();
+
+    second.remove();
+    third.remove();
+    const late = addTurn('late prompt');
+    const last = addTurn('last prompt');
+    late.getBoundingClientRect = rect(38000);
+    last.getBoundingClientRect = rect(39000);
+    await settleRefresh();
+
+    expect(dotLabels()).toEqual([
+      'first prompt',
+      'second prompt',
+      'third prompt',
+      'late prompt',
+      'last prompt',
+    ]);
+  });
+
   it('assigns distinct ids to turns with identical text', async () => {
     addTurn('same text');
     addTurn('same text');
@@ -514,12 +645,12 @@ describe('Claude timeline', () => {
     // First hop jumps instantly to the remembered offset (center 720 → top 450).
     queryDots()[1].dispatchEvent(new MouseEvent('click', { bubbles: true }));
     expect(window.scrollTo).toHaveBeenCalledTimes(1);
-    expect(window.scrollTo).toHaveBeenCalledWith({ top: 450, behavior: 'auto' });
+    expect(window.scrollTo).toHaveBeenCalledWith({ top: 450, behavior: 'instant' });
 
     // Still unmounted after a hop interval: bisect further instead of giving up.
     vi.advanceTimersByTime(200);
     expect(window.scrollTo).toHaveBeenCalledTimes(2);
-    expect(window.scrollTo).toHaveBeenLastCalledWith({ top: 1030, behavior: 'auto' });
+    expect(window.scrollTo).toHaveBeenLastCalledWith({ top: 1030, behavior: 'instant' });
 
     // Turn mounts: the next hop aims precisely and stops.
     document.body.appendChild(second);
@@ -527,7 +658,7 @@ describe('Claude timeline', () => {
     vi.advanceTimersByTime(200);
     await flush();
     expect(window.scrollTo).toHaveBeenCalledTimes(3);
-    expect(window.scrollTo).toHaveBeenLastCalledWith({ top: 450, behavior: 'smooth' });
+    expect(window.scrollTo).toHaveBeenLastCalledWith({ top: 450, behavior: 'instant' });
 
     vi.advanceTimersByTime(600);
     expect(window.scrollTo).toHaveBeenCalledTimes(3);
@@ -554,18 +685,18 @@ describe('Claude timeline', () => {
     // Target sits between two mounted turns: probe its remembered offset...
     queryDots()[1].dispatchEvent(new MouseEvent('click', { bubbles: true }));
     expect(window.scrollTo).toHaveBeenCalledTimes(1);
-    expect(window.scrollTo).toHaveBeenCalledWith({ top: 450, behavior: 'auto' });
+    expect(window.scrollTo).toHaveBeenCalledWith({ top: 450, behavior: 'instant' });
 
     // ...then bisect between the mounted neighbours instead of giving up.
     vi.advanceTimersByTime(200);
     expect(window.scrollTo).toHaveBeenCalledTimes(2);
-    expect(window.scrollTo).toHaveBeenLastCalledWith({ top: 400, behavior: 'auto' });
+    expect(window.scrollTo).toHaveBeenLastCalledWith({ top: 400, behavior: 'instant' });
 
     document.body.insertBefore(second, third);
     await flush();
     vi.advanceTimersByTime(200);
     await flush();
-    expect(window.scrollTo).toHaveBeenLastCalledWith({ top: 450, behavior: 'smooth' });
+    expect(window.scrollTo).toHaveBeenLastCalledWith({ top: 450, behavior: 'instant' });
   });
 
   it('jumps instantly for long-distance navigation to a mounted turn, then fine-aims', async () => {
@@ -578,15 +709,15 @@ describe('Claude timeline', () => {
     startClaudeTimeline();
     await flush();
 
-    // Distance > 3 viewports: instant jump instead of a long smooth scroll.
+    // Distance > 3 viewports: jump, then fine-aim once the region re-measures.
     queryDots()[1].dispatchEvent(new MouseEvent('click', { bubbles: true }));
     expect(window.scrollTo).toHaveBeenCalledTimes(1);
-    expect(window.scrollTo).toHaveBeenCalledWith({ top: 4750, behavior: 'auto' });
+    expect(window.scrollTo).toHaveBeenCalledWith({ top: 4750, behavior: 'instant' });
 
-    // Next hop fine-aims smoothly and ends the navigation.
+    // Next hop fine-aims and ends the navigation.
     vi.advanceTimersByTime(200);
     expect(window.scrollTo).toHaveBeenCalledTimes(2);
-    expect(window.scrollTo).toHaveBeenLastCalledWith({ top: 4750, behavior: 'smooth' });
+    expect(window.scrollTo).toHaveBeenLastCalledWith({ top: 4750, behavior: 'instant' });
 
     vi.advanceTimersByTime(600);
     expect(window.scrollTo).toHaveBeenCalledTimes(2);
@@ -622,7 +753,7 @@ describe('Claude timeline', () => {
     await flush();
 
     expect(window.scrollTo).toHaveBeenCalledTimes(1);
-    expect(window.scrollTo).toHaveBeenCalledWith({ top: 450, behavior: 'smooth' });
+    expect(window.scrollTo).toHaveBeenCalledWith({ top: 450, behavior: 'instant' });
 
     addTurn('third prompt');
     await settleRefresh();
