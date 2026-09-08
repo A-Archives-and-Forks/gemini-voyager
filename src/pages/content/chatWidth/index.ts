@@ -118,15 +118,20 @@ function applyWidth(widthPercent: number) {
 
     /* Gemini 3.8 / luminous layout pins the thread to
        --bard-chat-window-content-width-default (708px). Native rules read
-       max-width: var(...), so the slider has to own the variables (#955). */
+       max-width: var(...), so the slider has to own the variables (#955).
+       Gemini declares them as
+       \`.enable-luminous-content-width-update[_nghost-ng-cXXXXXXXX]\`, and that
+       Angular host attribute outranks a bare class selector, so without
+       !important the host keeps 708px and every descendant that is not one of
+       the hosts re-listed here inherits the narrow default. */
     chat-window,
     chat-window-content,
     .enable-luminous-content-width-update,
     .chat-container,
     .chat-history-scroll-container,
     infinite-scroller.chat-history {
-      --bard-chat-window-content-width-default: ${widthValue};
-      --bard-chat-window-max-width-default: ${widthValue};
+      --bard-chat-window-content-width-default: ${widthValue} !important;
+      --bard-chat-window-max-width-default: ${widthValue} !important;
     }
 
     .conversation-container {

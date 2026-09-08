@@ -36,7 +36,10 @@ describe('editInputWidth', () => {
     const styleText = getInjectedStyle().textContent ?? '';
     expect(styleText).toContain('max-width: 80vw !important');
     expect(styleText).toContain('width: min(100%, 80vw) !important');
-    expect(styleText).toContain('--bard-chat-window-content-width-default: 80vw');
+    // !important or Gemini's Angular host attribute selector keeps the
+    // luminous default (#955)
+    expect(styleText).toContain('--bard-chat-window-content-width-default: 80vw !important');
+    expect(styleText).toContain('--bard-chat-window-max-width-default: 80vw !important');
     expect(styleText).toContain('html body input-container input-area-v2');
   });
 

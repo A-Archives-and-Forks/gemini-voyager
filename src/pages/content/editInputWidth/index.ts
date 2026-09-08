@@ -142,9 +142,13 @@ function applyWidth(widthPercent: number): void {
     }
 
     /* ===== Main chat input area (input-container > input-area-v2) ===== */
+    /* !important matches chatWidth's luminous variable rule: Gemini declares
+       the same variables through an Angular host attribute selector, which
+       outranks a plain element selector. input-container is the nearer
+       ancestor for the composer, so the edit slider still owns it (#955). */
     input-container {
-      --bard-chat-window-content-width-default: ${widthValue};
-      --bard-chat-window-max-width-default: ${widthValue};
+      --bard-chat-window-content-width-default: ${widthValue} !important;
+      --bard-chat-window-max-width-default: ${widthValue} !important;
       max-width: ${widthValue} !important;
       width: min(100%, ${widthValue}) !important;
       margin-left: auto !important;

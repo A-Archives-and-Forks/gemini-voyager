@@ -118,8 +118,13 @@ describe('chatWidth', () => {
     const expectedPx = percentToPixels(70); // 1344
     expect(styleText).toContain(`max-width: ${expectedPx}px !important`);
     expect(styleText).toContain(`width: min(100%, ${expectedPx}px) !important`);
-    expect(styleText).toContain(`--bard-chat-window-content-width-default: ${expectedPx}px`);
-    expect(styleText).toContain(`--bard-chat-window-max-width-default: ${expectedPx}px`);
+    // Gemini declares the same variables on
+    // `.enable-luminous-content-width-update[_nghost-…]`, which outranks a bare
+    // class selector, so the slider only owns them with !important (#955)
+    expect(styleText).toContain(
+      `--bard-chat-window-content-width-default: ${expectedPx}px !important`,
+    );
+    expect(styleText).toContain(`--bard-chat-window-max-width-default: ${expectedPx}px !important`);
     expect(styleText).toContain('.enable-luminous-content-width-update');
     expect(styleText).toContain('.enable-extended-and-xl-grid .conversation-container user-query');
   });

@@ -290,9 +290,17 @@ drop, or hover layout.
   `max-width: var(...)`. Voyager used to only set `max-width: none` / a pixel cap on its own
   selectors, so the composer stayed on chat width's more specific `input-area-v2` rule and the
   thread could look stuck at the luminous cap on the new layout.
-- **Rule:** `chatWidth` must assign both luminous variables on the chat-window hosts and keep an
-  explicit width on `.conversation-container`. `editInputWidth` must assign the same variables on
-  `input-container` and beat chat width's input/overlay selectors when both sliders are enabled.
+  Gemini declares the variables from
+  `.enable-luminous-content-width-update[_nghost-ng-cXXXXXXXX]`, and that Angular host attribute
+  outranks a bare class selector, so an assignment without `!important` loses on the host itself:
+  measured on the live build, `chat-window-content` still computed `708px` while Voyager's rule
+  asked for the slider value. It only looked correct because Voyager re-declares the variables on
+  descendant hosts; anything under `chat-window-content` outside that list keeps the narrow default.
+- **Rule:** `chatWidth` must assign both luminous variables on the chat-window hosts with
+  `!important` and keep an explicit width on `.conversation-container`. `editInputWidth` must
+  assign the same variables on `input-container`, also with `!important`, and beat chat width's
+  input/overlay selectors when both sliders are enabled. Inheritance still resolves the composer:
+  `input-container` is the nearer ancestor, so the edit slider owns it.
 - **Guard:** `src/pages/content/chatWidth/__tests__/chatWidth.test.ts` and
   `src/pages/content/editInputWidth/__tests__/editInputWidth.test.ts`.
 
