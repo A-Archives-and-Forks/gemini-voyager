@@ -46,9 +46,8 @@ export async function isPromptReorderCoachmarkEligible(): Promise<boolean> {
 }
 
 /**
- * Reordering and the row menu are the two things the list never advertises:
- * a row at rest shows neither a drag affordance nor a hint that right-click
- * does anything. This guide is the only place they are stated.
+ * A row at rest shows nothing at all — the handle and the star only appear on
+ * hover — so this guide is the only place the list says it can be ordered.
  */
 export async function maybeShowPromptReorderCoachmark(
   options: { force?: boolean; progress?: CoachmarkProgress } = {},
@@ -74,7 +73,7 @@ export async function maybeShowPromptReorderCoachmark(
     title: t('promptReorderCoachmarkTitle', 'New: put your prompts in order'),
     body: t(
       'promptReorderCoachmarkBody',
-      'Drag a row by its handle to reorder the list, or right-click a prompt to pin it to the top, edit it, or move it one place.',
+      'Drag a row by its handle to reorder the list, or use the star to pin a prompt above the rest.',
     ),
     placement: 'top',
     anchor: findTrigger,

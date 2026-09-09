@@ -51,10 +51,6 @@ export type PromptReorderController = {
   bind: (row: HTMLElement, handle: HTMLElement, id: string) => void;
   /** Wires a row that drags from anywhere except its own buttons. */
   bindRow: (row: HTMLElement, id: string) => void;
-  /** One step through the rows the user can see. Returns whether it moved. */
-  moveBy: (id: string, direction: -1 | 1) => boolean;
-  /** Whether a step in that direction exists, for disabling a menu entry. */
-  canMove: (id: string, direction: -1 | 1) => boolean;
   destroy: () => void;
 };
 
@@ -279,8 +275,6 @@ export function createPromptReorder<T extends { id: string }>(
         begin(ev, row, row, id, true);
       });
     },
-    moveBy: (id, direction) => apply(id, placementForStep(id, direction)),
-    canMove: (id, direction) => placementForStep(id, direction) !== null,
     destroy: () => end(false),
   };
 }

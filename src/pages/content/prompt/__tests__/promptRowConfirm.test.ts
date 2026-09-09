@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { createPromptRowSurfaces } from '../promptRowMenu';
+import { createPromptRowSurfaces } from '../promptRowConfirm';
 
 let surfaces: ReturnType<typeof createPromptRowSurfaces> | null = null;
 
@@ -12,67 +12,37 @@ function mount() {
   return { surfaces, anchor };
 }
 
-const menuItems = () =>
-  Array.from(document.querySelectorAll<HTMLButtonElement>('.gv-pm-row-menu-item'));
-
 afterEach(() => {
   surfaces?.destroy();
   surfaces = null;
   document.body.innerHTML = '';
 });
 
-describe('prompt row menu', () => {
-  it('runs the chosen action once and closes', () => {
-    const { surfaces } = mount();
-    const onSelect = vi.fn();
-    surfaces.openMenu({ x: 20, y: 20 }, [{ label: '编辑', onSelect }]);
-
-    expect(menuItems()).toHaveLength(1);
-    menuItems()[0].click();
-
-    expect(onSelect).toHaveBeenCalledTimes(1);
-    expect(surfaces.isOpen()).toBe(false);
-    expect(menuItems()).toHaveLength(0);
-  });
-
-  it('keeps a disabled entry inert', () => {
-    const { surfaces } = mount();
-    const onSelect = vi.fn();
-    surfaces.openMenu({ x: 0, y: 0 }, [{ label: '上移', disabled: true, onSelect }]);
-
-    menuItems()[0].click();
-
-    expect(onSelect).not.toHaveBeenCalled();
-    expect(surfaces.isOpen()).toBe(true);
-  });
-
+describe('prompt row delete confirmation', () => {
   it('closes on Escape, on an outside press, and on a scroll underneath', () => {
-    const { surfaces } = mount();
-    const open = () => surfaces.openMenu({ x: 0, y: 0 }, [{ label: '编辑', onSelect: () => {} }]);
+    const { surfaces, anchor } = mount();
+    const request = {
+      anchor,
+      message: '删除这条提示词？',
+      confirmLabel: '删除',
+      cancelLabel: '取消',
+      onConfirm: () => {},
+    };
 
-    open();
+    surfaces.openConfirm(request);
     window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
     expect(surfaces.isOpen()).toBe(false);
 
-    open();
+    surfaces.openConfirm(request);
     document.body.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }));
     expect(surfaces.isOpen()).toBe(false);
 
-    open();
+    surfaces.openConfirm(request);
     window.dispatchEvent(new Event('scroll'));
     expect(surfaces.isOpen()).toBe(false);
   });
 
-  it('keeps a press inside the menu from dismissing it', () => {
-    const { surfaces } = mount();
-    surfaces.openMenu({ x: 0, y: 0 }, [{ label: '编辑', onSelect: () => {} }]);
-
-    menuItems()[0].dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }));
-
-    expect(surfaces.isOpen()).toBe(true);
-  });
-
-  it('replaces a surface that is already open instead of stacking', () => {
+  it('keeps a press inside the popover from dismissing it', () => {
     const { surfaces, anchor } = mount();
     surfaces.openConfirm({
       anchor,
@@ -81,10 +51,28 @@ describe('prompt row menu', () => {
       cancelLabel: '取消',
       onConfirm: () => {},
     });
-    surfaces.openMenu({ x: 0, y: 0 }, [{ label: '编辑', onSelect: () => {} }]);
 
-    expect(document.querySelectorAll('.gv-pm-confirm')).toHaveLength(0);
-    expect(document.querySelectorAll('.gv-pm-row-menu')).toHaveLength(1);
+    document
+      .querySelector('.gv-pm-confirm')!
+      .dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }));
+
+    expect(surfaces.isOpen()).toBe(true);
+  });
+
+  it('replaces the popover instead of stacking a second one', () => {
+    const { surfaces, anchor } = mount();
+    const request = {
+      anchor,
+      message: '删除这条提示词？',
+      confirmLabel: '删除',
+      cancelLabel: '取消',
+      onConfirm: () => {},
+    };
+
+    surfaces.openConfirm(request);
+    surfaces.openConfirm(request);
+
+    expect(document.querySelectorAll('.gv-pm-confirm')).toHaveLength(1);
   });
 
   it('confirms only on the confirm button and returns focus to the anchor', () => {

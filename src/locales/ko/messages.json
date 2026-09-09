@@ -230,14 +230,6 @@
     "message": "드래그하여 순서 변경 (↑/↓ 키)",
     "description": "Prompt list reorder handle"
   },
-  "pm_move_up": {
-    "message": "위로 이동",
-    "description": "Move prompt one place earlier"
-  },
-  "pm_move_down": {
-    "message": "아래로 이동",
-    "description": "Move prompt one place later"
-  },
   "pm_pin": {
     "message": "상단 고정",
     "description": "Pin a prompt above the rest"
@@ -245,10 +237,6 @@
   "pm_unpin": {
     "message": "고정 해제",
     "description": "Remove a prompt from the pinned group"
-  },
-  "pm_pinned": {
-    "message": "고정됨",
-    "description": "Label for the pinned marker on a row"
   },
   "pm_saved": {
     "message": "저장됨",
@@ -2766,7 +2754,7 @@
     "description": "Reorder onboarding title"
   },
   "promptReorderCoachmarkBody": {
-    "message": "행의 핸들을 끌어 순서를 바꾸거나, 프롬프트를 마우스 오른쪽 버튼으로 눌러 상단 고정, 편집, 한 칸 이동을 할 수 있습니다.",
+    "message": "행의 핸들을 끌어 순서를 바꾸고, 별 버튼으로 자주 쓰는 프롬프트를 맨 위에 고정할 수 있습니다.",
     "description": "Reorder onboarding body"
   },
   "slashPromptCoachmarkBody": {

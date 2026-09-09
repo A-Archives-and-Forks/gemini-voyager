@@ -230,14 +230,6 @@
     "message": "Arrastra para reordenar (teclas ↑/↓)",
     "description": "Prompt list reorder handle"
   },
-  "pm_move_up": {
-    "message": "Mover arriba",
-    "description": "Move prompt one place earlier"
-  },
-  "pm_move_down": {
-    "message": "Mover abajo",
-    "description": "Move prompt one place later"
-  },
   "pm_pin": {
     "message": "Fijar arriba",
     "description": "Pin a prompt above the rest"
@@ -245,10 +237,6 @@
   "pm_unpin": {
     "message": "Dejar de fijar",
     "description": "Remove a prompt from the pinned group"
-  },
-  "pm_pinned": {
-    "message": "Fijado",
-    "description": "Label for the pinned marker on a row"
   },
   "pm_saved": {
     "message": "Guardado",
@@ -2766,7 +2754,7 @@
     "description": "Reorder onboarding title"
   },
   "promptReorderCoachmarkBody": {
-    "message": "Arrastra una fila por su tirador para reordenar la lista, o haz clic derecho en un prompt para fijarlo arriba, editarlo o moverlo una posición.",
+    "message": "Arrastra una fila por su tirador para reordenar la lista, o usa la estrella para fijar un prompt arriba.",
     "description": "Reorder onboarding body"
   },
   "slashPromptCoachmarkBody": {

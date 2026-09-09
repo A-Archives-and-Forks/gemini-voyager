@@ -1,22 +1,9 @@
-/* Floating surfaces owned by a prompt row: the action menu and the delete
- * confirmation.
+/* The delete confirmation that hangs off a prompt row.
  *
- * Both are single-instance and dismissed the same way — an outside press,
- * Escape, or a scroll underneath — so they share one open slot and one
- * teardown. Keeping them together is what stops a right-click from stacking a
- * menu on top of a confirmation that is still waiting for an answer.
+ * One instance at a time, dismissed by an outside press, Escape, or a scroll
+ * underneath. Escape is taken in the capture phase so answering the popover
+ * does not also close the panel behind it.
  */
-
-export type RowMenuIcon = 'pin' | 'unpin' | 'edit' | 'delete' | 'up' | 'down';
-
-export type RowMenuItem = {
-  label: string;
-  icon?: RowMenuIcon;
-  /** Renders the item in the destructive colour. */
-  danger?: boolean;
-  disabled?: boolean;
-  onSelect: () => void;
-};
 
 export type ConfirmRequest = {
   /** The control the popover points at; also where focus returns. */
@@ -28,7 +15,6 @@ export type ConfirmRequest = {
 };
 
 export type PromptRowSurfaces = {
-  openMenu: (point: { x: number; y: number }, items: RowMenuItem[]) => void;
   openConfirm: (request: ConfirmRequest) => void;
   isOpen: () => boolean;
   close: () => void;
@@ -62,12 +48,12 @@ export function createPromptRowSurfaces(): PromptRowSurfaces {
 
     const onOutside = (ev: Event) => {
       const target = ev.target as HTMLElement | null;
-      if (target?.closest('.gv-pm-confirm, .gv-pm-row-menu')) return;
+      if (target?.closest('.gv-pm-confirm')) return;
       close();
     };
     const onKey = (ev: KeyboardEvent) => {
       if (ev.key !== 'Escape') return;
-      // Capture phase: dismissing a surface must not also close the panel.
+      // Capture phase: dismissing the popover must not also close the panel.
       ev.preventDefault();
       ev.stopPropagation();
       close();
@@ -91,63 +77,6 @@ export function createPromptRowSurfaces(): PromptRowSurfaces {
         window.removeEventListener('resize', onScroll);
       },
     };
-  }
-
-  function openMenu(point: { x: number; y: number }, items: RowMenuItem[]): void {
-    const previous = document.activeElement as HTMLElement | null;
-    const menu = document.createElement('div');
-    menu.className = 'gv-pm-row-menu';
-    menu.setAttribute('role', 'menu');
-    // Focus lands on the container, not the first entry: a mouse-opened menu
-    // should not come up wearing a focus ring. Arrow keys move into the items.
-    menu.tabIndex = -1;
-
-    for (const item of items) {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'gv-pm-row-menu-item';
-      button.setAttribute('role', 'menuitem');
-      if (item.icon) button.dataset.gvIcon = item.icon;
-      if (item.danger) button.classList.add('gv-pm-row-menu-danger');
-      button.disabled = !!item.disabled;
-      button.textContent = item.label;
-      button.addEventListener('click', (ev) => {
-        ev.stopPropagation();
-        close();
-        item.onSelect();
-      });
-      menu.appendChild(button);
-    }
-
-    menu.addEventListener('keydown', (ev) => {
-      const step = ev.key === 'ArrowDown' ? 1 : ev.key === 'ArrowUp' ? -1 : 0;
-      if (!step) return;
-      ev.preventDefault();
-      const options = Array.from(
-        menu.querySelectorAll<HTMLButtonElement>('.gv-pm-row-menu-item:not([disabled])'),
-      );
-      if (options.length === 0) return;
-      const index = options.indexOf(document.activeElement as HTMLButtonElement);
-      // From the container itself, ArrowDown enters at the top and ArrowUp at
-      // the bottom.
-      const next =
-        index < 0
-          ? step > 0
-            ? 0
-            : options.length - 1
-          : (index + step + options.length) % options.length;
-      options[next]?.focus();
-    });
-
-    mount(menu, previous);
-
-    const rect = menu.getBoundingClientRect();
-    const left = Math.min(point.x, window.innerWidth - rect.width - VIEWPORT_PAD);
-    const top = Math.min(point.y, window.innerHeight - rect.height - VIEWPORT_PAD);
-    menu.style.left = `${Math.round(Math.max(VIEWPORT_PAD, left))}px`;
-    menu.style.top = `${Math.round(Math.max(VIEWPORT_PAD, top))}px`;
-
-    menu.focus({ preventScroll: true });
   }
 
   function openConfirm(request: ConfirmRequest): void {
@@ -191,7 +120,6 @@ export function createPromptRowSurfaces(): PromptRowSurfaces {
   }
 
   return {
-    openMenu,
     openConfirm,
     isOpen: () => open !== null,
     close,

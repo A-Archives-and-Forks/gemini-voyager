@@ -72,7 +72,7 @@ import { activatePromptText } from './promptClickAction';
 import { getPromptNameConflictIds, isPromptNameTaken, normalizePromptName } from './promptName';
 import { isPinned, pinGroupOf, sortPinnedFirst, togglePin } from './promptPinning';
 import { createPromptReorder } from './promptReorder';
-import { createPromptRowSurfaces } from './promptRowMenu';
+import { createPromptRowSurfaces } from './promptRowConfirm';
 import { getScrollHintState } from './scrollHint';
 import { formatStarredMessageTime } from './starredLibrary';
 import { sanitizeSelectedTags } from './tagFilterState';
@@ -1782,40 +1782,6 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
       });
     }
 
-    function openRowMenu(it: PromptItem, row: HTMLElement, point: { x: number; y: number }): void {
-      hideTooltip();
-      rowSurfaces.openMenu(point, [
-        {
-          label: isPinned(it) ? i18n.t('pm_unpin') || 'Unpin' : i18n.t('pm_pin') || 'Pin to top',
-          icon: isPinned(it) ? 'unpin' : 'pin',
-          onSelect: () => {
-            items = togglePin(items, it.id, Date.now());
-            renderList();
-            void writeStorage(STORAGE_KEYS.items, items);
-          },
-        },
-        { label: i18n.t('pm_edit') || 'Edit', icon: 'edit', onSelect: () => startEdit(it) },
-        {
-          label: i18n.t('pm_delete') || 'Delete',
-          icon: 'delete',
-          danger: true,
-          onSelect: () => confirmDelete(it, row),
-        },
-        {
-          label: i18n.t('pm_move_up') || 'Move up',
-          icon: 'up',
-          disabled: !reorder.canMove(it.id, -1),
-          onSelect: () => reorder.moveBy(it.id, -1),
-        },
-        {
-          label: i18n.t('pm_move_down') || 'Move down',
-          icon: 'down',
-          disabled: !reorder.canMove(it.id, 1),
-          onSelect: () => reorder.moveBy(it.id, 1),
-        },
-      ]);
-    }
-
     function renderList(): void {
       if (panelView !== 'prompts') {
         renderStarredList();
@@ -1991,12 +1957,6 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
           });
         }
         textBtn.addEventListener('keydown', (e) => {
-          if (e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10')) {
-            e.preventDefault();
-            const box = row.getBoundingClientRect();
-            openRowMenu(it, row, { x: box.left + 28, y: box.bottom - 2 });
-            return;
-          }
           if (e.key !== 'Enter' && e.key !== ' ') return;
           e.preventDefault();
           e.stopPropagation();
@@ -2048,10 +2008,6 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
         // The reorder handle leads the actions cluster in both view modes, so
         // it reads [⠿] [✎] [🗑] from left to right. A single visible row has
         // nothing to reorder against, so the handle is left out entirely.
-        row.addEventListener('contextmenu', (e) => {
-          e.preventDefault();
-          openRowMenu(it, row, { x: e.clientX, y: e.clientY });
-        });
         if (promptRowDrag) {
           reorder.bindRow(row, it.id);
         } else if (filtered.length > 1) {
@@ -2064,13 +2020,24 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
         }
         actions.appendChild(editBtn);
         actions.appendChild(del);
+        // Trails the cluster: on a pinned row it is the one icon that stays
+        // visible at rest, and it sits flush with the row's trailing edge.
+        const pinBtn = createEl('button', 'gv-pm-pin');
+        pinBtn.type = 'button';
+        pinBtn.title = isPinned(it)
+          ? i18n.t('pm_unpin') || 'Unpin'
+          : i18n.t('pm_pin') || 'Pin to top';
+        pinBtn.setAttribute('aria-label', pinBtn.title);
+        pinBtn.setAttribute('aria-pressed', isPinned(it) ? 'true' : 'false');
+        pinBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          items = togglePin(items, it.id, Date.now());
+          renderList();
+          void writeStorage(STORAGE_KEYS.items, items);
+        });
+        actions.appendChild(pinBtn);
         // Compact keeps the chips with the title they label, leaving the
         // trailing side to the actions alone — see contentStyle.css.
-        if (isPinned(it)) {
-          const star = createEl('span', 'gv-pm-pin-star');
-          star.setAttribute('aria-label', i18n.t('pm_pinned') || 'Pinned');
-          meta.appendChild(star);
-        }
         (compactCollapsed ? textContainer : bottom).appendChild(meta);
         bottom.appendChild(actions);
         row.appendChild(bottom);

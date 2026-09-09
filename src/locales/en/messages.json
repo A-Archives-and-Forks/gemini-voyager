@@ -230,14 +230,6 @@
     "message": "Drag to reorder (↑/↓ keys)",
     "description": "Prompt list reorder handle"
   },
-  "pm_move_up": {
-    "message": "Move up",
-    "description": "Move prompt one place earlier"
-  },
-  "pm_move_down": {
-    "message": "Move down",
-    "description": "Move prompt one place later"
-  },
   "pm_pin": {
     "message": "Pin to top",
     "description": "Pin a prompt above the rest"
@@ -245,10 +237,6 @@
   "pm_unpin": {
     "message": "Unpin",
     "description": "Remove a prompt from the pinned group"
-  },
-  "pm_pinned": {
-    "message": "Pinned",
-    "description": "Label for the pinned marker on a row"
   },
   "pm_saved": {
     "message": "Saved",
@@ -2766,7 +2754,7 @@
     "description": "Reorder onboarding title"
   },
   "promptReorderCoachmarkBody": {
-    "message": "Drag a row by its handle to reorder the list, or right-click a prompt to pin it to the top, edit it, or move it one place.",
+    "message": "Drag a row by its handle to reorder the list, or use the star to pin a prompt above the rest.",
     "description": "Reorder onboarding body"
   },
   "slashPromptCoachmarkBody": {

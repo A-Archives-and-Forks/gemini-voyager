@@ -230,14 +230,6 @@
     "message": "拖动调整顺序（↑/↓ 键）",
     "description": "Prompt list reorder handle"
   },
-  "pm_move_up": {
-    "message": "上移",
-    "description": "Move prompt one place earlier"
-  },
-  "pm_move_down": {
-    "message": "下移",
-    "description": "Move prompt one place later"
-  },
   "pm_pin": {
     "message": "置顶",
     "description": "Pin a prompt above the rest"
@@ -245,10 +237,6 @@
   "pm_unpin": {
     "message": "取消置顶",
     "description": "Remove a prompt from the pinned group"
-  },
-  "pm_pinned": {
-    "message": "已置顶",
-    "description": "Label for the pinned marker on a row"
   },
   "pm_saved": {
     "message": "已保存",
@@ -2766,7 +2754,7 @@
     "description": "Reorder onboarding title"
   },
   "promptReorderCoachmarkBody": {
-    "message": "拖动行上的手柄可以调整顺序；右键任意一条可以置顶、编辑，或上下移动一格。",
+    "message": "拖动行上的手柄可以调整顺序；点右侧的星标可以把常用的提示词固定在最上面。",
     "description": "Reorder onboarding body"
   },
   "slashPromptCoachmarkBody": {

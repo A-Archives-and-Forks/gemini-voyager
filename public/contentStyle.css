@@ -2884,13 +2884,16 @@ body.light-theme .gv-pm-starred-remove:hover,
   background: rgba(255, 255, 255, 0.09);
 }
 
-/* Hide action buttons by default, reveal on hover */
-.gv-pm-item .gv-pm-actions {
+/* Hidden until hover — but the fade sits on each button, never on the cluster.
+ * A parent at opacity 0 clamps its children, and the pin has to stay lit on a
+ * pinned row after the rest have faded back out. */
+.gv-pm-item .gv-pm-actions > * {
   opacity: 0;
   transition: opacity 0.15s ease;
 }
 
-.gv-pm-item:hover .gv-pm-actions {
+.gv-pm-item:hover .gv-pm-actions > *,
+.gv-pm-item:focus-within .gv-pm-actions > * {
   opacity: 1;
 }
 
@@ -2978,6 +2981,16 @@ body.dark-theme .gv-md-collapsed::after {
 
 /* Reorder handle: the same icon button as edit/delete, plus the grab cursor
  * and the `touch-action: none` a pointer-driven drag needs to own the gesture. */
+.gv-pm-pin {
+  background: transparent;
+  color: rgba(229, 231, 235, 0.5);
+}
+
+.gv-pm-pin:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e5e7eb;
+}
+
 .gv-pm-reorder {
   background: transparent;
   color: rgba(229, 231, 235, 0.5);
@@ -3082,7 +3095,8 @@ body.dark-theme .gv-pm-item-text {
 
 .gv-pm-edit,
 .gv-pm-del,
-.gv-pm-reorder {
+.gv-pm-reorder,
+.gv-pm-pin {
   width: 28px;
   height: 28px;
   border-radius: 8px;
@@ -3272,7 +3286,8 @@ body.dark-theme .gv-pm-del.armed {
 
 .gv-pm-edit::before,
 .gv-pm-del::before,
-.gv-pm-reorder::before {
+.gv-pm-reorder::before,
+.gv-pm-pin::before {
   content: '';
   width: 16px;
   height: 16px;
@@ -3733,19 +3748,19 @@ body.dark-theme .gv-pm-notice.err {
 }
 
 /* Inline confirm popover for delete (floating and responsive) */
-/* Pinned marker. It rides at the end of the leading content group rather than
- * in a reserved gutter, so unpinned rows keep their full title width. The
- * pinned block already sits above the divider, so the star confirms state — it
- * is not what you scan the column for. */
-.gv-pm-pin-star {
-  width: 11px;
-  height: 11px;
-  flex-shrink: 0;
-  display: inline-block;
-  background: oklch(0.75 0.14 var(--gv-pm-brand-h, var(--gv-pm-brand-h-default)));
-  -webkit-mask: var(--gv-icon) center / contain no-repeat;
-  mask: var(--gv-icon) center / contain no-repeat;
-  --gv-icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black"><path d="m12 17.27 5.18 3.13-1.37-5.9 4.58-3.97-6.03-.52L12 4.5 9.64 10.01l-6.03.52 4.58 3.97-1.37 5.9L12 17.27Z"/></svg>');
+/* Pin toggle. It trails the action cluster; a pinned row keeps it visible at
+ * rest, because once the other icons fade out the row still has to say why it
+ * is sitting above the divider. */
+.gv-pm-pin::before {
+  --gv-icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linejoin="round"><path d="m12 3.6 2.6 5.3 5.8.85-4.2 4.1 1 5.75L12 16.9l-5.2 2.7 1-5.75-4.2-4.1 5.8-.85Z"/></svg>');
+}
+
+.gv-pm-pin[aria-pressed='true'] {
+  color: oklch(0.75 0.14 var(--gv-pm-brand-h, var(--gv-pm-brand-h-default)));
+}
+
+.gv-pm-pin[aria-pressed='true']::before {
+  --gv-icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black"><path d="m12 3.6 2.6 5.3 5.8.85-4.2 4.1 1 5.75L12 16.9l-5.2 2.7 1-5.75-4.2-4.1 5.8-.85Z"/></svg>');
 }
 
 /* Separates the pinned block from the rest. Rendered only when both sides have
@@ -3760,114 +3775,6 @@ body.dark-theme .gv-pm-notice.err {
 .theme-host.light-theme .gv-pm-pin-divider,
 body.light-theme .gv-pm-pin-divider {
   background: rgba(0, 0, 0, 0.1);
-}
-
-.gv-pm-row-menu-item[data-gv-icon='pin']::before {
-  --gv-icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black"><path d="m12 17.27 5.18 3.13-1.37-5.9 4.58-3.97-6.03-.52L12 4.5 9.64 10.01l-6.03.52 4.58 3.97-1.37 5.9L12 17.27Z"/></svg>');
-}
-
-.gv-pm-row-menu-item[data-gv-icon='unpin']::before {
-  --gv-icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 17.27 5.18 3.13-1.37-5.9 4.58-3.97-6.03-.52L12 4.5 9.64 10.01l-6.03.52 4.58 3.97-1.37 5.9L12 17.27Z"/><path d="m4 4 16 16"/></svg>');
-}
-
-/* Row context menu. Shares the confirmation's floating treatment so the two
- * surfaces read as one family; both are dismissed by promptRowMenu.ts. */
-.gv-pm-row-menu {
-  position: fixed;
-  outline: none;
-  z-index: 2147483646;
-  min-width: 168px;
-  padding: 4px;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  background: rgba(2, 6, 23, 0.96);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(2, 6, 23, 0.4);
-}
-
-.gv-pm-row-menu-item {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 6px 9px;
-  border: none;
-  border-radius: 6px;
-  background: transparent;
-  color: #e5e7eb;
-  font-size: 12.5px;
-  font-family: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-
-.gv-pm-row-menu-item:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.gv-pm-row-menu-item:focus-visible {
-  outline: 2px solid oklch(0.7 0.16 var(--gv-pm-brand-h, var(--gv-pm-brand-h-default)));
-  outline-offset: -2px;
-}
-
-.gv-pm-row-menu-item:disabled {
-  opacity: 0.35;
-  cursor: default;
-}
-
-.gv-pm-row-menu-danger {
-  color: #fca5a5;
-}
-
-.gv-pm-row-menu-item::before {
-  content: '';
-  width: 15px;
-  height: 15px;
-  flex-shrink: 0;
-  display: block;
-  background: currentColor;
-  -webkit-mask: var(--gv-icon) center / contain no-repeat;
-  mask: var(--gv-icon) center / contain no-repeat;
-  opacity: 0.75;
-}
-
-.gv-pm-row-menu-item[data-gv-icon='edit']::before {
-  --gv-icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black"><path d="M3 17.46V21h3.54L17.81 9.73l-3.54-3.54L3 17.46ZM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83Z"/></svg>');
-}
-
-.gv-pm-row-menu-item[data-gv-icon='delete']::before {
-  --gv-icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12ZM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4Z"/></svg>');
-}
-
-.gv-pm-row-menu-item[data-gv-icon='up']::before {
-  --gv-icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black"><path d="M12 8.41 6.7 13.7l-1.4-1.4L12 5.6l6.7 6.7-1.4 1.4L12 8.41Z"/></svg>');
-}
-
-.gv-pm-row-menu-item[data-gv-icon='down']::before {
-  --gv-icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black"><path d="M12 15.59 17.3 10.3l1.4 1.4L12 18.4l-6.7-6.7 1.4-1.4L12 15.59Z"/></svg>');
-}
-
-.theme-host.light-theme .gv-pm-row-menu,
-body.light-theme .gv-pm-row-menu {
-  background: rgba(255, 255, 255, 0.98);
-  border-color: rgba(0, 0, 0, 0.1);
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.16);
-}
-
-.theme-host.light-theme .gv-pm-row-menu-item,
-body.light-theme .gv-pm-row-menu-item {
-  color: #1f2937;
-}
-
-.theme-host.light-theme .gv-pm-row-menu-item:hover:not(:disabled),
-body.light-theme .gv-pm-row-menu-item:hover:not(:disabled) {
-  background: rgba(0, 0, 0, 0.06);
-}
-
-.theme-host.light-theme .gv-pm-row-menu-danger,
-body.light-theme .gv-pm-row-menu-danger {
-  color: #b91c1c;
 }
 
 .gv-pm-confirm {
@@ -11151,18 +11058,30 @@ body.light-theme .gv-pm-view-mode.gv-pm-view-mode-compact,
  * brings them in. Layout never changes, only opacity. */
 .gv-pm-item-compact .gv-pm-actions {
   gap: 2px;
+}
+
+.gv-pm-item-compact .gv-pm-actions > * {
   opacity: 0;
   transition: opacity 0.15s ease;
 }
 
-.gv-pm-item-compact:hover .gv-pm-actions,
-.gv-pm-item-compact:focus-within .gv-pm-actions {
+.gv-pm-item-compact:hover .gv-pm-actions > *,
+.gv-pm-item-compact:focus-within .gv-pm-actions > * {
+  opacity: 1;
+}
+
+/* A pin is state, not just an action: it outlives the hover that set it, so it
+ * stays lit while the rest of the cluster fades back out. Declared after the
+ * cluster's own fade so it wins the tie at equal specificity. */
+.gv-pm-item .gv-pm-actions > .gv-pm-pin[aria-pressed='true'],
+.gv-pm-item-compact .gv-pm-actions > .gv-pm-pin[aria-pressed='true'] {
   opacity: 1;
 }
 
 .gv-pm-item-compact .gv-pm-edit,
 .gv-pm-item-compact .gv-pm-del,
-.gv-pm-item-compact .gv-pm-reorder {
+.gv-pm-item-compact .gv-pm-reorder,
+.gv-pm-item-compact .gv-pm-pin {
   width: 24px;
   height: 24px;
   border-radius: 6px;
@@ -11170,7 +11089,8 @@ body.light-theme .gv-pm-view-mode.gv-pm-view-mode-compact,
 
 .gv-pm-item-compact .gv-pm-edit::before,
 .gv-pm-item-compact .gv-pm-del::before,
-.gv-pm-item-compact .gv-pm-reorder::before {
+.gv-pm-item-compact .gv-pm-reorder::before,
+.gv-pm-item-compact .gv-pm-pin::before {
   width: 14px;
   height: 14px;
 }

@@ -230,14 +230,6 @@
     "message": "اسحب لإعادة الترتيب (مفتاحا ↑/↓)",
     "description": "Prompt list reorder handle"
   },
-  "pm_move_up": {
-    "message": "نقل لأعلى",
-    "description": "Move prompt one place earlier"
-  },
-  "pm_move_down": {
-    "message": "نقل لأسفل",
-    "description": "Move prompt one place later"
-  },
   "pm_pin": {
     "message": "تثبيت في الأعلى",
     "description": "Pin a prompt above the rest"
@@ -245,10 +237,6 @@
   "pm_unpin": {
     "message": "إلغاء التثبيت",
     "description": "Remove a prompt from the pinned group"
-  },
-  "pm_pinned": {
-    "message": "مثبّت",
-    "description": "Label for the pinned marker on a row"
   },
   "pm_saved": {
     "message": "تم الحفظ",
@@ -2766,7 +2754,7 @@
     "description": "Reorder onboarding title"
   },
   "promptReorderCoachmarkBody": {
-    "message": "اسحب الصف من المقبض لإعادة ترتيب القائمة، أو انقر بزر الفأرة الأيمن على مطالبة لتثبيتها في الأعلى أو تعديلها أو نقلها مرتبة واحدة.",
+    "message": "اسحب الصف من المقبض لإعادة ترتيب القائمة، أو استخدم النجمة لتثبيت مطالبة في الأعلى.",
     "description": "Reorder onboarding body"
   },
   "slashPromptCoachmarkBody": {

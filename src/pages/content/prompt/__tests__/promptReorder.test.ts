@@ -194,16 +194,6 @@ describe('prompt reorder gesture', () => {
     expect(panel.commit).not.toHaveBeenCalled();
   });
 
-  it('steps and reports reachability for the row menu', () => {
-    const panel = mount(['a', 'b', 'c']);
-
-    expect(panel.controller.canMove('a', -1)).toBe(false);
-    expect(panel.controller.canMove('a', 1)).toBe(true);
-    expect(panel.controller.moveBy('a', 1)).toBe(true);
-    expect(panel.order()).toEqual(['b', 'a', 'c']);
-    expect(panel.controller.moveBy('c', 1)).toBe(false);
-  });
-
   it('stops arrow moves at the ends of the list', () => {
     const panel = mount(['a', 'b', 'c']);
 

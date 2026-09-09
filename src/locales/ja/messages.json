@@ -230,14 +230,6 @@
     "message": "ドラッグして並べ替え（↑/↓ キー）",
     "description": "Prompt list reorder handle"
   },
-  "pm_move_up": {
-    "message": "上に移動",
-    "description": "Move prompt one place earlier"
-  },
-  "pm_move_down": {
-    "message": "下に移動",
-    "description": "Move prompt one place later"
-  },
   "pm_pin": {
     "message": "先頭に固定",
     "description": "Pin a prompt above the rest"
@@ -245,10 +237,6 @@
   "pm_unpin": {
     "message": "固定を解除",
     "description": "Remove a prompt from the pinned group"
-  },
-  "pm_pinned": {
-    "message": "固定中",
-    "description": "Label for the pinned marker on a row"
   },
   "pm_saved": {
     "message": "保存しました",
@@ -2766,7 +2754,7 @@
     "description": "Reorder onboarding title"
   },
   "promptReorderCoachmarkBody": {
-    "message": "行のハンドルをドラッグすると並べ替えできます。右クリックで先頭に固定、編集、1つ上下への移動ができます。",
+    "message": "行のハンドルをドラッグすると並べ替えでき、星をクリックするとよく使うプロンプトを先頭に固定できます。",
     "description": "Reorder onboarding body"
   },
   "slashPromptCoachmarkBody": {
