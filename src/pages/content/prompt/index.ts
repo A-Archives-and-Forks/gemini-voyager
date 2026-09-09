@@ -113,6 +113,9 @@ const ID = {
   panel: 'gv-pm-panel',
 } as const;
 
+/** Exported so surfaces outside the panel (the onboarding guide) can anchor to it. */
+export const PROMPT_TRIGGER_ID = ID.trigger;
+
 const LATEST_VERSION_CACHE_KEY = 'gvLatestVersionCache';
 const LATEST_VERSION_MAX_AGE = 1000 * 60 * 60 * 6; // 6 hours
 const SPONSOR_HEART_PATH_16 =

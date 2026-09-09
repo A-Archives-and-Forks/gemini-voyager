@@ -2761,6 +2761,14 @@
     "message": "新功能：斜杠提示词插入",
     "description": "Coachmark title introducing slash prompt insertion"
   },
+  "promptReorderCoachmarkTitle": {
+    "message": "新功能：给提示词排个序",
+    "description": "Reorder onboarding title"
+  },
+  "promptReorderCoachmarkBody": {
+    "message": "拖动行上的手柄可以调整顺序；右键任意一条可以置顶、编辑，或上下移动一格。",
+    "description": "Reorder onboarding body"
+  },
   "slashPromptCoachmarkBody": {
     "message": "在 Gemini 输入框中输入 /，即可快速插入已保存的提示词。",
     "description": "Coachmark body text introducing slash prompt insertion"

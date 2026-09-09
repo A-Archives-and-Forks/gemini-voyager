@@ -2761,6 +2761,14 @@
     "message": "Новое: вставка промптов через /",
     "description": "Coachmark title introducing slash prompt insertion"
   },
+  "promptReorderCoachmarkTitle": {
+    "message": "Новое: упорядочьте свои промпты",
+    "description": "Reorder onboarding title"
+  },
+  "promptReorderCoachmarkBody": {
+    "message": "Перетащите строку за ручку, чтобы изменить порядок, или щёлкните промпт правой кнопкой, чтобы закрепить его сверху, изменить или переместить на одну позицию.",
+    "description": "Reorder onboarding body"
+  },
   "slashPromptCoachmarkBody": {
     "message": "Введите / в поле Gemini, чтобы быстро вставить сохранённый промпт.",
     "description": "Coachmark body text introducing slash prompt insertion"

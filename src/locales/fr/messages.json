@@ -2761,6 +2761,14 @@
     "message": "Nouveau : insertion de prompts avec /",
     "description": "Coachmark title introducing slash prompt insertion"
   },
+  "promptReorderCoachmarkTitle": {
+    "message": "Nouveau : classez vos prompts",
+    "description": "Reorder onboarding title"
+  },
+  "promptReorderCoachmarkBody": {
+    "message": "Faites glisser une ligne par sa poignée pour réordonner la liste, ou faites un clic droit sur un prompt pour l’épingler en haut, le modifier ou le déplacer d’un rang.",
+    "description": "Reorder onboarding body"
+  },
   "slashPromptCoachmarkBody": {
     "message": "Saisissez / dans la zone de saisie de Gemini pour insérer rapidement un prompt enregistré.",
     "description": "Coachmark body text introducing slash prompt insertion"

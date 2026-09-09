@@ -2761,6 +2761,14 @@
     "message": "新機能：スラッシュでプロンプトを挿入",
     "description": "Coachmark title introducing slash prompt insertion"
   },
+  "promptReorderCoachmarkTitle": {
+    "message": "新機能：プロンプトを並べ替える",
+    "description": "Reorder onboarding title"
+  },
+  "promptReorderCoachmarkBody": {
+    "message": "行のハンドルをドラッグすると並べ替えできます。右クリックで先頭に固定、編集、1つ上下への移動ができます。",
+    "description": "Reorder onboarding body"
+  },
   "slashPromptCoachmarkBody": {
     "message": "Gemini の入力欄で / を入力すると、保存済みのプロンプトをすばやく挿入できます。",
     "description": "Coachmark body text introducing slash prompt insertion"

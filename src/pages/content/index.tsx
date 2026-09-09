@@ -51,6 +51,7 @@ import { createPostChangelogFlow } from './postChangelogFlow';
 import { startPreventAutoScroll } from './preventAutoScroll/index';
 import { createCustomSiteCoverageReconciler } from './prompt/customSiteCoverage';
 import { startPromptManager } from './prompt/index';
+import { promptReorderCoachmarkStep } from './prompt/promptReorderCoachmark';
 import { startSentPromptChipsFeature } from './prompt/sentPromptChipsFeature';
 import { slashPromptCoachmarkStep } from './prompt/slashPromptCoachmark';
 import { startSlashPromptFeature } from './prompt/slashPromptFeature';
@@ -132,6 +133,7 @@ function showOnboardingCoachmarksWhenChangelogIsIdle(): void {
     folderSearchCoachmarkStep,
     conversationSortCoachmarkStep,
     slashPromptCoachmarkStep,
+    promptReorderCoachmarkStep,
   ])
     .then((result) => {
       if (result !== 'skipped') onboardingCoachmarkShownThisPage = true;

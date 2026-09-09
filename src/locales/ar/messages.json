@@ -2761,6 +2761,14 @@
     "message": "جديد: إدراج المطالبات باستخدام /",
     "description": "Coachmark title introducing slash prompt insertion"
   },
+  "promptReorderCoachmarkTitle": {
+    "message": "جديد: رتّب مطالباتك",
+    "description": "Reorder onboarding title"
+  },
+  "promptReorderCoachmarkBody": {
+    "message": "اسحب الصف من المقبض لإعادة ترتيب القائمة، أو انقر بزر الفأرة الأيمن على مطالبة لتثبيتها في الأعلى أو تعديلها أو نقلها مرتبة واحدة.",
+    "description": "Reorder onboarding body"
+  },
   "slashPromptCoachmarkBody": {
     "message": "اكتب / في مربع كتابة Gemini لإدراج مطالبة محفوظة بسرعة.",
     "description": "Coachmark body text introducing slash prompt insertion"

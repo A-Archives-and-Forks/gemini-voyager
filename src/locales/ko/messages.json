@@ -2761,6 +2761,14 @@
     "message": "새 기능: 슬래시 프롬프트 삽입",
     "description": "Coachmark title introducing slash prompt insertion"
   },
+  "promptReorderCoachmarkTitle": {
+    "message": "새 기능: 프롬프트 순서 정리",
+    "description": "Reorder onboarding title"
+  },
+  "promptReorderCoachmarkBody": {
+    "message": "행의 핸들을 끌어 순서를 바꾸거나, 프롬프트를 마우스 오른쪽 버튼으로 눌러 상단 고정, 편집, 한 칸 이동을 할 수 있습니다.",
+    "description": "Reorder onboarding body"
+  },
   "slashPromptCoachmarkBody": {
     "message": "Gemini 입력창에 /를 입력하여 저장된 프롬프트를 빠르게 삽입합니다.",
     "description": "Coachmark body text introducing slash prompt insertion"
