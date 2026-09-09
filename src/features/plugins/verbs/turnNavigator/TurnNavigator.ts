@@ -33,6 +33,8 @@ import {
   scrollElementToAnchor,
   scrollToCenter,
 } from './scrollMotion';
+import { extractTurnHash, StarSnapshotLoader } from './starSnapshot';
+export { extractTurnHash } from './starSnapshot';
 
 export interface TurnNavigatorConfig {
   /** Site adapter id; prefixes conversation ids and marks the rail. */
@@ -99,16 +101,6 @@ export function buildTurnId(text: string): string {
   return `c-${hashString(text)}`;
 }
 
-/**
- * Content hash shared by every historical turn-id format:
- * legacy `c-<mountIndex>-<hash>`, current `c-<hash>` and `c-<hash>~<n>`.
- */
-export function extractTurnHash(turnId: string): string {
-  const base = turnId.split('~')[0];
-  const segments = base.split('-');
-  return segments[segments.length - 1] || base;
-}
-
 type Dot = HTMLButtonElement & {
   dataset: DOMStringMap & { targetTurnId?: string; markerIndex?: string };
 };
@@ -170,6 +162,7 @@ export class TurnNavigator {
   private markers: Marker[] = [];
   private markerCenters: number[] = [];
   private conversationId = '';
+  private readonly starSnapshots = new StarSnapshotLoader();
   private starredByHash = new Map<string, { turnId: string; starredAt: number }>();
   private stopRefreshTimer: Dispose | null = null;
   private stopLongPressTimer: Dispose | null = null;
@@ -577,15 +570,18 @@ export class TurnNavigator {
     const nextConversationId = this.buildConversationId();
     if (!force && nextConversationId === this.conversationId) return;
     this.conversationId = nextConversationId;
-    const messages = await StarredMessagesService.getStarredMessagesForConversation(
-      this.conversationId,
+    const isCurrent = this.starSnapshots.begin(
+      () => !this.disposed && this.buildConversationId() === nextConversationId,
     );
-    this.starredByHash = new Map(
-      messages.map((message) => [
-        extractTurnHash(message.turnId),
-        { turnId: message.turnId, starredAt: message.starredAt },
-      ]),
-    );
+    const messages =
+      await StarredMessagesService.getStarredMessagesForConversation(nextConversationId);
+    if (isCurrent())
+      this.starredByHash = new Map(
+        messages.map((message) => [
+          extractTurnHash(message.turnId),
+          { turnId: message.turnId, starredAt: message.starredAt },
+        ]),
+      );
   }
 
   private renderDots(): void {
