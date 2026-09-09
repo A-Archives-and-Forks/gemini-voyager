@@ -2979,8 +2979,9 @@ body.dark-theme .gv-md-collapsed::after {
   background: none;
 }
 
-/* Reorder handle: the same icon button as edit/delete, plus the grab cursor
- * and the `touch-action: none` a pointer-driven drag needs to own the gesture. */
+/* Pin and reorder handle: the same icon button as edit/delete. The handle adds
+ * the grab cursor and the `touch-action: none` a pointer-driven drag needs to
+ * own the gesture. */
 .gv-pm-pin {
   background: transparent;
   color: rgba(229, 231, 235, 0.5);
@@ -3039,24 +3040,36 @@ body.dark-theme .gv-md-collapsed::after {
   bottom: -3px;
 }
 
+/* The pin rides along with the reorder handle: same icon button, same ink. Its
+ * own base colour is the dark one, so without these it renders near-white on a
+ * light panel. A pinned star keeps its brand colour — the rule that sets it
+ * outranks everything here. */
 .theme-host.light-theme .gv-pm-reorder,
-body.light-theme .gv-pm-reorder {
+body.light-theme .gv-pm-reorder,
+.theme-host.light-theme .gv-pm-pin,
+body.light-theme .gv-pm-pin {
   color: rgba(31, 41, 55, 0.4);
 }
 
 .theme-host.light-theme .gv-pm-reorder:hover,
-body.light-theme .gv-pm-reorder:hover {
+body.light-theme .gv-pm-reorder:hover,
+.theme-host.light-theme .gv-pm-pin:hover,
+body.light-theme .gv-pm-pin:hover {
   background: rgba(0, 0, 0, 0.06);
   color: #1f2937;
 }
 
 .theme-host.dark-theme .gv-pm-reorder,
-body.dark-theme .gv-pm-reorder {
+body.dark-theme .gv-pm-reorder,
+.theme-host.dark-theme .gv-pm-pin,
+body.dark-theme .gv-pm-pin {
   color: rgba(229, 231, 235, 0.5);
 }
 
 .theme-host.dark-theme .gv-pm-reorder:hover,
-body.dark-theme .gv-pm-reorder:hover {
+body.dark-theme .gv-pm-reorder:hover,
+.theme-host.dark-theme .gv-pm-pin:hover,
+body.dark-theme .gv-pm-pin:hover {
   background: rgba(255, 255, 255, 0.08);
   color: #e5e7eb;
 }
@@ -3755,7 +3768,12 @@ body.dark-theme .gv-pm-notice.err {
   --gv-icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linejoin="round"><path d="m12 3.6 2.6 5.3 5.8.85-4.2 4.1 1 5.75L12 16.9l-5.2 2.7 1-5.75-4.2-4.1 5.8-.85Z"/></svg>');
 }
 
-.gv-pm-pin[aria-pressed='true'] {
+/* Outranks every per-theme colour above, which dresses the resting star: a
+ * pinned one is brand-coloured in light and dark alike. The `:hover` twin is
+ * what carries that past the per-theme hover rules, which match at the same
+ * specificity and would otherwise grey the star out under the cursor. */
+.gv-pm-item .gv-pm-actions > .gv-pm-pin[aria-pressed='true'],
+.gv-pm-item .gv-pm-actions > .gv-pm-pin[aria-pressed='true']:hover {
   color: oklch(0.75 0.14 var(--gv-pm-brand-h, var(--gv-pm-brand-h-default)));
 }
 
@@ -4092,11 +4110,13 @@ body.light-theme .gv-pm-pin-divider {
   background: none;
 }
 
-.gv-pm-panel[data-gv-theme='dark'] .gv-pm-reorder {
+.gv-pm-panel[data-gv-theme='dark'] .gv-pm-reorder,
+.gv-pm-panel[data-gv-theme='dark'] .gv-pm-pin {
   color: rgba(229, 231, 235, 0.5);
 }
 
-.gv-pm-panel[data-gv-theme='dark'] .gv-pm-reorder:hover {
+.gv-pm-panel[data-gv-theme='dark'] .gv-pm-reorder:hover,
+.gv-pm-panel[data-gv-theme='dark'] .gv-pm-pin:hover {
   background: rgba(255, 255, 255, 0.08);
   color: #e5e7eb;
 }
@@ -4328,11 +4348,13 @@ body.light-theme .gv-pm-pin-divider {
   background: rgba(0, 0, 0, 0.05);
 }
 
-.gv-pm-panel[data-gv-theme='light'] .gv-pm-reorder {
+.gv-pm-panel[data-gv-theme='light'] .gv-pm-reorder,
+.gv-pm-panel[data-gv-theme='light'] .gv-pm-pin {
   color: rgba(31, 41, 55, 0.4);
 }
 
-.gv-pm-panel[data-gv-theme='light'] .gv-pm-reorder:hover {
+.gv-pm-panel[data-gv-theme='light'] .gv-pm-reorder:hover,
+.gv-pm-panel[data-gv-theme='light'] .gv-pm-pin:hover {
   background: rgba(0, 0, 0, 0.06);
   color: #1f2937;
 }
@@ -10966,10 +10988,11 @@ body.light-theme .gv-pm-view-mode.gv-pm-view-mode-compact,
 .gv-pm-item-compact .gv-pm-item-text-container {
   align-items: center;
   gap: 6px;
-  /* Reserve room for the absolutely-positioned action cluster. The tag chips
-   * moved in here beside the title, so the cushion only has to clear the three
-   * icon buttons — the title gets the rest of the width back. */
-  padding-right: 84px;
+  /* Reserve room for the absolutely-positioned action cluster: four 24px icon
+   * buttons, their 2px gaps and the cluster's own 8px offset, less this row's
+   * 10px padding. The tag chips moved in here beside the title, so anything
+   * short of that leaves them running under the reorder handle on hover. */
+  padding-right: 100px;
   /* Base rule sets width:100%; with default content-box, the 196px padding
    * above would be added on top of the full width, forcing each row 196px
    * wider than the panel and introducing a stray horizontal scrollbar. */
@@ -11022,9 +11045,11 @@ body.light-theme .gv-pm-view-mode.gv-pm-view-mode-compact,
   gap: 6px;
 }
 
-/* The tag-chip container no longer hard-clips; individual chips ellipsize
- * themselves (see below) so long labels like "paper reading" render in
- * full when there's room, and degrade gracefully when there isn't. */
+/* Individual chips ellipsize themselves (see below), so long labels like
+ * "paper reading" render in full when there's room. Chips do not shrink, so a
+ * row with more tags than fit overflows this box — and the box ends exactly
+ * where the action cluster's lane begins. Clip there, or the tail of the last
+ * chip paints under the reorder handle. */
 .gv-pm-item-compact .gv-pm-item-meta {
   flex-wrap: nowrap;
   align-items: center;
@@ -11032,6 +11057,7 @@ body.light-theme .gv-pm-view-mode.gv-pm-view-mode-compact,
   transition: opacity 0.15s ease;
   gap: 4px;
   min-width: 0;
+  overflow: hidden;
 }
 
 .gv-pm-item-compact:hover .gv-pm-item-meta {
@@ -11098,7 +11124,7 @@ body.light-theme .gv-pm-view-mode.gv-pm-view-mode-compact,
 /* RTL: mirror the absolute-positioned action bar to the left edge. */
 body.gv-rtl .gv-pm-item-compact .gv-pm-item-text-container {
   padding-right: 0;
-  padding-left: 84px;
+  padding-left: 100px;
 }
 
 body.gv-rtl .gv-pm-item-compact .gv-pm-bottom {

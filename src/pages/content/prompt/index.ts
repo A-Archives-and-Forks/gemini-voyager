@@ -33,6 +33,7 @@ import {
   type HighlightRecordV1,
   getHighlightColorHex,
 } from '@/core/types/highlight';
+import type { PromptItem } from '@/core/types/sync';
 import { isSafari, shouldShowSafariUpdateReminder } from '@/core/utils/browser';
 import { isExtensionContextInvalidatedError } from '@/core/utils/extensionContext';
 import { migrateFromLocalStorage } from '@/core/utils/storageMigration';
@@ -76,19 +77,6 @@ import { createPromptRowSurfaces } from './promptRowConfirm';
 import { getScrollHintState } from './scrollHint';
 import { formatStarredMessageTime } from './starredLibrary';
 import { sanitizeSelectedTags } from './tagFilterState';
-
-type PromptItem = {
-  id: string;
-  text: string;
-  tags: string[];
-  createdAt: number;
-  updatedAt?: number;
-  /**
-   * Required for newly saved prompts. It remains optional in the stored type
-   * so legacy prompts keep rendering without a destructive migration.
-   */
-  name?: string;
-};
 
 type PanelPosition = { top: number; left: number };
 type TriggerPosition = { bottom: number; right: number };
