@@ -238,6 +238,18 @@
     "message": "Mover para baixo",
     "description": "Move prompt one place later"
   },
+  "pm_pin": {
+    "message": "Fixar no topo",
+    "description": "Pin a prompt above the rest"
+  },
+  "pm_unpin": {
+    "message": "Desafixar",
+    "description": "Remove a prompt from the pinned group"
+  },
+  "pm_pinned": {
+    "message": "Fixado",
+    "description": "Label for the pinned marker on a row"
+  },
   "pm_saved": {
     "message": "Salvo",
     "description": "Saved notice"

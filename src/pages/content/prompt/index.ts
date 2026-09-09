@@ -70,6 +70,7 @@ import {
 import { extractPlainTitle } from './compactTitle';
 import { activatePromptText } from './promptClickAction';
 import { getPromptNameConflictIds, isPromptNameTaken, normalizePromptName } from './promptName';
+import { isPinned, pinGroupOf, sortPinnedFirst, togglePin } from './promptPinning';
 import { createPromptReorder } from './promptReorder';
 import { createPromptRowSurfaces } from './promptRowMenu';
 import { getScrollHintState } from './scrollHint';
@@ -1746,6 +1747,7 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
         rowSurfaces.close();
       },
       onTap: (id) => rowActivators.get(id)?.(),
+      groupOf: (id) => pinGroupOf(items, id),
     });
 
     /** Loads the add form with a prompt's fields; shared by the button and the row menu. */
@@ -1780,6 +1782,15 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
     function openRowMenu(it: PromptItem, row: HTMLElement, point: { x: number; y: number }): void {
       hideTooltip();
       rowSurfaces.openMenu(point, [
+        {
+          label: isPinned(it) ? i18n.t('pm_unpin') || 'Unpin' : i18n.t('pm_pin') || 'Pin to top',
+          icon: isPinned(it) ? 'unpin' : 'pin',
+          onSelect: () => {
+            items = togglePin(items, it.id, Date.now());
+            renderList();
+            void writeStorage(STORAGE_KEYS.items, items);
+          },
+        },
         { label: i18n.t('pm_edit') || 'Edit', icon: 'edit', onSelect: () => startEdit(it) },
         {
           label: i18n.t('pm_delete') || 'Delete',
@@ -1846,8 +1857,14 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
         // Nothing to scroll back to; avoid setting scrollTop on an empty list.
         return;
       }
+      const ordered = sortPinnedFirst(filtered);
       const frag = document.createDocumentFragment();
-      for (const it of filtered) {
+      let dividerDone = false;
+      for (const it of ordered) {
+        if (!dividerDone && !isPinned(it) && ordered[0] && isPinned(ordered[0])) {
+          frag.appendChild(createEl('div', 'gv-pm-pin-divider'));
+          dividerDone = true;
+        }
         const row = createEl('div', 'gv-pm-item');
 
         const textContainer = createEl('div', 'gv-pm-item-text-container');
@@ -2046,6 +2063,11 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
         actions.appendChild(del);
         // Compact keeps the chips with the title they label, leaving the
         // trailing side to the actions alone — see contentStyle.css.
+        if (isPinned(it)) {
+          const star = createEl('span', 'gv-pm-pin-star');
+          star.setAttribute('aria-label', i18n.t('pm_pinned') || 'Pinned');
+          meta.appendChild(star);
+        }
         (compactCollapsed ? textContainer : bottom).appendChild(meta);
         bottom.appendChild(actions);
         row.appendChild(bottom);

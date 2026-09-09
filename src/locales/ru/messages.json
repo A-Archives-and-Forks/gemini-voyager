@@ -238,6 +238,18 @@
     "message": "Переместить вниз",
     "description": "Move prompt one place later"
   },
+  "pm_pin": {
+    "message": "Закрепить сверху",
+    "description": "Pin a prompt above the rest"
+  },
+  "pm_unpin": {
+    "message": "Открепить",
+    "description": "Remove a prompt from the pinned group"
+  },
+  "pm_pinned": {
+    "message": "Закреплено",
+    "description": "Label for the pinned marker on a row"
+  },
   "pm_saved": {
     "message": "Сохранено",
     "description": "Saved notice"

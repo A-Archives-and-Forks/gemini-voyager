@@ -3733,6 +3733,43 @@ body.dark-theme .gv-pm-notice.err {
 }
 
 /* Inline confirm popover for delete (floating and responsive) */
+/* Pinned marker. It rides at the end of the leading content group rather than
+ * in a reserved gutter, so unpinned rows keep their full title width. The
+ * pinned block already sits above the divider, so the star confirms state — it
+ * is not what you scan the column for. */
+.gv-pm-pin-star {
+  width: 11px;
+  height: 11px;
+  flex-shrink: 0;
+  display: inline-block;
+  background: oklch(0.75 0.14 var(--gv-pm-brand-h, var(--gv-pm-brand-h-default)));
+  -webkit-mask: var(--gv-icon) center / contain no-repeat;
+  mask: var(--gv-icon) center / contain no-repeat;
+  --gv-icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black"><path d="m12 17.27 5.18 3.13-1.37-5.9 4.58-3.97-6.03-.52L12 4.5 9.64 10.01l-6.03.52 4.58 3.97-1.37 5.9L12 17.27Z"/></svg>');
+}
+
+/* Separates the pinned block from the rest. Rendered only when both sides have
+ * rows, so it never floats alone at the top or bottom of the list. */
+.gv-pm-pin-divider {
+  height: 1px;
+  margin: 5px 2px;
+  background: rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.theme-host.light-theme .gv-pm-pin-divider,
+body.light-theme .gv-pm-pin-divider {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.gv-pm-row-menu-item[data-gv-icon='pin']::before {
+  --gv-icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black"><path d="m12 17.27 5.18 3.13-1.37-5.9 4.58-3.97-6.03-.52L12 4.5 9.64 10.01l-6.03.52 4.58 3.97-1.37 5.9L12 17.27Z"/></svg>');
+}
+
+.gv-pm-row-menu-item[data-gv-icon='unpin']::before {
+  --gv-icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 17.27 5.18 3.13-1.37-5.9 4.58-3.97-6.03-.52L12 4.5 9.64 10.01l-6.03.52 4.58 3.97-1.37 5.9L12 17.27Z"/><path d="m4 4 16 16"/></svg>');
+}
+
 /* Row context menu. Shares the confirmation's floating treatment so the two
  * surfaces read as one family; both are dismissed by promptRowMenu.ts. */
 .gv-pm-row-menu {

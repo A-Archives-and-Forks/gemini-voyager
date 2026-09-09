@@ -238,6 +238,18 @@
     "message": "下移",
     "description": "Move prompt one place later"
   },
+  "pm_pin": {
+    "message": "置顶",
+    "description": "Pin a prompt above the rest"
+  },
+  "pm_unpin": {
+    "message": "取消置顶",
+    "description": "Remove a prompt from the pinned group"
+  },
+  "pm_pinned": {
+    "message": "已置顶",
+    "description": "Label for the pinned marker on a row"
+  },
   "pm_saved": {
     "message": "已保存",
     "description": "保存提示"

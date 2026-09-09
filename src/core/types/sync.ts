@@ -66,6 +66,11 @@ export interface PromptItem {
   updatedAt?: number;
   /** Optional only for prompts created before names became required. */
   name?: string;
+  /**
+   * When the prompt was pinned. Absent means unpinned — see promptPinning.ts.
+   * Pinning bumps `updatedAt` so the cloud merge carries it.
+   */
+  pinnedAt?: number;
 }
 
 /**

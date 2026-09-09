@@ -7,7 +7,7 @@
  * menu on top of a confirmation that is still waiting for an answer.
  */
 
-export type RowMenuIcon = 'edit' | 'delete' | 'up' | 'down';
+export type RowMenuIcon = 'pin' | 'unpin' | 'edit' | 'delete' | 'up' | 'down';
 
 export type RowMenuItem = {
   label: string;

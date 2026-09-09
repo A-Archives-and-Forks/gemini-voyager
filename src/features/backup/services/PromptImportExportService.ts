@@ -55,6 +55,10 @@ function normalizePromptItem(value: unknown): PromptItem | null {
   const name = typeof item.name === 'string' ? item.name.trim() : '';
   if (name) prompt.name = name;
 
+  if (typeof item.pinnedAt === 'number' && Number.isFinite(item.pinnedAt)) {
+    prompt.pinnedAt = item.pinnedAt;
+  }
+
   return prompt;
 }
 

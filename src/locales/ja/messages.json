@@ -238,6 +238,18 @@
     "message": "下に移動",
     "description": "Move prompt one place later"
   },
+  "pm_pin": {
+    "message": "先頭に固定",
+    "description": "Pin a prompt above the rest"
+  },
+  "pm_unpin": {
+    "message": "固定を解除",
+    "description": "Remove a prompt from the pinned group"
+  },
+  "pm_pinned": {
+    "message": "固定中",
+    "description": "Label for the pinned marker on a row"
+  },
   "pm_saved": {
     "message": "保存しました",
     "description": "Saved notice"

@@ -238,6 +238,18 @@
     "message": "아래로 이동",
     "description": "Move prompt one place later"
   },
+  "pm_pin": {
+    "message": "상단 고정",
+    "description": "Pin a prompt above the rest"
+  },
+  "pm_unpin": {
+    "message": "고정 해제",
+    "description": "Remove a prompt from the pinned group"
+  },
+  "pm_pinned": {
+    "message": "고정됨",
+    "description": "Label for the pinned marker on a row"
+  },
   "pm_saved": {
     "message": "저장됨",
     "description": "Saved notice"

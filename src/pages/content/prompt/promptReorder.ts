@@ -33,6 +33,12 @@ export type PromptReorderDeps<T extends { id: string }> = {
   /** Fires once a drag passes the threshold, so hover previews can close. */
   onDragStart?: () => void;
   /**
+   * Optional grouping. A drop may only land among rows of the same group, so a
+   * pinned prompt cannot be dragged out of the pinned block — pinning owns that
+   * move, dragging only orders within a block.
+   */
+  groupOf?: (id: string) => string;
+  /**
    * Whole-row mode only: a press that never travelled. The row's primary
    * action moves here from mousedown, which is what lets the row itself take
    * the drag without stealing the click.
@@ -77,6 +83,14 @@ export function createPromptReorder<T extends { id: string }>(
     return Array.from(list.querySelectorAll<HTMLElement>(ROW_SELECTOR));
   }
 
+  /** The rows a drag starting on `id` is allowed to land among. */
+  function rowsInGroup(id: string): HTMLElement[] {
+    const all = rows();
+    if (!deps.groupOf) return all;
+    const group = deps.groupOf(id);
+    return all.filter((row) => deps.groupOf?.(row.dataset.gvPromptId || '') === group);
+  }
+
   function paintIndicator(placement: DropPlacement | null): void {
     for (const row of rows()) {
       const position =
@@ -97,7 +111,7 @@ export function createPromptReorder<T extends { id: string }>(
   /** Measures rows in list content coordinates so auto-scrolling cannot shift the drop target. */
   function placementForPointer(current: Session): DropPlacement | null {
     const listRect = list.getBoundingClientRect();
-    const boxes = rows().map((row) => {
+    const boxes = rowsInGroup(current.id).map((row) => {
       const rect = row.getBoundingClientRect();
       return {
         id: row.dataset.gvPromptId || '',
@@ -236,7 +250,7 @@ export function createPromptReorder<T extends { id: string }>(
 
   function placementForStep(id: string, direction: -1 | 1): DropPlacement | null {
     return stepPlacement(
-      rows().map((row) => row.dataset.gvPromptId || ''),
+      rowsInGroup(id).map((row) => row.dataset.gvPromptId || ''),
       id,
       direction,
     );

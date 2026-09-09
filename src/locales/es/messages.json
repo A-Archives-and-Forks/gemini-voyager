@@ -238,6 +238,18 @@
     "message": "Mover abajo",
     "description": "Move prompt one place later"
   },
+  "pm_pin": {
+    "message": "Fijar arriba",
+    "description": "Pin a prompt above the rest"
+  },
+  "pm_unpin": {
+    "message": "Dejar de fijar",
+    "description": "Remove a prompt from the pinned group"
+  },
+  "pm_pinned": {
+    "message": "Fijado",
+    "description": "Label for the pinned marker on a row"
+  },
   "pm_saved": {
     "message": "Guardado",
     "description": "Saved notice"

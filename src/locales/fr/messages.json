@@ -238,6 +238,18 @@
     "message": "Descendre",
     "description": "Move prompt one place later"
   },
+  "pm_pin": {
+    "message": "Épingler en haut",
+    "description": "Pin a prompt above the rest"
+  },
+  "pm_unpin": {
+    "message": "Détacher",
+    "description": "Remove a prompt from the pinned group"
+  },
+  "pm_pinned": {
+    "message": "Épinglé",
+    "description": "Label for the pinned marker on a row"
+  },
   "pm_saved": {
     "message": "Enregistré",
     "description": "Saved notice"
