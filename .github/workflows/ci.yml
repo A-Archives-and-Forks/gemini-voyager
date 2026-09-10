@@ -3,8 +3,9 @@ name: CI
 on:
   push:
     branches: [main]
+  # No branch filter: a stacked PR whose base is another PR's branch must
+  # still run the full gate, otherwise only the bottom of the stack is ever tested.
   pull_request:
-    branches: [main]
 
 permissions:
   contents: read
