@@ -283,6 +283,20 @@ drop, or hover layout.
   drag over `.chat-container` must give the overlay and `input-area-v2` identical left and right
   edges. `editInputWidth` tests must keep the `html body input-container` composer/overlay prefix.
 
+## Chat-width popup switch can look on while the page stays native
+
+- **Trap:** The content script only injects chat-width CSS when `gvChatWidthEnabled`
+  is `true`, and treats a missing key as an upgrade auto-enable when the saved
+  width is not 70%. The popup used `chrome.storage.sync.get` with a `false`
+  default, then treated `false` plus a custom width as on. After an explicit
+  off, the switch lit up, the slider wrote `geminiChatWidth`, and the page kept
+  Gemini's 708px thread.
+- **Rule:** Load the enabled flags with a `null` default so "never set" is not
+  `false`. Auto-enable only when the flag is missing (`null`/`undefined`) and
+  the saved width is custom. `false` stays off, matching the content script.
+- **Guard:** `src/pages/popup/hooks/__tests__/usePopupLayoutSettings.test.tsx`
+  (`keeps an explicit off even when the saved width is not the default`).
+
 ## Gemini luminous width variables cap the thread at 708px
 
 - **Trap:** Gemini 3.8's `.enable-luminous-content-width-update` host sets

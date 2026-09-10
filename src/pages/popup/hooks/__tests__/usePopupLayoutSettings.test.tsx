@@ -118,6 +118,21 @@ describe('usePopupLayoutSettings', () => {
       }),
     );
     expect(settings.chatWidthEnabled).toBe(false);
+    // Enabled key omitted: a numeric custom width still auto-enables.
+    expect(settings.editInputWidthEnabled).toBe(true);
+  });
+
+  it('keeps an explicit off even when the saved width is not the default', () => {
+    render();
+    act(() =>
+      settings.hydrateFromStorage({
+        [StorageKeys.CHAT_WIDTH_ENABLED]: false,
+        [StorageKeys.CHAT_WIDTH]: 32,
+        [StorageKeys.EDIT_INPUT_WIDTH_ENABLED]: false,
+        [StorageKeys.EDIT_INPUT_WIDTH]: 82,
+      }),
+    );
+    expect(settings.chatWidthEnabled).toBe(false);
     expect(settings.editInputWidthEnabled).toBe(false);
   });
 

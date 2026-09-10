@@ -19,14 +19,27 @@ import {
   normalizeSidebarPx,
 } from '../utils/layoutSettings';
 
+function isLayoutAdjusterEnabled(
+  storedEnabled: unknown,
+  storedWidth: unknown,
+  defaultWidth: number,
+): boolean {
+  if (storedEnabled === true) return true;
+  if (storedEnabled === false) return false;
+  return typeof storedWidth === 'number' && storedWidth !== defaultWidth;
+}
+
 export const LAYOUT_SETTINGS_STORAGE_DEFAULTS = {
-  [StorageKeys.CHAT_WIDTH_ENABLED]: false,
+  // null, not false: a false default makes "never set" look like an explicit
+  // off, and then a custom width would light the popup switch while the
+  // content script still refuses to inject CSS.
+  [StorageKeys.CHAT_WIDTH_ENABLED]: null,
   [StorageKeys.CHAT_FONT_SIZE_ENABLED]: false,
   [StorageKeys.CHAT_FONT_SIZE]: CHAT_FONT_SIZE.defaultValue,
   [StorageKeys.CHAT_LINE_HEIGHT_ENABLED]: false,
   [StorageKeys.CHAT_LINE_HEIGHT]: CHAT_LINE_HEIGHT.defaultValue,
   [StorageKeys.CHAT_PARAGRAPH_SPACING]: CHAT_PARAGRAPH_SPACING.defaultValue,
-  [StorageKeys.EDIT_INPUT_WIDTH_ENABLED]: false,
+  [StorageKeys.EDIT_INPUT_WIDTH_ENABLED]: null,
   [StorageKeys.SIDEBAR_WIDTH_ENABLED]: false,
   [StorageKeys.CHAT_WIDTH]: CHAT_PERCENT.defaultValue,
   [StorageKeys.EDIT_INPUT_WIDTH]: EDIT_PERCENT.defaultValue,
@@ -226,20 +239,26 @@ export function usePopupLayoutSettings({
   });
 
   const hydrateFromStorage = useCallback((stored: Record<string, unknown>) => {
-    // Preserve legacy auto-enable: a saved custom width enables its adjuster.
+    // Missing enabled key + a custom width is the upgrade auto-enable.
+    // Explicit false must stay off: the content script only applies CSS when
+    // the flag is true, and chrome.storage.sync.get(defaults) used to collapse
+    // "never set" into false, so this used to light the popup switch while the
+    // page stayed unchanged.
     setChatWidthEnabled(
-      stored[StorageKeys.CHAT_WIDTH_ENABLED] === true ||
-        (stored[StorageKeys.CHAT_WIDTH_ENABLED] === false &&
-          typeof stored[StorageKeys.CHAT_WIDTH] === 'number' &&
-          stored[StorageKeys.CHAT_WIDTH] !== CHAT_PERCENT.defaultValue),
+      isLayoutAdjusterEnabled(
+        stored[StorageKeys.CHAT_WIDTH_ENABLED],
+        stored[StorageKeys.CHAT_WIDTH],
+        CHAT_PERCENT.defaultValue,
+      ),
     );
     setChatFontSizeEnabled(stored[StorageKeys.CHAT_FONT_SIZE_ENABLED] === true);
     setChatLineHeightEnabled(stored[StorageKeys.CHAT_LINE_HEIGHT_ENABLED] === true);
     setEditInputWidthEnabled(
-      stored[StorageKeys.EDIT_INPUT_WIDTH_ENABLED] === true ||
-        (stored[StorageKeys.EDIT_INPUT_WIDTH_ENABLED] === false &&
-          typeof stored[StorageKeys.EDIT_INPUT_WIDTH] === 'number' &&
-          stored[StorageKeys.EDIT_INPUT_WIDTH] !== EDIT_PERCENT.defaultValue),
+      isLayoutAdjusterEnabled(
+        stored[StorageKeys.EDIT_INPUT_WIDTH_ENABLED],
+        stored[StorageKeys.EDIT_INPUT_WIDTH],
+        EDIT_PERCENT.defaultValue,
+      ),
     );
     setSidebarWidthEnabled(stored[StorageKeys.SIDEBAR_WIDTH_ENABLED] === true);
     setSidebarAutoHideEnabled(stored[StorageKeys.GV_SIDEBAR_AUTO_HIDE] === true);
