@@ -65,11 +65,17 @@ export const firefoxManifest = appendFirefoxChangelogResources({
   browser_specific_settings: {
     gecko: {
       id: 'gemini-voyager@nagi-ovo',
-      // Keep the min version low so existing users aren't dropped. The MV3
+      // Keep the floor at the 115 ESR line so its users aren't dropped. The MV3
       // optional_host_permissions key is only honored from Firefox 128
       // (Bugzilla 1766026); on older Firefox the plugin / custom-website
       // host-grant flow is feature-gated off with an explanation rather
       // than left to silently fail (see supportsOptionalHostPermissions()).
+      //
+      // The CSS side has to hold this floor too, and nothing about it is
+      // visible at build time: an unsupported selector silently invalidates
+      // the whole rule group. Anything newer than 115 lives behind an
+      // @supports guard in public/contentStyle.css, and
+      // firefoxCssFloor.test.ts fails on an unguarded use.
       strict_min_version: '115.0',
       data_collection_permissions: {
         required: ['none'],

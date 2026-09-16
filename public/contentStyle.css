@@ -8611,9 +8611,16 @@ html.dark .gv-export-dialog-warning,
   border-color: #1a73e8;
 }
 
-.gv-export-format-option:has(input:checked) {
-  background-color: #e8f0fe;
-  border-color: #1a73e8;
+/* Firefox only supports :has() from 121, and manifest.json keeps the floor at
+   115 for the Firefox 115 ESR line. An unsupported pseudo-class invalidates the
+   WHOLE selector list, so these live behind @supports: below 121 the styling is
+   absent, which is the accepted degradation. Do not lift the guard without
+   raising strict_min_version - see firefoxCssFloor.test.ts. */
+@supports selector(:has(*)) {
+  .gv-export-format-option:has(input:checked) {
+    background-color: #e8f0fe;
+    border-color: #1a73e8;
+  }
 }
 
 html.dark .gv-export-format-option,
@@ -8629,11 +8636,13 @@ html.dark .gv-export-format-option:hover,
   border-color: #8ab4f8;
 }
 
-html.dark .gv-export-format-option:has(input:checked),
-[data-theme='dark'] .gv-export-format-option:has(input:checked),
-[data-color-scheme='dark'] .gv-export-format-option:has(input:checked) {
-  background-color: #1e3a5f;
-  border-color: #8ab4f8;
+@supports selector(:has(*)) {
+  html.dark .gv-export-format-option:has(input:checked),
+  [data-theme='dark'] .gv-export-format-option:has(input:checked),
+  [data-color-scheme='dark'] .gv-export-format-option:has(input:checked) {
+    background-color: #1e3a5f;
+    border-color: #8ab4f8;
+  }
 }
 
 /* Radio input */
@@ -8789,12 +8798,14 @@ body[data-color-scheme='dark'] .gv-export-format-option:hover {
   border-color: #8ab4f8;
 }
 
-html.dark-theme .gv-export-format-option:has(input:checked),
-body.dark-theme .gv-export-format-option:has(input:checked),
-body[data-theme='dark'] .gv-export-format-option:has(input:checked),
-body[data-color-scheme='dark'] .gv-export-format-option:has(input:checked) {
-  background-color: #1e3a5f;
-  border-color: #8ab4f8;
+@supports selector(:has(*)) {
+  html.dark-theme .gv-export-format-option:has(input:checked),
+  body.dark-theme .gv-export-format-option:has(input:checked),
+  body[data-theme='dark'] .gv-export-format-option:has(input:checked),
+  body[data-color-scheme='dark'] .gv-export-format-option:has(input:checked) {
+    background-color: #1e3a5f;
+    border-color: #8ab4f8;
+  }
 }
 
 html.dark-theme .gv-export-format-label,
@@ -10505,9 +10516,17 @@ body.gv-rtl .gv-timestamp {
   max-width: 100% !important;
 }
 
-.table-block-component,
-.horizontal-scroll-wrapper:has(.table-block) {
+/* Split deliberately: these used to share one selector list, so on Firefox
+   below 121 the unsupported :has() invalidated the list and took
+   .table-block-component down with it. Keep them apart. */
+.table-block-component {
   max-width: none !important;
+}
+
+@supports selector(:has(*)) {
+  .horizontal-scroll-wrapper:has(.table-block) {
+    max-width: none !important;
+  }
 }
 
 /* ============================================================
@@ -10576,8 +10595,10 @@ body.gv-rtl .gv-timestamp {
 /* Gemini's text-input-field clips its subtree (overflow: hidden), which would
    truncate the upward-opening dropdown to the input bar's height; lift the
    clip only while the dropdown is open. */
-.text-input-field:has(.gv-fp-dropdown:not([hidden])) {
-  overflow: visible !important;
+@supports selector(:has(*)) {
+  .text-input-field:has(.gv-fp-dropdown:not([hidden])) {
+    overflow: visible !important;
+  }
 }
 
 .theme-host.light-theme .gv-fp-dropdown {
@@ -14165,8 +14186,13 @@ body.gv-rtl .gv-usage-metric {
   --gv-coach-text: #202124;
   --gv-coach-muted: #5f6368;
   --gv-coach-accent: oklch(0.56 0.16 var(--gv-pm-brand-h, var(--gv-pm-brand-h-default)));
+  /* Same colour as --gv-coach-accent above, at 0.12 alpha, written from the hue
+     variable. Do NOT rewrite this as CSS relative-colour syntax: that needs
+     Firefox 128 and the floor is 115. platformTheme sets --gv-pm-brand-h from
+     the very colour --gv-pm-brand carries, so the two forms are equivalent.
+     Guarded by platformTheme.test.ts and firefoxCssFloor.test.ts. */
   --gv-coach-accent-soft: oklch(
-    from var(--gv-pm-brand, var(--gv-pm-brand-default)) 0.56 0.16 h / 0.12
+    0.56 0.16 var(--gv-pm-brand-h, var(--gv-pm-brand-h-default)) / 0.12
   );
   --gv-coach-track: rgba(60, 64, 67, 0.12);
   position: fixed;
@@ -14213,8 +14239,13 @@ body.dark-theme .gv-coach {
   --gv-coach-text: #e8eaed;
   --gv-coach-muted: #bdc1c6;
   --gv-coach-accent: oklch(0.74 0.15 var(--gv-pm-brand-h, var(--gv-pm-brand-h-default)));
+  /* Same colour as --gv-coach-accent above, at 0.16 alpha, written from the hue
+     variable. Do NOT rewrite this as CSS relative-colour syntax: that needs
+     Firefox 128 and the floor is 115. platformTheme sets --gv-pm-brand-h from
+     the very colour --gv-pm-brand carries, so the two forms are equivalent.
+     Guarded by platformTheme.test.ts and firefoxCssFloor.test.ts. */
   --gv-coach-accent-soft: oklch(
-    from var(--gv-pm-brand, var(--gv-pm-brand-default)) 0.74 0.15 h / 0.16
+    0.74 0.15 var(--gv-pm-brand-h, var(--gv-pm-brand-h-default)) / 0.16
   );
   --gv-coach-track: rgba(232, 234, 237, 0.1);
   box-shadow:

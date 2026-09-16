@@ -116,3 +116,26 @@ behavior, or bundled public assets.
 - **Guard:** `src/pages/popup/hooks/__tests__/useActivePopupTab.test.tsx` and
   `src/pages/popup/hooks/__tests__/useFolderStructureCopy.test.tsx` cover out-of-order responses,
   source-tab changes, clipboard ownership and reset-timer cleanup.
+
+## Modern CSS in content styles must be guarded, not assumed
+
+- **Trap:** `manifest.json` and `vite.config.firefox.ts` declare `strict_min_version: '115.0'`,
+  reasoned entirely from JavaScript: `optional_host_permissions` needs Firefox 128 and
+  `supportsOptionalHostPermissions()` feature-gates that path, so 115 looked safe. The stylesheets
+  were never checked. `public/contentStyle.css` used `:has()` (Firefox 121) in four places, and
+  relative colour syntax, `oklch(from ...)` (Firefox 128), for `--gv-coach-accent-soft`. Firefox
+  below those versions invalidates the rule or resolves the custom property to nothing, so the
+  surface loses its styling with no console error, no build failure and no failing test. One of the
+  four was a mixed selector list, `.table-block-component, .horizontal-scroll-wrapper:has(...)`,
+  where the unsupported pseudo-class took the supported sibling selector down with it. A
+  line-oriented `grep` misses the relative-colour case outright: the formatter wraps the value, so
+  `oklch(` and `from` land on different lines.
+- **Rule:** CSS newer than the declared floor goes inside an `@supports` guard, never bare and never
+  sharing a selector list with rules that must survive without it. Prefer a plain equivalent where
+  one exists: `--gv-coach-accent-soft` is written from `--gv-pm-brand-h`, which `platformTheme` sets
+  from the same colour `--gv-pm-brand` carries, so it needs no relative syntax at all. Raising
+  `strict_min_version` is a separate, deliberate decision; the ESR lines are 115, 128 and 140, and
+  the releases between them auto-update.
+- **Guard:** `src/core/utils/__tests__/firefoxCssFloor.test.ts` strips comments and `@supports`
+  blocks, then matches a feature-to-version table against the whole remaining stylesheet text, and
+  asserts the manifest and the Firefox build config declare the same floor.
