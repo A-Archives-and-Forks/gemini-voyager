@@ -120,7 +120,7 @@ When external PRs landed, the column carries information worth a column. Owner r
 
 ## Generation procedure
 
-Perform these steps after the tag push completes (see SKILL.md Step 6).
+Perform these steps after CI creates the GitHub Release (see [normal-release.md](normal-release.md)).
 
 ### 1. Collect data
 
@@ -199,21 +199,21 @@ Combine sections into `release_body.md` in this order (top to bottom):
 
 ### 6. Apply
 
-```bash
-gh release edit v{VERSION} --notes-file release_body.md
-```
-
-This overwrites the body. The asset list and Installation block are preserved if they live as a separate field — check `gh release view v{VERSION} --json body` immediately after and confirm the Installation section is still present and includes the Microsoft Edge Add-ons button alongside Chrome Web Store and Firefox. If it disappeared (because `--notes-file` replaced the entire body, including workflow-appended tail), append the Installation block manually before re-running.
-
-**Safer alternative:** first read the current body, strip the curated sections if present (from a previous attempt), prepend the new curated sections, and write back. This preserves whatever the workflow put there:
+`--notes-file` replaces the entire body, including the workflow's installation and Safari sections. Read the existing body, preserve the tail starting at `## 📥 Installation`, and prepend the curated sections. If the expected tail is absent, inspect the workflow output and prepare the complete intended body before publishing; do not silently drop installation guidance.
 
 ```bash
-CURRENT=$(gh release view v{VERSION} --json body --jq '.body')
-# Find the line "## 📥 Installation" and keep from there onward
-TAIL=$(echo "$CURRENT" | awk '/^## 📥 Installation/{flag=1} flag')
-printf "%s\n\n%s" "$(cat release_body.md)" "$TAIL" > final_body.md
-gh release edit v{VERSION} --notes-file final_body.md
+CURRENT=$(gh release view "v{VERSION}" --json body --jq '.body')
+TAIL=$(printf '%s\n' "$CURRENT" | awk '/^## 📥 Installation/{flag=1} flag')
+printf '%s\n\n%s\n' "$(cat release_body.md)" "$TAIL" > final_body.md
 ```
+
+Inspect `final_body.md` before applying the authorized update:
+
+```bash
+gh release edit "v{VERSION}" --notes-file final_body.md
+```
+
+Read back the body and verify that the Installation section includes Chrome Web Store, Microsoft Edge Add-ons, and Firefox buttons, and that the preserved Safari text matches the current product.
 
 ## Worked example — v1.3.9 (Flavor 2: external contributors present)
 

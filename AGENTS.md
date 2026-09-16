@@ -12,16 +12,16 @@
 
 Read matching rules before editing; do not assume the client auto-loaded `.claude/rules/`.
 
-| Change                                                                   | Required context                                                                                                            |
-| ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
-| `src/**/*.ts`, `src/**/*.tsx`                                            | [.claude/rules/typescript.md](.claude/rules/typescript.md)                                                                  |
-| `src/pages/content/**`, `public/contentStyle.css`                        | [.claude/rules/content-scripts.md](.claude/rules/content-scripts.md)                                                        |
-| `src/locales/**`                                                         | [.claude/rules/i18n.md](.claude/rules/i18n.md)                                                                              |
-| Storage, backup, account isolation, Drive sync, folder or export modules | [.claude/rules/high-complexity.md](.claude/rules/high-complexity.md), including full-file reads and full-suite verification |
-| Non-trivial feature, fix or refactor                                     | Search [.github/docs/REGRESSION_NOTES.md](.github/docs/REGRESSION_NOTES.md), then read matching topics                      |
-| Contribution or release                                                  | [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md); matching workflows in [.agents/skills/](.agents/skills/)                |
-| Content-script or injected-CSS behavior that tests cannot settle         | [.agents/skills/verify-in-browser/SKILL.md](.agents/skills/verify-in-browser/SKILL.md)                                      |
-| `src/features/plugins/catalog/**`, `verbs/**` or `sites/**`              | [.agents/skills/create-voyager-plugin/SKILL.md](.agents/skills/create-voyager-plugin/SKILL.md)                              |
+| Change                                                                   | Required context                                                                                                                            |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/**/*.ts`, `src/**/*.tsx`                                            | [.claude/rules/typescript.md](.claude/rules/typescript.md)                                                                                  |
+| `src/pages/content/**`, `public/contentStyle.css`                        | [.claude/rules/content-scripts.md](.claude/rules/content-scripts.md)                                                                        |
+| `src/locales/**`                                                         | [.claude/rules/i18n.md](.claude/rules/i18n.md)                                                                                              |
+| Storage, backup, account isolation, Drive sync, folder or export modules | [.claude/rules/high-complexity.md](.claude/rules/high-complexity.md), full-file reads and full-suite verification for behavior/data changes |
+| Non-trivial feature, fix or refactor                                     | Search [.github/docs/REGRESSION_NOTES.md](.github/docs/REGRESSION_NOTES.md), then read matching topics                                      |
+| Contribution or release                                                  | [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md); matching workflows in [.agents/skills/](.agents/skills/)                                |
+| Content-script or injected-CSS behavior that tests cannot settle         | [.agents/skills/verify-in-browser/SKILL.md](.agents/skills/verify-in-browser/SKILL.md)                                                      |
+| `src/features/plugins/catalog/**`, `verbs/**` or `sites/**`              | [.agents/skills/create-voyager-plugin/SKILL.md](.agents/skills/create-voyager-plugin/SKILL.md)                                              |
 
 Use `package.json`, build configs, manifests and CI to verify command names and current wiring. Keep `CLAUDE.md` as a pointer here.
 
@@ -46,15 +46,11 @@ Use `package.json`, build configs, manifests and CI to verify command names and 
 | Cloud sync                   | `src/core/services/GoogleDriveSyncService.ts`                                                                                                                                                   |
 | Translations                 | `src/locales/*/messages.json`: all 10 locales for new/removed user-facing keys                                                                                                                  |
 | Content styles               | Shared/static CSS in `public/contentStyle.css`; computed feature CSS stays local, uses `gv-` prefixes and has teardown                                                                          |
-| Coachmarks                   | Reuse `src/pages/content/coachmark/`; keep consumers beside the feature and register Gemini guides in `showOnboardingCoachmarksWhenChangelogIsIdle` in `src/pages/content/index.tsx`            |
-| Plugins                      | `src/features/plugins/`; official CSS/JSON in `catalog/` with `BundledCatalogPluginSource.ts` mapping/tests; native JS in `builtin/index.ts`                                                    |
+| Coachmarks                   | Read [coachmark authoring and tour behavior](src/pages/content/coachmark/README.md) when adding or changing a guide or its lifecycle                                                            |
+| Plugins                      | Read [plugin architecture and distribution](src/features/plugins/README.md) when changing sources, catalog loading, or native plugin wiring                                                     |
 | Native feature lifecycle     | Contract in `src/pages/content/featureLifecycle.ts`; register a module that returns a stop in `nativeFeatures.ts` and start it from there; `__tests__/nativeFeatureLifecycle.test.ts` covers it |
 
 Use `StorageService` where suitable; established direct `chrome.storage`/`browser.storage` paths remain valid for content scripts, popup settings, bulk operations and listeners.
-
-`src/features/plugins/sources/defaultSources.ts` defines active sources and the merge rules: builtin, bundled catalog, and the per-host remote catalog (`src/features/plugins/remote/`, read from cache; only the background refresher fetches `https://voyager.nagi.fun/catalog/hosts/<host>.json`, published by `bun run catalog:build` through the docs deploy). Bundled official plugins are maintained here; the retired `../voyager-plugins` marketplace is no longer a source. Design record: `.github/docs/PLUGIN_DISTRIBUTION_PLAN.md`.
-
-Coachmarks require a stable ID, side-effect-free eligibility, cleanup after partial mount failure, all 10 locales, a debug trigger and tests. Skip seen/ineligible guides, then show the remaining guides continuously in registration order with `1/N` progress: confirmation advances; close, Escape or outside click exits the tour.
 
 ## Keep changes incremental
 
@@ -69,14 +65,14 @@ Coachmarks require a stable ID, side-effect-free eligibility, cleanup after part
 
 ## Verification
 
-Choose checks by changed surface. Repeat passing checks only after relevant changes or new evidence. `bun run verify:pr` runs complete local PR automation; native/live-browser checks remain separate.
+Choose checks by changed surface. Repeat passing checks only after relevant changes or new evidence. Code contributions require `bun run verify:pr` before PR handoff; it covers the automated checks below, so do not repeat them for unchanged inputs. Prose-only contributions use the applicable rows below. Native/live-browser checks remain separate; releases use the final-tree gates in the `release` skill.
 
-| Changed surface                             | Checks before completion                                                                                                            |
-| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| Repository prose or agent instructions only | Review the diff for lost requirements, validate referenced paths/commands, format-check changed files                               |
-| Extension code, build logic or dependencies | `bun run lint:check`, `bun run test`, `bun run build:chrome`; add `bun run typecheck` for any `.ts`/`.tsx` change                   |
-| Added, renamed or removed `public/` entries | `bun run build:all` instead of Chrome only; register every top-level Safari resource in `Voyager/Voyager.xcodeproj/project.pbxproj` |
-| `docs/**/*.md` or `docs/.vitepress/**`      | `bun run docs:build`; background `bun run docs:dev` when preview is needed before committing                                        |
+| Changed surface                                        | Checks before completion                                                                                                            |
+| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Prose, agent instructions, comments or formatting only | Review the diff for lost requirements, validate referenced paths/commands, format-check changed files                               |
+| Extension code, build logic or dependencies            | `bun run lint:check`, `bun run test`, `bun run build:chrome`; add `bun run typecheck` for any `.ts`/`.tsx` change                   |
+| Added, renamed or removed `public/` entries            | `bun run build:all` instead of Chrome only; register every top-level Safari resource in `Voyager/Voyager.xcodeproj/project.pbxproj` |
+| `docs/**/*.md` or `docs/.vitepress/**`                 | `bun run docs:build`; background `bun run docs:dev` when preview is needed before committing                                        |
 
 `bun run lint` (`oxlint --fix`) and `bun run format` apply corrections: inspect their diffs. Read-only reviews use `:check` variants.
 
@@ -90,4 +86,4 @@ For Chrome development, run `bun run dev:chrome` and load/reload `dist_chrome_de
 - When asked to push without branch/PR instructions, fast-forward `origin/main`. Never force-push unless explicitly requested.
 - Commit as `<type>(<scope>): <imperative summary>`: lowercase feature scope, preferably lowercase summary, no trailing period, at most 100 header characters. Types: `feat`, `fix`, `refactor`, `chore`, `docs`, `test`, `build`, `ci`, `perf`, `style`, `revert`, `deps`, `ux`.
 - Link related issues/discussions with `Fixes #xxx` or `Closes #xxx` in the commit body or PR description. Codex commits include `Co-authored-by: Codex <codex@users.noreply.github.com>`.
-- After publishing an issue fix with a pushed `Fixes`/`Closes` commit or PR, comment briefly in the reporter's language: the fix has landed, it will be in the next version, and they can reopen if it persists.
+- After an issue fix has landed, and when posting is authorized, comment briefly in the reporter's language: the fix has landed, it will be in the next version, and they can reopen if it persists.

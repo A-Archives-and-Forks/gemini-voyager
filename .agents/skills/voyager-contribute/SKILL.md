@@ -1,11 +1,11 @@
 ---
 name: voyager-contribute
-description: Prepare and publish Voyager contributions through the Issue, topic branch, verification, commit, and pull request workflow. Use when claiming or implementing Voyager work, preparing browser evidence, committing or pushing local changes, opening or updating a Voyager PR, or checking whether a contribution is ready for review.
+description: Prepare Voyager commits, pull requests, and contribution evidence, or claim an issue and check review readiness.
 ---
 
 # Voyager Contribution
 
-Route issue investigation to the `issue-review` skill, Safari loading or native verification to `update-safari-extension`, and releases to `release`. Return here to finish the contribution.
+Use only the stages included in the user's request; a readiness review delivers findings, while an authorized commit or publication continues through verification and handoff. Route issue investigation to `issue-review`, Safari loading or native verification to `update-safari-extension`, and releases to `release` when needed.
 
 ## 1. Preflight
 
@@ -21,17 +21,9 @@ Preflight is complete when the Issue or rationale, approval state, intended scop
 ## 2. Verify
 
 1. Add or update regression tests for behavior changes. If no useful automated test exists, record the reason.
-2. Run formatting and linting before the non-mutating PR suite, then inspect any resulting edits:
+2. Use the verification matrix in [AGENTS.md](../../../AGENTS.md#verification): code PRs require `bun run verify:pr`; prose-only changes use the applicable document checks. During implementation, run focused checks; reuse passing evidence for unchanged inputs. If formatting or lint fixes are needed, apply them to the intended files with `bun run format <paths>` / `bun run lint <paths>` and inspect the diff before checking the final tree. Read-only reviews use check variants.
 
-   ```bash
-   bun run format
-   bun run lint
-   bun run verify:pr
-   git diff --check
-   git status --short
-   ```
-
-   `verify:pr` covers local automation and production browser builds; it does not prove that an extension loaded or that live behavior works.
+   `verify:pr` covers local automation and production browser builds; it does not prove that an extension loaded or that live behavior works. Finish with `git diff --check` and `git status --short`.
 
 3. For runtime, UI, manifest, permission, packaging, native, or plugin changes, read [browser-testing.md](references/browser-testing.md) and collect the required live evidence.
 4. Record every omitted command or browser check with its reason. For required coverage that another person must complete, name the browser and owner and leave the item pending.

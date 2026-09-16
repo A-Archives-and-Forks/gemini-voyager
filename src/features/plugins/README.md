@@ -257,6 +257,12 @@ P4 rewrites the Claude and ChatGPT builtins as primitive-backed JSON.
   through the per-host remote catalog below. Only data travels; executable code
   never does.
 
+`sources/defaultSources.ts` defines the active sources and merge rules below.
+Maintain bundled official plugins in this repository; the retired
+`../voyager-plugins` marketplace is no longer a source. `bun run catalog:build`
+generates the remote catalog published by the docs deploy. See the
+[distribution design](../../../.github/docs/PLUGIN_DISTRIBUTION_PLAN.md).
+
 ## Remote host catalog (`remote/`)
 
 The official CSS/JSON plugins ship as a snapshot inside the extension, and the

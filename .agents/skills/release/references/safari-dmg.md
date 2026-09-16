@@ -145,7 +145,7 @@ The script generates:
 /tmp/voyager-safari-{VERSION}/appcast.xml
 ```
 
-Before uploading, inspect the exact artifact set and confirm the GitHub Release tag exists. Upload only after explicit user confirmation:
+Before uploading, inspect the exact artifact set and confirm the GitHub Release tag exists. Verify that existing user authorization covers uploading these artifacts and replacing any existing assets (`--clobber`); ask only if that concrete authorization is missing. Follow the publication boundaries in [SKILL.md](../SKILL.md), and wait until the automated release is no longer producing or uploading Safari artifacts:
 
 ```bash
 node scripts/verify-release-privacy.mjs \

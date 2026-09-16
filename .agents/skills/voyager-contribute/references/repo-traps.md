@@ -36,9 +36,9 @@ Grep for the existing primitive before writing parallel logic — reviewers trea
 - Theme the whole export artifact consistently — a dark diagram on a forced-white document is not dark-mode support (#847).
 - Gemini conversation IDs are namespaced (`gemini:conv:<id>`); shared code that handles raw IDs silently orphans existing starred/bookmark data (#865). Preserve `/u/<index>/...` account scope in every constructed route.
 - Prompt/folder data has multiple merge entry points (`utils/merge.ts` plus page-level Drive merges); route data-shape changes through one shared merge helper, and never drop or rename existing user records on conflict (#854).
-- A committed `REGRESSION_NOTES.md` entry must reference the real PR/commit, not a placeholder (#859).
+- Follow `.github/docs/REGRESSION_NOTES.md` for Trap/Rule/Guard entries. Add commit details only when the introduction point affects the explanation; any PR/commit cited must be real, not a placeholder (#859).
 
 ## Scope discipline
 
 - The reviewer diffs your behavior against the Issue's confirmed scope and blocks deviations in either direction. When an edge case tempts you to change a product constraint (e.g. enforce name uniqueness), ask in the Issue first (#854); state non-goals explicitly in the PR description.
-- Trivially verifiable one-line fixes may go straight to PR (#876); features always need prior Issue approval (#865).
+- Trivially verifiable one-line fixes may go straight to PR (#876). Features require explicit maintainer approval of the approach, in the Issue or a direct instruction in the current task; assignment alone is not approval (#865).

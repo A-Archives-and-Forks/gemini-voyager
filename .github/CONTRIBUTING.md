@@ -36,7 +36,7 @@ AI 是很好的辅助工具，但缺少明确目标、聚焦范围和真实验�
 
 1. 新功能先开 Issue，并等待维护者明确同意方案；`/claim` 或被分配只代表负责人。
 2. 每次仓库改动都通过一个聚焦的主题分支提交 PR，不直接推送到 `main`。
-3. 提交前依次运行 `bun run format`、`bun run lint` 和 `bun run verify:pr`，并说明任何未运行项。仅改动文档（docs/README）时，可用 `bun run format:check` 加 `bun run docs:build` 代替完整的 `verify:pr`。
+3. 按 [AGENTS.md 验证矩阵](../AGENTS.md#verification) 检查最终改动：代码 PR 运行 `bun run verify:pr`；纯文档、说明或格式改动使用对应检查。仅在需要时对改动文件应用格式化或 lint 修复，并说明未完成项。
 4. 行为变更添加回归测试，或说明自动化测试不适用的理由。
 5. 在受影响浏览器中加载实际扩展并验证改动流程；缺少环境时，在 PR 中注明未测试项和补测负责人。
 
@@ -159,13 +159,7 @@ bun install
 
 ### 提交前检查清单
 
-提交前，请务必运行：
-
-```bash
-bun run format     # 格式化代码
-bun run lint       # 修复代码风格问题
-bun run verify:pr  # 标准本地 PR 自动验证
-```
+提交前按 [AGENTS.md 验证矩阵](../AGENTS.md#verification) 完成适用检查。代码 PR 需要 `bun run verify:pr`；纯文档改动按矩阵验证。已通过且输入未变的检查无需重复。
 
 并确保：
 
@@ -329,7 +323,7 @@ AI tools can be helpful, but copy-paste PRs without clear intent, focused scope,
 
 1. Open an Issue for a new feature and wait for explicit maintainer approval of the approach; assignment or `/claim` only selects an owner.
 2. Submit every repository change through one focused topic-branch PR; do not push directly to `main`.
-3. Run `bun run format`, `bun run lint`, and `bun run verify:pr` in that order, and disclose anything not run. For docs-only changes (docs/README), `bun run format:check` plus `bun run docs:build` may replace the full `verify:pr`.
+3. Check the final change using the [AGENTS.md verification matrix](../AGENTS.md#verification): code PRs require `bun run verify:pr`; prose, comments, or formatting-only changes use the applicable checks. Apply formatting or lint fixes only to intended files when needed, and disclose incomplete checks.
 4. Add regression tests for behavior changes, or explain why automation is not useful.
 5. Load the real extension artifact in affected browsers and exercise the changed workflow; identify missing coverage and its owner in the PR.
 
@@ -452,13 +446,7 @@ bun install
 
 ### Pre-Commit Checklist
 
-Before submitting, always run:
-
-```bash
-bun run format     # Format code
-bun run lint       # Fix linting issues
-bun run verify:pr  # Standard local PR automation
-```
+Before submitting, complete the applicable checks in the [AGENTS.md verification matrix](../AGENTS.md#verification). Code PRs require `bun run verify:pr`; prose-only changes follow the matrix. Reuse passing checks while their inputs remain unchanged.
 
 Ensure that:
 

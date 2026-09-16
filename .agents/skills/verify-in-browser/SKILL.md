@@ -1,90 +1,29 @@
 ---
 name: verify-in-browser
-description: Verify a content-script or injected-CSS change against a live Gemini/Claude/ChatGPT tab instead of reasoning about it. Covers reloading the unpacked extension, reading the real DOM, and the Gemini shapes that make static reasoning wrong. Use for “在浏览器里验证”, “reload the extension”, “为什么没生效”, “live check”, or any content-script fix that cannot be settled by tests alone.
+description: Verify Voyager content-script or injected-CSS behavior in a live browser, including stale-build diagnosis.
 metadata:
   version: '1.0.0'
 ---
 
 # Verify a content-script change in a live browser
 
-Content modules bridge Voyager to a DOM nobody here controls. Unit tests pin
-the logic against a fixture _we wrote_, so they confirm the code does what the
-fixture says — not that the fixture matches the page. Every hour lost on these
-modules has the same shape: a plausible fix shipped from reading code, and the
-real cause found later in one DOM dump.
+Unit fixtures cannot prove the current host DOM matches our assumptions. If the first fix fails, inspect the real DOM and loaded build before editing again.
 
-**Read the page before proposing a second fix.** If the first attempt did not
-work, stop editing and go get the DOM.
+## Load the intended build
 
-## Reloading the extension
+1. Identify the affected browser, installed Voyager extension, its loaded directory, and the target tab (including the user's reported tab when diagnosing stale behavior).
+2. Build or refresh the artifact that browser actually loads: Chrome development uses `bun run dev:chrome` / `dist_chrome_dev`; production verification uses `bun run build:chrome` / `dist_chrome`. Use `AGENTS.md` for cross-browser build requirements. Reuse an existing build if its relevant inputs are unchanged.
+3. Reload the extension using an available extension-management tool or the browser UI. With Chrome DevTools, `list_extensions` identifies Voyager and `reload_extension` reloads it. Use another available tool/UI route if these are absent; request manual reload only when no available capability can do it. Safari uses `update-safari-extension`.
+4. Refresh the target content-script tab so it runs the updated code. Check for unsent input or an active response before refreshing; preserve that state or use a disposable test tab until the target can be refreshed safely. Reload additional tabs only when the requested workflow needs them.
+5. Confirm a build-specific marker or changed behavior in that tab before collecting evidence. An extension reload alone does not replace content scripts already running in open tabs.
 
-`dist_chrome` is rewritten by `bun run build:chrome`, and Chrome keeps serving
-the old copy until the unpacked extension is reloaded. A "fix that did not
-work" is very often an unreloaded build.
+If the user was seeing an old build, verify their reported tab too when safe; a new test tab alone does not resolve that report. Distinguish refreshing a test session from implementing normal conversation navigation, which must preserve the native navigation rules in `AGENTS.md`.
 
-The `chrome-devtools` MCP server can do it without leaving the session:
+## Read and measure the page
 
-```
-list_extensions        # find the Voyager id
-reload_extension       # pass that id
-```
+Use the available DOM/browser tools. Compare actual selectors, text, computed styles and lifecycle behavior against the assumption under test; record the first mismatch and enough surrounding DOM to explain it. Keep conversation content private in shared evidence.
 
-It is **not** part of this repository, on purpose. It attaches to whatever
-Chrome is already running, with that person's real session, and it launches an
-unpinned `@latest` package — a per-developer trust decision, not a repo default.
-Add it at user scope if you want it:
-
-```bash
-claude mcp add --scope user chrome-devtools -- \
-  npx -y chrome-devtools-mcp@latest --autoConnect --no-usage-statistics --categoryExtensions=true
-```
-
-Without that server, `chrome://` pages are unreachable from browser automation:
-ask the user to reload from `chrome://extensions` and to hard-refresh the tab.
-Say which build they need and why, rather than asking them to "try again".
-
-**Close the loop yourself.** Reloading the extension is not enough — an open tab
-keeps running the content script it loaded at navigation, so the person looking
-at it still sees the old build. After every fix, run the whole sequence before
-saying anything:
-
-```text
-bun run build:chrome        # or build:all when public/ entries changed
-reload_extension            # the Voyager id from list_extensions
-list_pages                  # find every tab on the affected site
-navigate_page  type=reload  ignoreCache=true   # each one of them
-```
-
-`list_pages` is not optional. Reloading only the tab you opened to test in
-leaves the person looking at the build you already replaced — which is exactly
-what a screenshot of "it still does the old thing" turns out to be. Their tabs
-are the ones that matter; yours is the one you close afterwards.
-
-Then read the page and report what you measured. Handing back "reload and try
-again" spends a round trip on something you can do.
-
-## Reading the page
-
-`claude-in-chrome` drives any normal page. Confirm the build under test is the
-one loaded before drawing conclusions from what you see — probe a class the new
-build introduces:
-
-```js
-const p = document.createElement('div');
-p.className = 'gv-pm-sent-chip'; // a class only the new build styles
-document.body.appendChild(p);
-const loaded = getComputedStyle(p).borderRadius === '8px';
-p.remove();
-```
-
-When a match or a selector fails, dump the ground truth and diff it against
-what the code assumed — the divergence index, not a summary:
-
-```js
-let i = 0;
-while (i < expected.length && i < actual.length && expected[i] === actual[i]) i++;
-({ i, expected: expected.slice(i - 30, i + 30), actual: actual.slice(i - 30, i + 30) });
-```
+A temporary element can test a new CSS rule when that rule distinguishes the build; remove the probe afterward. Use an actual new marker from this change, rather than copying an unrelated class from an old fix.
 
 ## Gemini shapes that make static reasoning wrong
 
@@ -106,6 +45,6 @@ Each of these cost a wrong fix before it was measured. Full entries live in
 
 - State what you verified in the browser and what you only inferred. If the
   extension could not be reloaded, the check did not happen — say so.
-- Turn each measured surprise into a Trap/Rule/Guard entry, then run
-  `bun run regressions:check`.
+- For repeatable, non-obvious bugs, add a Trap/Rule/Guard entry as required by
+  `AGENTS.md`; run `bun run regressions:check` only when those notes change.
 - Close any tab this session created.
