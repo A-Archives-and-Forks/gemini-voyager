@@ -27,6 +27,12 @@ import { initI18n } from '@/utils/i18n';
 
 import { MAX_REGEX_INPUT_LENGTH } from '../../sites/safeRegex';
 import type { PrimitiveHandle } from '../types';
+import {
+  afterScrollSettles,
+  navigationScrollBehavior,
+  scrollElementToAnchor,
+  scrollToCenter,
+} from './scrollMotion';
 
 export interface TurnNavigatorConfig {
   /** Site adapter id; prefixes conversation ids and marks the rail. */
@@ -854,15 +860,32 @@ export class TurnNavigator {
       const distance = Math.abs(center - (this.getScrollTop() + anchorOffset));
       if (distance <= this.getViewportHeight() * LONG_JUMP_VIEWPORTS) {
         this.clearPendingNavigation();
-        this.scrollMarkerIntoView(marker.element);
+        scrollElementToAnchor(
+          this.getScrollTarget(marker.element),
+          marker.element,
+          this.getScrollTop(),
+          this.getViewportHeight(),
+        );
         return;
       }
-      // Long jump to a mounted turn: Claude re-measures content once the
-      // landing region mounts, so let the homing loop fine-aim after the jump.
+      // Long jump to a mounted turn: Claude re-measures once the landing region
+      // mounts, so the homing loop still fine-aims — after the scroll settles,
+      // never into one still travelling. See scrollMotion.ts.
       this.beginPendingNavigation(marker);
       this.pendingNavigationProbed = true;
-      this.scrollToOffset(center, 'instant');
-      this.schedulePendingNavigationHop();
+      const hop = (): void => this.schedulePendingNavigationHop();
+      const behavior = navigationScrollBehavior();
+      scrollToCenter(this.scrollTarget, center, this.getViewportHeight(), behavior);
+      if (behavior !== 'smooth') hop();
+      else {
+        const timer = (run: () => void, ms: number): void => void this.scope.timer(run, ms);
+        afterScrollSettles(
+          () => this.getScrollTop(),
+          timer,
+          () => this.disposed,
+          hop,
+        );
+      }
       return;
     }
     // Virtualized out: the remembered offset is only an estimate (Claude
@@ -923,7 +946,12 @@ export class TurnNavigator {
     this.navigationActiveLockUntil = Date.now() + NAVIGATION_ACTIVE_LOCK_MS;
     if (marker.element.isConnected) {
       this.clearPendingNavigation();
-      this.scrollMarkerIntoView(marker.element);
+      scrollElementToAnchor(
+        this.getScrollTarget(marker.element),
+        marker.element,
+        this.getScrollTop(),
+        this.getViewportHeight(),
+      );
       return;
     }
     const mountedIndexes = this.markers.reduce<number[]>((acc, item, index) => {
@@ -989,7 +1017,7 @@ export class TurnNavigator {
       ? marker.center
       : (this.pendingNavigationLo + this.pendingNavigationHi) / 2;
     this.pendingNavigationProbed = true;
-    this.scrollToOffset(probe, 'instant');
+    scrollToCenter(this.scrollTarget, probe, this.getViewportHeight(), 'instant');
     this.schedulePendingNavigationHop();
   };
 
@@ -1123,52 +1151,6 @@ export class TurnNavigator {
    * conversation as Claude re-measures content mid-flight, and mixing smooth
    * short hops with instant long ones read as erratic navigation.
    */
-  private scrollToOffset(center: number, behavior: ScrollBehavior = 'instant'): void {
-    const top = Math.max(0, center - this.getViewportHeight() * ACTIVE_ANCHOR);
-    const target = this.scrollTarget;
-    if (!target || target === window) {
-      window.scrollTo({ top, behavior });
-      return;
-    }
-    const container = target as HTMLElement;
-    if (container.scrollTo) container.scrollTo({ top, behavior });
-    else container.scrollTop = top;
-  }
-
-  /**
-   * The ordinary jump — the turn is mounted and within a few viewports. It
-   * glides, which is what the Gemini timeline has always done; the instant
-   * jumps elsewhere in this file are for landings the homing loop has to
-   * re-aim, where an animation would fight the correction.
-   */
-  private scrollMarkerIntoView(element: HTMLElement): void {
-    const behavior: ScrollBehavior = prefersReducedMotion() ? 'instant' : 'smooth';
-    const target = this.getScrollTarget(element);
-    const rect = element.getBoundingClientRect();
-    if (target === window) {
-      const top =
-        this.getScrollTop() + rect.top + rect.height / 2 - this.getViewportHeight() * ACTIVE_ANCHOR;
-      window.scrollTo({ top: Math.max(0, top), behavior });
-      return;
-    }
-    const container = target as HTMLElement;
-    const containerRect = container.getBoundingClientRect();
-    const top =
-      container.scrollTop +
-      rect.top -
-      containerRect.top -
-      container.clientHeight * ACTIVE_ANCHOR +
-      rect.height / 2;
-    if (container.scrollTo) container.scrollTo({ top: Math.max(0, top), behavior });
-    else container.scrollTop = Math.max(0, top);
-  }
-}
-
-function prefersReducedMotion(): boolean {
-  return (
-    typeof window.matchMedia === 'function' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  );
 }
 
 /**

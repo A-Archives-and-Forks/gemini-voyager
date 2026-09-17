@@ -720,7 +720,7 @@ describe('Claude timeline', () => {
     expect(window.scrollTo).toHaveBeenLastCalledWith({ top: 450, behavior: 'smooth' });
   });
 
-  it('jumps instantly for long-distance navigation to a mounted turn, then fine-aims', async () => {
+  it('glides a long jump to a mounted turn, then fine-aims once it settles', async () => {
     const first = addTurn('first prompt');
     const second = addTurn('second prompt');
     first.getBoundingClientRect = vi.fn(() => ({ top: 0, bottom: 40, height: 40 }) as DOMRect);
@@ -730,12 +730,15 @@ describe('Claude timeline', () => {
     startClaudeTimeline();
     await flush();
 
-    // Distance > 3 viewports: jump, then fine-aim once the region re-measures.
+    // Distance > 3 viewports: glide, then fine-aim once the region re-measures.
     queryDots()[1].dispatchEvent(new MouseEvent('click', { bubbles: true }));
     expect(window.scrollTo).toHaveBeenCalledTimes(1);
-    expect(window.scrollTo).toHaveBeenCalledWith({ top: 4750, behavior: 'instant' });
+    expect(window.scrollTo).toHaveBeenCalledWith({ top: 4750, behavior: 'smooth' });
 
-    // Next hop fine-aims and ends the navigation.
+    // The homing hop must not fire into a scroll that is still moving, so it
+    // waits for two identical reads (2 x 80ms) before its own 200ms.
+    vi.advanceTimersByTime(200);
+    expect(window.scrollTo).toHaveBeenCalledTimes(1);
     vi.advanceTimersByTime(200);
     expect(window.scrollTo).toHaveBeenCalledTimes(2);
     expect(window.scrollTo).toHaveBeenLastCalledWith({ top: 4750, behavior: 'smooth' });
