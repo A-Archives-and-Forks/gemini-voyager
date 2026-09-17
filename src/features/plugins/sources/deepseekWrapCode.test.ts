@@ -9,12 +9,12 @@ afterEach(() => {
   document.body.innerHTML = '';
 });
 
-describe('DeepSeek code and table readability', () => {
+describe('DeepSeek code wrapping', () => {
   it('scopes styles to answers and restores host state across settings and remounts', async () => {
     const manifest = (await new BundledCatalogPluginSource().list()).find(
-      (entry) => entry.id === 'voyager.deepseek-code-table',
+      (entry) => entry.id === 'voyager.deepseek-wrap-code',
     );
-    if (!manifest) throw new Error('Missing code/table plugin');
+    if (!manifest) throw new Error('Missing code wrapping plugin');
     document.body.innerHTML =
       '<textarea>composer</textarea>' +
       '<div class="ds-message"><div class="ds-collapsible-text"><pre>user code</pre></div></div>' +
@@ -31,13 +31,15 @@ describe('DeepSeek code and table readability', () => {
     try {
       for (let cycle = 0; cycle < 2; cycle++) {
         engine.mount(manifest, { wrapCode: false });
-        expect(answer.classList.contains('gv-plugin-deepseek-code-table')).toBe(true);
+        expect(answer.classList.contains('gv-plugin-deepseek-wrap-code')).toBe(true);
         expect(answer.getAttribute('data-gv-code-wrap')).toBe('false');
-        expect(document.querySelectorAll('.gv-plugin-deepseek-code-table')).toHaveLength(1);
+        expect(document.querySelectorAll('.gv-plugin-deepseek-wrap-code')).toHaveLength(1);
         const pre = answer.querySelector('.ds-assistant-message-main-content pre')!;
         expect(getComputedStyle(pre).whiteSpace).toBe('pre');
         expect(getComputedStyle(pre).overflowX).toBe('auto');
-        expect(getComputedStyle(table.parentElement!).overflowX).toBe('auto');
+        // Tables are left to DeepSeek: it already scrolls them in .ds-scroll-area,
+        // so the plugin claiming them too was a rule that changed nothing.
+        expect(getComputedStyle(table.parentElement!).overflowX).not.toBe('auto');
         expect(getComputedStyle(table).display).toBe('table');
         expect(getComputedStyle(answer.querySelector('.ds-think-content pre')!).overflowX).not.toBe(
           'auto',
@@ -61,7 +63,7 @@ describe('DeepSeek code and table readability', () => {
 
   it('applies to newly mounted answer nodes and releases them when disabled', async () => {
     const manifest = (await new BundledCatalogPluginSource().list()).find(
-      (entry) => entry.id === 'voyager.deepseek-code-table',
+      (entry) => entry.id === 'voyager.deepseek-wrap-code',
     )!;
     const engine = new DeclarativeEngine({ doc: document, adapter: deepseekAdapter });
     try {
@@ -72,7 +74,7 @@ describe('DeepSeek code and table readability', () => {
         '<div class="ds-assistant-message-main-content"><pre><code>x</code></pre></div>';
       document.body.append(answer);
       await new Promise((resolve) => setTimeout(resolve, 100));
-      expect(answer.classList.contains('gv-plugin-deepseek-code-table')).toBe(true);
+      expect(answer.classList.contains('gv-plugin-deepseek-wrap-code')).toBe(true);
       expect(answer.getAttribute('data-gv-code-wrap')).toBe('true');
       engine.unmount(manifest.id);
       expect(answer.className).toBe('ds-message');
