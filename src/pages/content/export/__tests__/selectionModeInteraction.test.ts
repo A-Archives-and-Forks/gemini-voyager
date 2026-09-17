@@ -21,16 +21,14 @@ describe('selection mode interaction', () => {
   it('supports dark-theme selectors for export dialog and progress toast', () => {
     const css = readFileSync(resolve(process.cwd(), 'public/contentStyle.css'), 'utf8');
 
-    expect(css).toContain('html.dark-theme .gv-export-dialog');
-    expect(css).toContain('body.dark-theme .gv-export-dialog');
-    expect(css).toContain('html.dark-theme .gv-export-progress-card');
-    expect(css).toContain("body[data-theme='dark'] .gv-export-progress-card");
+    expect(css).toContain("html[data-gv-scheme='dark'] .gv-export-dialog");
+    expect(css).toContain("html[data-gv-scheme='dark'] .gv-export-progress-card");
   });
 
   it('styles the Markdown prompt heading switch for dark and RTL layouts', () => {
     const css = readFileSync(resolve(process.cwd(), 'public/contentStyle.css'), 'utf8');
 
-    expect(css).toContain('.theme-host.dark-theme .gv-export-prompt-heading-section');
+    expect(css).toContain("html[data-gv-scheme='dark'] .gv-export-prompt-heading-section");
     expect(css).toContain('body.gv-rtl .gv-export-prompt-heading-switch .gv-coach-knob');
   });
 

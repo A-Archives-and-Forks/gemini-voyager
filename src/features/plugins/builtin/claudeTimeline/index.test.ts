@@ -125,7 +125,7 @@ describe('Claude timeline', () => {
     expect(dots).toHaveLength(2);
 
     dots[0].dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'instant' });
+    expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
     expect(dots[0].classList.contains('active')).toBe(true);
     expect(dots[0].getAttribute('aria-current')).toBe('true');
   });
@@ -233,7 +233,7 @@ describe('Claude timeline', () => {
     ).toBe(false);
 
     dot.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    expect(window.scrollTo).toHaveBeenCalledWith({ top: 450, behavior: 'instant' });
+    expect(window.scrollTo).toHaveBeenCalledWith({ top: 450, behavior: 'smooth' });
     expect(bar.getAttribute('aria-expanded')).toBe('false');
     expect(document.querySelector('.timeline-preview-panel')?.classList.contains('visible')).toBe(
       false,
@@ -316,7 +316,28 @@ describe('Claude timeline', () => {
     await flush();
 
     queryDots()[1].click();
-    expect(window.scrollTo).toHaveBeenCalledWith({ top: 450, behavior: 'instant' });
+    expect(window.scrollTo).toHaveBeenCalledWith({ top: 450, behavior: 'smooth' });
+  });
+
+  it('jumps instantly when the reader asked for less motion', async () => {
+    addTurn('first prompt');
+    const second = addTurn('second prompt');
+    second.getBoundingClientRect = vi.fn(() => ({ top: 700, bottom: 740, height: 40 }) as DOMRect);
+    const media = window.matchMedia;
+    window.matchMedia = ((query: string) =>
+      ({
+        matches: query.includes('reduced-motion'),
+      }) as MediaQueryList) as typeof window.matchMedia;
+
+    try {
+      startClaudeTimeline();
+      await flush();
+
+      queryDots()[1].click();
+      expect(window.scrollTo).toHaveBeenCalledWith({ top: 450, behavior: 'instant' });
+    } finally {
+      window.matchMedia = media;
+    }
   });
 
   it('long-presses a dot to star it', async () => {
@@ -658,7 +679,7 @@ describe('Claude timeline', () => {
     vi.advanceTimersByTime(200);
     await flush();
     expect(window.scrollTo).toHaveBeenCalledTimes(3);
-    expect(window.scrollTo).toHaveBeenLastCalledWith({ top: 450, behavior: 'instant' });
+    expect(window.scrollTo).toHaveBeenLastCalledWith({ top: 450, behavior: 'smooth' });
 
     vi.advanceTimersByTime(600);
     expect(window.scrollTo).toHaveBeenCalledTimes(3);
@@ -696,7 +717,7 @@ describe('Claude timeline', () => {
     await flush();
     vi.advanceTimersByTime(200);
     await flush();
-    expect(window.scrollTo).toHaveBeenLastCalledWith({ top: 450, behavior: 'instant' });
+    expect(window.scrollTo).toHaveBeenLastCalledWith({ top: 450, behavior: 'smooth' });
   });
 
   it('jumps instantly for long-distance navigation to a mounted turn, then fine-aims', async () => {
@@ -717,7 +738,7 @@ describe('Claude timeline', () => {
     // Next hop fine-aims and ends the navigation.
     vi.advanceTimersByTime(200);
     expect(window.scrollTo).toHaveBeenCalledTimes(2);
-    expect(window.scrollTo).toHaveBeenLastCalledWith({ top: 4750, behavior: 'instant' });
+    expect(window.scrollTo).toHaveBeenLastCalledWith({ top: 4750, behavior: 'smooth' });
 
     vi.advanceTimersByTime(600);
     expect(window.scrollTo).toHaveBeenCalledTimes(2);
@@ -753,7 +774,7 @@ describe('Claude timeline', () => {
     await flush();
 
     expect(window.scrollTo).toHaveBeenCalledTimes(1);
-    expect(window.scrollTo).toHaveBeenCalledWith({ top: 450, behavior: 'instant' });
+    expect(window.scrollTo).toHaveBeenCalledWith({ top: 450, behavior: 'smooth' });
 
     addTurn('third prompt');
     await settleRefresh();

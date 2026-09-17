@@ -172,10 +172,26 @@ describe('applyBrandTheme', () => {
     expect(document.documentElement.style.getPropertyValue('--gv-pm-brand-fg')).toBe('#ffffff');
   });
 
-  it('adds nothing on Gemini', () => {
+  it('adds no accent on Gemini, but still names the platform', () => {
     applyBrandTheme('https://gemini.google.com/app', [], document);
     expect(document.documentElement.className).toBe('');
     expect(document.documentElement.style.getPropertyValue('--gv-pm-brand')).toBe('');
+    // A rule that belongs to one platform needs to name it. gv-platform-themed
+    // only says "declares a brand", which three platforms do at once.
+    expect(document.documentElement.getAttribute('data-gv-platform')).toBe('gemini');
+  });
+
+  it('names each platform on the root and clears it off an unknown site', () => {
+    for (const [url, id] of [
+      ['https://chat.deepseek.com/a/chat/s/1', 'deepseek'],
+      ['https://chatgpt.com/c/1', 'chatgpt'],
+      ['https://claude.ai/chat/1', 'claude'],
+    ] as const) {
+      applyBrandTheme(url, [], document);
+      expect(document.documentElement.getAttribute('data-gv-platform'), url).toBe(id);
+    }
+    applyBrandTheme('https://example.com/', [], document);
+    expect(document.documentElement.hasAttribute('data-gv-platform')).toBe(false);
   });
 
   it('clears a previously-applied theme when navigating to an un-themed site', () => {
@@ -223,24 +239,51 @@ describe('platform theme CSS', () => {
     expect(noticeBlock).toContain('var(--gv-pm-brand-soft)');
   });
 
-  it('paints the Gemini FAB with the brand, beating the AI Studio neutral trigger', () => {
+  it('paints the FAB with the brand and lets nothing repaint it afterwards', () => {
     const css = readFileSync(resolve(process.cwd(), 'public/contentStyle.css'), 'utf8');
-    // The .theme-host.*-theme trigger override must exist (specificity 0,3,0) and
-    // reference the brand, or the body.*-theme neutral rules repaint it white/black.
-    const fabBlock =
-      css.match(/\.theme-host\.light-theme \.gv-pm-trigger[\s\S]*?\{([\s\S]*?)\}/)?.[1] ?? '';
-    expect(fabBlock).toContain('var(--gv-pm-brand, var(--gv-pm-brand-default))');
-    expect(fabBlock).toContain('var(--gv-pm-brand-fg, var(--gv-pm-brand-fg-default))');
+    const rules = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map(([, selector, body], order) => ({
+      selector: selector
+        .replace(/\/\*[\s\S]*?\*\//g, '')
+        .replace(/\s+/g, ' ')
+        .trim(),
+      body,
+      order,
+    }));
+
+    const brand = rules.find(
+      (r) => r.selector.includes('.gv-pm-trigger') && r.body.includes('--gv-pm-brand,'),
+    );
+    expect(brand, 'no brand rule for .gv-pm-trigger').toBeTruthy();
+    expect(brand!.body).toContain('var(--gv-pm-brand, var(--gv-pm-brand-default))');
+    expect(brand!.body).toContain('var(--gv-pm-brand-fg, var(--gv-pm-brand-fg-default))');
+
+    // The brand rule used to win on specificity alone: it was scoped to Gemini's
+    // .theme-host (0,3,0) while a neutral white/black pair sat below it at
+    // (0,2,1). Once every site shares one hook those weigh the same and the
+    // later rule wins, which is how the FAB silently lost its colour once.
+    const repaints = rules.filter((r) => {
+      if (r.order <= brand!.order) return false;
+      if (!/(^|[\s,])[^,]*\.gv-pm-trigger($|[\s,:])/.test(`${r.selector},`)) return false;
+      const background = r.body.match(/(?:^|[;\s])background\s*:([^;]*)/)?.[1];
+      // Another brand-driven rule is the system working; a literal colour is the
+      // bug — that is how a neutral white/black pair silently won once.
+      return background !== undefined && !background.includes('--gv-pm-brand');
+    });
+    expect(
+      repaints.map((r) => r.selector),
+      'a later rule repaints the FAB with a literal colour',
+    ).toEqual([]);
   });
 
-  it('never re-declares the JS-overridable --gv-pm-brand on .theme-host (would shadow the inline custom colour)', () => {
+  it('never re-declares the JS-overridable --gv-pm-brand in a scheme block (would shadow the inline custom colour)', () => {
     const css = readFileSync(resolve(process.cwd(), 'public/contentStyle.css'), 'utf8');
     // Each .theme-host theme block must define only the *-default vars; a bare
     // `--gv-pm-brand:` there would shadow the inline <html> override so a custom
     // colour could never reach the Voyager UI inside .theme-host.
-    for (const sel of ['.theme-host.light-theme', '.theme-host.dark-theme']) {
+    for (const sel of ["html[data-gv-scheme='light']", "html[data-gv-scheme='dark']"]) {
+      const escaped = sel.replace(/[.[\]']/g, '\\$&');
       const block =
-        css.match(new RegExp(`${sel.replace(/\./g, '\\.')}\\s*{([\\s\\S]*?)}`))?.[1] ?? '';
+        css.match(new RegExp(`${escaped} \\{([^}]*--gv-pm-brand-default[^}]*)\\}`))?.[1] ?? '';
       expect(block).toContain('--gv-pm-brand-default:');
       expect(/--gv-pm-brand:\s/.test(block)).toBe(false);
       expect(/--gv-pm-brand-fg:\s/.test(block)).toBe(false);

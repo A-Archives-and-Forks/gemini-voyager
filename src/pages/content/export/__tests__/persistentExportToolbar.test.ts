@@ -101,8 +101,8 @@ describe('persistentExportToolbar', () => {
 
     expect(platformRule).toContain('top: 12px');
     expect(platformRule).not.toContain('right:');
-    expect(css).toContain('html.dark .gv-persistent-export-btn,');
-    expect(css).toContain('html.dark .gv-persistent-export-btn:hover,');
+    expect(css).toContain("html[data-gv-scheme='dark'] .gv-persistent-export-btn");
+    expect(css).toContain("html[data-gv-scheme='dark'] .gv-persistent-export-btn:hover");
   });
 
   it('setText updates label/tooltip after language change', () => {

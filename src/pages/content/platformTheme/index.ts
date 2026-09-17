@@ -34,11 +34,20 @@ import { listPluginManifests } from '@/features/plugins/sources/defaultSources';
 import { loadPluginState, subscribePluginState } from '@/features/plugins/storage/pluginState';
 import type { PluginManifest, SiteAdapter } from '@/features/plugins/types';
 
+import { getSchemeBridge } from './scheme';
+
 /** Body class flag: Voyager UI on this page uses a platform brand accent. */
 export const PLATFORM_THEME_CLASS = 'gv-platform-themed';
 const BRAND_VAR = '--gv-pm-brand';
 const BRAND_FG_VAR = '--gv-pm-brand-fg';
 const BRAND_HUE_VAR = '--gv-pm-brand-h';
+/**
+ * The site id on the root, so a rule can say "this look belongs to ChatGPT"
+ * rather than borrowing a marker that means something else. `gv-platform-themed`
+ * only says the site declares a brand colour, which is true of three platforms
+ * at once; per-platform styling needs to name the platform.
+ */
+const PLATFORM_ATTR = 'data-gv-platform';
 
 /** Per-site custom accent overrides: Record<siteId, colorString>. */
 export type AccentColorMap = Readonly<Record<string, string>>;
@@ -168,6 +177,9 @@ export function applyBrandTheme(
   const color = resolveBrandColor(url, manifests, customColors, adapter);
   const root = doc.documentElement;
   if (!root) return;
+  // Independent of the accent: Gemini declares no brand and is still a platform.
+  if (adapter?.id) root.setAttribute(PLATFORM_ATTR, adapter.id);
+  else root.removeAttribute(PLATFORM_ATTR);
   if (color) {
     root.classList.add(PLATFORM_THEME_CLASS);
     root.style.setProperty(BRAND_VAR, color);
@@ -207,6 +219,10 @@ export function startBrandTheme(url: string = location.href, doc: Document = doc
   let cancelled = false;
   const host = catalogHostFromUrl(url);
   const registry = SiteRegistry.createDefault();
+  // Light/dark rides the same adapter but NOT this lifetime. The content entry
+  // stamps it before any UI mounts; this feature can be toggled off from the
+  // popup and must leave the page's theme alone, so it only corrects the
+  // descriptor once the override-aware adapter resolves, and creates nothing.
   const recompute = async (): Promise<void> => {
     const [manifests, state, customColors, override] = await Promise.all([
       listPluginManifests(undefined, { url, host }),
@@ -219,6 +235,8 @@ export function startBrandTheme(url: string = location.href, doc: Document = doc
     // A published site override can change the brand colour without a release.
     const adapter = resolveSiteAdapterForUrl(url, registry, override);
     applyBrandTheme(url, active, doc, customColors, adapter);
+    // A published site override can also correct a wrong dark selector.
+    getSchemeBridge()?.setTheme(adapter?.theme ?? null);
   };
   void recompute();
   const unState = subscribePluginState(() => void recompute());

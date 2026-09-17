@@ -162,7 +162,15 @@ describe('rendered Quote Reply blocks', () => {
 
   it('uses Voyager theme variables and logical properties in every browser', () => {
     const css = readFileSync(resolve(process.cwd(), 'public/contentStyle.css'), 'utf8');
-    const block = css.match(/\/\* Quote Reply:[\s\S]*?\/\* Gemini theme hosts/)?.[0] ?? '';
+    // Collect the rules by what they style, not by slicing between two comments:
+    // the previous end anchor was an unrelated comment, so editing that comment
+    // silently emptied this block and every assertion below passed on nothing.
+    const block = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+      .filter(([, selector]) => /\.gv-(?:rendered-quote|composer-quote)/.test(selector))
+      .map(([rule]) => rule)
+      .join('\n');
+
+    expect(block, 'no Quote Reply rules found').not.toBe('');
 
     expect(block).toContain('.gv-rendered-quote');
     expect(block).toContain('var(--gv-pm-brand, var(--gv-pm-brand-default))');

@@ -39,7 +39,8 @@ export const NATIVE_FEATURES = {
     id: 'brand-theme',
     position: CleanupPositions.CleanupBrandTheme,
     start: () => startBrandTheme(),
-    inertReason: 'Only Claude / ChatGPT adapters declare a brand colour; Gemini is left untouched.',
+    inertReason:
+      'Brand accent is inert where no adapter declares one; the light/dark bridge always runs.',
   },
   edgeFinalVersionNotice: {
     id: 'edge-final-version-notice',

@@ -11,6 +11,7 @@ import { isGeminiEnterpriseEnvironment } from '@/core/utils/gemini';
 import { WATERMARK_STORAGE_KEYS } from '@/core/utils/watermarkSettings';
 import { startPluginHost } from '@/features/plugins';
 import { resolvePluginPlatformId } from '@/features/plugins/sites/registry';
+import { SiteRegistry } from '@/features/plugins/sites/registry';
 import { initI18n } from '@/utils/i18n';
 
 import { startCanvasExport } from './canvasExport/index';
@@ -46,6 +47,7 @@ import { initKaTeXConfig } from './katexConfig';
 import { startMarkdownPatcher } from './markdownPatcher/index';
 import { startMermaid } from './mermaid/index';
 import { NATIVE_FEATURES } from './nativeFeatures';
+import { ensureScheme, stopScheme } from './platformTheme/scheme';
 import { registerBuiltinNativeHandlers } from './pluginNativeRegistration';
 import { createPostChangelogFlow } from './postChangelogFlow';
 import { startPreventAutoScroll } from './preventAutoScroll/index';
@@ -515,6 +517,16 @@ function handleVisibilityChange(): void {
 (function () {
   try {
     if (!hasValidExtensionContext()) return;
+
+    // First, before every branch below and before any surface mounts. The host
+    // dialects this replaced were the page's own classes, already there, so a
+    // surface was styled the instant it appeared; the attribute only exists
+    // once we write it. It has to be here rather than inside
+    // initializeFeatures, which a plugin platform never reaches — that branch
+    // sets `initialized` precisely to keep out of it — and which a custom
+    // website leaves early. Resolving the bundled descriptor is synchronous.
+    ensureScheme(SiteRegistry.createDefault().resolveByUrl(location.href)?.theme ?? null);
+    cleanupManager.registerCleanupFunction(stopScheme, CleanupPositions.CleanupSchemeBridge);
 
     const pluginPlatformId = resolvePluginPlatformId(location.href);
     const isPluginSubframe = window.top !== window && pluginPlatformId !== null;

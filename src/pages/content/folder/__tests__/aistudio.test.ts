@@ -411,12 +411,20 @@ describe('AIStudio prompt binding performance guards', () => {
 });
 
 describe('AIStudio theme compatibility', () => {
-  it('uses body light/dark theme selectors for folder palette variables', () => {
+  it('defines the folder palette for both schemes, on every platform at once', () => {
+    // This used to require AI Studio's own body selector. The palette hangs off
+    // the shared scheme hook now, so AI Studio, DeepSeek and whatever comes next
+    // are covered by the same two blocks.
     const css = readFileSync(resolve(process.cwd(), 'public/contentStyle.css'), 'utf8');
+    const palettes = [...css.matchAll(/([^{}]+)\{([^{}]*--folder-bg[^{}]*)\}/g)];
 
-    expect(css).toContain('.theme-host.dark-theme,\nbody.dark-theme');
-    expect(css).toContain('.theme-host.light-theme,\nbody.light-theme');
-    expect(css).toContain('body.dark-theme .gv-folder-action-btn:hover');
+    for (const scheme of ['dark', 'light']) {
+      const hit = palettes.find(([, selector]) =>
+        selector.includes(`html[data-gv-scheme='${scheme}']`),
+      );
+      expect(hit, `no --folder-bg block for ${scheme}`).toBeTruthy();
+    }
+    expect(css).toContain("html[data-gv-scheme='dark'] .gv-folder-action-btn:hover");
   });
 
   it('renders cloud action icons with currentColor in AI Studio', () => {

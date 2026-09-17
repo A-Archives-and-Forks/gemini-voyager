@@ -1135,13 +1135,20 @@ export class TurnNavigator {
     else container.scrollTop = top;
   }
 
+  /**
+   * The ordinary jump — the turn is mounted and within a few viewports. It
+   * glides, which is what the Gemini timeline has always done; the instant
+   * jumps elsewhere in this file are for landings the homing loop has to
+   * re-aim, where an animation would fight the correction.
+   */
   private scrollMarkerIntoView(element: HTMLElement): void {
+    const behavior: ScrollBehavior = prefersReducedMotion() ? 'instant' : 'smooth';
     const target = this.getScrollTarget(element);
     const rect = element.getBoundingClientRect();
     if (target === window) {
       const top =
         this.getScrollTop() + rect.top + rect.height / 2 - this.getViewportHeight() * ACTIVE_ANCHOR;
-      window.scrollTo({ top: Math.max(0, top), behavior: 'instant' });
+      window.scrollTo({ top: Math.max(0, top), behavior });
       return;
     }
     const container = target as HTMLElement;
@@ -1152,9 +1159,16 @@ export class TurnNavigator {
       containerRect.top -
       container.clientHeight * ACTIVE_ANCHOR +
       rect.height / 2;
-    if (container.scrollTo) container.scrollTo({ top: Math.max(0, top), behavior: 'instant' });
+    if (container.scrollTo) container.scrollTo({ top: Math.max(0, top), behavior });
     else container.scrollTop = Math.max(0, top);
   }
+}
+
+function prefersReducedMotion(): boolean {
+  return (
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
 }
 
 /**

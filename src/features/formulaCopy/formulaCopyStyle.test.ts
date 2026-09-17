@@ -25,15 +25,19 @@ describe('formula copy interaction styles', () => {
     expect(css).toContain(
       ':root.gv-platform-themed.gv-formula-copy-enabled .katex:not(.gv-formula-copy-ignored)',
     );
-    expect(css).toContain("html.gv-formula-copy-enabled[data-color-scheme='light']");
+    // The hover affordance is scoped by the enabled class, on the root, so it
+    // appears only while the service is running. There used to be a second,
+    // light-only copy of this hover keyed on [data-color-scheme='light'] — an
+    // attribute no adapter sets, so it never rendered. It is deleted rather
+    // than rewired: switching it on now would be a new behaviour, not a fix.
+    expect(css).toContain(
+      ':root.gv-formula-copy-enabled .math-inline:not(.gv-formula-copy-ignored):hover',
+    );
 
     expect(css).not.toMatch(/^\.math-inline/m);
     expect(css).not.toMatch(/^\.math-display/m);
     expect(css).not.toMatch(/^\[data-math\]/m);
     expect(css).not.toMatch(/^ms-katex/m);
-    expect(css).not.toMatch(
-      /html\[data-color-scheme='light'\]\s+(?:\.math-inline|\.math-display|\[data-math\]|ms-katex)/,
-    );
     expect(css).not.toContain(':root.gv-platform-themed .katex');
   });
 });
