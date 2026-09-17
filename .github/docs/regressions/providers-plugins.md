@@ -1,5 +1,18 @@
 # Providers and plugins regression notes
 
+## Floating plugin UI must escape a host container that hides its overflow
+
+- **Trap:** The Vim HUD renders in the strip just above its mount. DeepSeek's
+  composer card sets `overflow: hidden` two levels above the textarea, so the
+  badge was laid out correctly and clipped to nothing — no error, no empty
+  element, simply never on screen.
+- **Rule:** Before mounting UI that draws outside its mount's box, climb past any
+  ancestor whose `overflow` is not `visible` and whose own edge is close enough
+  to swallow it (`pages/content/chatInput/vimComposerMount.ts`). Do it by
+  measuring, not by naming the site: the next host will clip somewhere else.
+- **Guard:** `src/pages/content/chatInput/__tests__/vimComposerMount.test.ts`
+  (`climbs out of a composer card that would clip the badge above it`).
+
 ## A delayed navigator star read must not replace the current conversation
 
 - **Trap:** A storage-triggered star read from conversation A can resolve after
