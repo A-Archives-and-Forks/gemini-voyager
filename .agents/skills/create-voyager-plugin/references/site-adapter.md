@@ -22,6 +22,12 @@ the honest outcome. Every selector must parse; the site file's validation
 rejects one that does not before it can throw in the page. Widening `matches`
 widens every plugin under that site, so recheck each one still stays inside it.
 
+`theme` and `brandColor` are what let a new site inherit Voyager's existing UI
+untouched: the first is translated into the `data-gv-scheme` root attribute every
+light/dark rule keys off, the second into the `--gv-pm-brand*` variables every
+accent reads. Both are data, so getting them right here is the whole theme
+adaptation — no per-site CSS follows.
+
 A new site also needs its directory, a `CODEOWNERS` line, and an extension
 release (D16).
 

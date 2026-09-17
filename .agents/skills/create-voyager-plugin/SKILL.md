@@ -2,7 +2,7 @@
 name: create-voyager-plugin
 description: Create or change a Voyager declarative plugin, site adapter, or native primitive.
 metadata:
-  version: '1.1.0'
+  version: '1.2.0'
 ---
 
 # Create a Voyager plugin
@@ -56,7 +56,22 @@ For architecture or distribution changes, read `src/features/plugins/README.md` 
   ordering, no code. A selector-valued parameter such as `yieldWhen` is still
   data, so do not reject one on its name.
 - Themes come from the site, not from guesswork: `site.json`'s `theme` block
-  records the host, light and dark selectors. Check both.
+  records the host, light and dark selectors. Check both. That block is the
+  **only** place a host's own dark-mode dialect is ever named:
+  `pages/content/platformTheme/scheme.ts` resolves it once and stamps
+  `html[data-gv-scheme='light'|'dark']` plus `html[data-gv-platform='<siteId>']`.
+- So scope every light/dark rule — in plugin CSS and in `contentStyle.css` — with
+  `html[data-gv-scheme='…']`, never with the host's class (`html.dark`,
+  `body.dark-theme`, `:root:not(.dark)`). Get `theme` right and a new site
+  inherits every existing Voyager surface with no theme CSS of its own.
+  `contentStyleTheme.test.ts` fails on a host dialect that slips back in.
+- Accent likewise: `brandColor` in `site.json` (or a plugin's `theme.brand`)
+  becomes `--gv-pm-brand`, `--gv-pm-brand-fg` and `--gv-pm-brand-h` on the root.
+  Voyager UI that should carry the site's colour reads
+  `oklch(L C var(--gv-pm-brand-h, var(--gv-pm-brand-h-default)))`, never a
+  literal — a hard-coded hue is how the Vim HUD stayed Gemini green on DeepSeek.
+  A rule for one platform only keys off `html[data-gv-platform='<id>']`;
+  `gv-platform-themed` means "some brand applies" and three sites share it.
 - Never hand-edit `dist_*` or `docs/public/catalog`; `catalog:build` writes the
   published catalog.
 
