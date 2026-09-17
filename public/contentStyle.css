@@ -9420,6 +9420,17 @@ html[data-gv-scheme='dark'] .gv-changelog-body > .gv-changelog-quote {
   color: #e8eaed;
 }
 
+/* A platform's own mark, set into the sentence that names it: text-sized, on
+   the text's baseline, and painted in the text colour so it works in both
+   schemes. */
+.gv-changelog-logo {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+  margin-inline-end: 0.28em;
+  flex: none;
+}
+
 .gv-changelog-body img {
   max-width: 100%;
   border-radius: 8px;

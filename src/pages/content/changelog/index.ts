@@ -5,6 +5,8 @@ import { getCurrentLanguage } from '@/utils/i18n';
 import type { AppLanguage } from '@/utils/language';
 import { TRANSLATIONS, type TranslationKey } from '@/utils/translations';
 
+import { renderPlatformLogoMarks } from './platformLogoMarks';
+
 /**
  * Dynamically import all markdown changelog files.
  * Keyed by relative path, e.g. './notes/1.2.8.md'
@@ -277,6 +279,7 @@ function createChangelogModal(
   const body = document.createElement('div');
   body.className = 'gv-changelog-body';
   body.innerHTML = htmlContent;
+  renderPlatformLogoMarks(body);
   const leadingElement = body.firstElementChild;
   if (leadingElement?.tagName === 'BLOCKQUOTE') {
     leadingElement.classList.add('gv-changelog-quote');
