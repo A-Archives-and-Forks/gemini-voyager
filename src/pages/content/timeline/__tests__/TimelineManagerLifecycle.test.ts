@@ -71,6 +71,20 @@ describe('TimelineManager lifecycle', () => {
     expect(chrome.storage.onChanged.addListener).not.toHaveBeenCalled();
   });
 
+  it('removes the rail hide class when the popup turns hide-container off', () => {
+    const { owners } = fixture();
+    owners.mountUI();
+    owners.registerSyncSettingsListener();
+    const bar = owners.view.ui.timelineBar!;
+    const listener = owners.onSyncSettingsChanged!;
+
+    listener({ geminiTimelineHideContainer: { newValue: true } }, 'sync');
+    expect(bar.classList.contains('timeline-no-container')).toBe(true);
+
+    listener({ geminiTimelineHideContainer: { newValue: false } }, 'sync');
+    expect(bar.classList.contains('timeline-no-container')).toBe(false);
+  });
+
   it('routes sync settings to navigation and the cached view position', () => {
     const { owners } = fixture();
     owners.registerSyncSettingsListener();

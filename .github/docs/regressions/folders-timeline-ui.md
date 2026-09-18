@@ -95,6 +95,22 @@ drop, or hover layout.
   (`resolves a sidebar trigger linked after menu injection when %s`, with and without another
   conversation open).
 
+## Unchecking hide-outer-container must restore a findable rail
+
+- **Trap:** Unchecking "Hide outer container" only removed `.timeline-no-container`. Ruler and
+  compact styles independently forced `::before { opacity: 0 }`, so the rail never returned in those
+  styles. In Nodes style the restored film was 4px at 0.08 / 0.12 alpha — findable as a 24px pill,
+  invisible as a hairline — so hide-off still looked like hide-on.
+- **Rule:** `.timeline-no-container` is the only hide for the rail `::before`. A shown rail at the
+  4px default width must use a hairline-visible film, not a slab-opacity leftover.
+- **Guard:** `src/pages/content/timeline/__tests__/timelineSurfaceStyle.test.ts`
+  (`hides the rail only through timeline-no-container, so unchecking restore works`,
+  `paints a hairline-visible film when the outer container is shown`),
+  `src/pages/content/timeline/__tests__/TimelineView.test.ts`
+  (`shows the rail background again after hide is turned off`), and
+  `src/pages/content/timeline/__tests__/TimelineManagerLifecycle.test.ts`
+  (`removes the rail hide class when the popup turns hide-container off`).
+
 ## Timeline navigation must validate the live scroll viewport
 
 - **Trap:** Timeline dots, preview-list items, and `j`/`k` shortcuts could all appear inert after

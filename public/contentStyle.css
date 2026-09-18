@@ -211,20 +211,21 @@ html[data-gv-scheme='light'] {
    surface of its own: the old pair were opaque slabs picked when Gemini's dark
    was a blue slate, and against today's near-black #0f0f0f the dark one sat at
    a contrast ratio of 1.04 — measured on the page, which is to say invisible.
-   A light film in dark and a dark film in light land near 1.35 and hold up on
-   any host, which is what this surface has to do now that it is not Gemini's
-   alone.
+
+   Default width is 4px, so the film has to read as a hairline. 0.12 / 0.08
+   alpha was measured findable on a 24px pill and gone on a 4px line, which
+   made unchecking "Hide outer container" look like a no-op.
 
    NOTE the values live here and not in --timeline-bar-bg, which
    .timeline-preview-toggle also reads as an opaque panel. */
 html[data-gv-scheme='dark'] .gemini-timeline-bar:not(.timeline-no-container)::before {
-  background-color: rgba(255, 255, 255, 0.12);
+  background-color: rgba(255, 255, 255, 0.28);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
 }
 
 html[data-gv-scheme='light'] .gemini-timeline-bar:not(.timeline-no-container)::before {
-  background-color: rgba(0, 0, 0, 0.08);
+  background-color: rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
 }
@@ -433,14 +434,9 @@ html[data-gv-platform='chatgpt'][data-gv-scheme='dark']
 }
 
 /* Ruler timeline style: keep the classic full-height marker positions and
- * interactions, but render each node as a quiet horizontal tick. */
-.gemini-timeline-bar.gv-timeline-style-ruler::before {
-  opacity: 0;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  box-shadow: none;
-}
-
+ * interactions, but render each node as a quiet horizontal tick.
+ * Rail-background visibility is `.timeline-no-container` only — forcing
+ * `::before { opacity: 0 }` here made "Hide outer container" a no-op. */
 .gemini-timeline-bar.gv-timeline-style-ruler .timeline-track {
   overflow: hidden;
 }
@@ -561,16 +557,10 @@ html[data-gv-platform='chatgpt'][data-gv-scheme='dark']
 }
 
 /* Compact timeline style: the rail becomes one hover target and markers are
- * rendered as quiet index ticks. Navigation happens from the preview panel. */
+ * rendered as quiet index ticks. Navigation happens from the preview panel.
+ * Rail-background visibility is `.timeline-no-container` only. */
 .gemini-timeline-bar.timeline-style-compact {
   cursor: pointer;
-}
-
-.gemini-timeline-bar.timeline-style-compact::before {
-  opacity: 0;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  box-shadow: none;
 }
 
 .gemini-timeline-bar.timeline-style-compact .timeline-track {

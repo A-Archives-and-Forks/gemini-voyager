@@ -72,6 +72,17 @@ describe('TimelineView', () => {
     expect(bar.style.getPropertyValue('--timeline-bar-width')).toBe('4px');
   });
 
+  it('shows the rail background again after hide is turned off', () => {
+    const { view, bar } = fixture();
+    view.hideContainer = true;
+    view.applyContainerVisibility();
+    expect(bar.classList.contains('timeline-no-container')).toBe(true);
+
+    view.hideContainer = false;
+    view.applyContainerVisibility();
+    expect(bar.classList.contains('timeline-no-container')).toBe(false);
+  });
+
   it('moves the runner with a compositor transform and reads the spring profile once', () => {
     const { view, trackContent } = fixture();
     const getItem = vi.spyOn(localStorage, 'getItem').mockReturnValue('ios');

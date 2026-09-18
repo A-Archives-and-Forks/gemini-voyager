@@ -59,3 +59,34 @@ describe('timeline floating surfaces', () => {
     expect(declared).not.toContain('Google Sans');
   });
 });
+
+describe('timeline rail background', () => {
+  function rule(selector: string): string {
+    const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const body = readContentStyle().match(new RegExp(`(^|\\n)${escaped}\\s*\\{([^}]*)\\}`))?.[2];
+    if (!body) throw new Error(`Missing rule for ${selector}`);
+    return body;
+  }
+
+  it('hides the rail only through timeline-no-container, so unchecking restore works', () => {
+    const css = readContentStyle();
+    expect(css).not.toMatch(
+      /\.gemini-timeline-bar\.gv-timeline-style-ruler::before\s*\{[^}]*opacity:\s*0/,
+    );
+    expect(css).not.toMatch(
+      /\.gemini-timeline-bar\.timeline-style-compact::before\s*\{[^}]*opacity:\s*0/,
+    );
+    expect(rule('.gemini-timeline-bar.timeline-no-container::before')).toMatch(
+      /opacity:\s*0\s*!important/,
+    );
+  });
+
+  it('paints a hairline-visible film when the outer container is shown', () => {
+    expect(
+      rule("html[data-gv-scheme='dark'] .gemini-timeline-bar:not(.timeline-no-container)::before"),
+    ).toMatch(/rgba\(255,\s*255,\s*255,\s*0\.28\)/);
+    expect(
+      rule("html[data-gv-scheme='light'] .gemini-timeline-bar:not(.timeline-no-container)::before"),
+    ).toMatch(/rgba\(0,\s*0,\s*0,\s*0\.2\)/);
+  });
+});
