@@ -370,9 +370,9 @@ drop, or hover layout.
   `.theme-host.light-theme`, so a token-driven rule adapts without a per-theme copy. Reserve
   `oklch(… var(--gv-pm-brand-h) / <alpha>)` for translucent washes, never for a solid fill. When
   restyling one layer, update the `data-gv-theme` layer too or the change never ships.
-- **Guard:** `src/pages/content/prompt/__tests__/promptFormStyle.test.ts`. Every `.gv-pm-save` block
-  that sets a background must resolve it through a brand token, and no `.gv-pm-save` / `.gv-pm-add`
-  block may contain a literal hue 158 or 160.
+- **Guard:** `src/pages/content/prompt/__tests__/promptFormStyle.test.ts`. Every `.gv-pm-save`,
+  `.gv-pm-add`, and `.gv-pm-backup-btn` block that sets a background must resolve it through a
+  brand token, and no `.gv-pm-save` / `.gv-pm-add` block may contain a literal hue 158 or 160.
 
 ## Gemini's edit-mode actions rely on block-level `justify-self`
 

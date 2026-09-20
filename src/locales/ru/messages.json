@@ -1082,6 +1082,14 @@
     "message": "Скрыть плавающую кнопку Менеджера промптов на странице",
     "description": "Hint for hiding prompt manager feature"
   },
+  "promptTriggerMascotLogo": {
+    "message": "Логотип-маскот",
+    "description": "Show the Voyager mascot on the Prompt Manager floating ball"
+  },
+  "promptTriggerMascotLogoHint": {
+    "message": "Показывать маскота Voyager на плавающей кнопке. Прозрачные области принимают цвет сайта.",
+    "description": "Hint for the mascot floating-ball logo"
+  },
   "slashPromptEnabled": {
     "message": "Включить быструю вставку промптов через /",
     "description": "Enable slash prompt quick insertion toggle"

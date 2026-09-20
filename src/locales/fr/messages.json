@@ -1082,6 +1082,14 @@
     "message": "Masquer le bouton flottant du gestionnaire",
     "description": "Hint for hiding prompt manager feature"
   },
+  "promptTriggerMascotLogo": {
+    "message": "Logo mascotte",
+    "description": "Show the Voyager mascot on the Prompt Manager floating ball"
+  },
+  "promptTriggerMascotLogoHint": {
+    "message": "Afficher la mascotte Voyager sur le bouton flottant. Les zones transparentes prennent la couleur du site.",
+    "description": "Hint for the mascot floating-ball logo"
+  },
   "slashPromptEnabled": {
     "message": "Activer l’insertion rapide de prompts avec /",
     "description": "Enable slash prompt quick insertion toggle"

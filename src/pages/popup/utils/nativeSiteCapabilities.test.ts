@@ -67,6 +67,9 @@ describe('native popup site capabilities', () => {
     expect(isNativePopupSettingAvailable('aistudio', 'promptManager', 'hidePromptManager')).toBe(
       true,
     );
+    expect(
+      isNativePopupSettingAvailable('aistudio', 'promptManager', 'promptTriggerMascotLogo'),
+    ).toBe(true);
     expect(isNativePopupSettingAvailable('aistudio', 'promptManager', 'slashPromptEnabled')).toBe(
       true,
     );

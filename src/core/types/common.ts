@@ -98,6 +98,7 @@ export const StorageKeys = {
   PROMPT_PANEL_LOCKED: 'gvPromptPanelLocked',
   PROMPT_PANEL_POSITION: 'gvPromptPanelPosition',
   PROMPT_TRIGGER_POSITION: 'gvPromptTriggerPosition',
+  PROMPT_TRIGGER_MASCOT_LOGO: 'gvPromptTriggerMascotLogo',
   PROMPT_CUSTOM_WEBSITES: 'gvPromptCustomWebsites',
   PROMPT_THEME: 'gvPromptTheme',
   PROMPT_INSERT_ON_CLICK: 'gvPromptInsertOnClick',

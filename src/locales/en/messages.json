@@ -1082,6 +1082,14 @@
     "message": "Hide the Prompt Manager floating ball on the page",
     "description": "Hint for hiding prompt manager feature"
   },
+  "promptTriggerMascotLogo": {
+    "message": "Use mascot logo",
+    "description": "Show the Voyager mascot on the Prompt Manager floating ball"
+  },
+  "promptTriggerMascotLogoHint": {
+    "message": "Show the Voyager mascot on the floating ball. Clear areas pick up each site's theme color.",
+    "description": "Hint for the mascot floating-ball logo"
+  },
   "slashPromptEnabled": {
     "message": "Enable slash prompt quick insertion",
     "description": "Enable slash prompt quick insertion toggle"

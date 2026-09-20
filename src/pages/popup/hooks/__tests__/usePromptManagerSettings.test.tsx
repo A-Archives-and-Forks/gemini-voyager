@@ -51,10 +51,11 @@ describe('usePromptManagerSettings', () => {
     container.remove();
   });
 
-  it('hydrates all four flags and website coverage from the popup bulk read', async () => {
+  it('hydrates all five flags and website coverage from the popup bulk read', async () => {
     await act(async () =>
       settings.hydrateFromStorage({
         [StorageKeys.HIDE_PROMPT_MANAGER]: 1,
+        [StorageKeys.PROMPT_TRIGGER_MASCOT_LOGO]: true,
         [StorageKeys.PROMPT_HISTORY_ENABLED]: true,
         [StorageKeys.SLASH_PROMPT_ENABLED]: false,
         [StorageKeys.PROMPT_INSERT_ON_CLICK]: true,
@@ -63,6 +64,7 @@ describe('usePromptManagerSettings', () => {
     );
     expect(settings.values).toEqual({
       hidePromptManager: true,
+      promptTriggerMascotLogo: true,
       promptHistoryEnabled: true,
       slashPromptEnabled: false,
       promptInsertOnClickEnabled: true,
@@ -75,6 +77,7 @@ describe('usePromptManagerSettings', () => {
     act(() => settings.hydrateFromStorage(PROMPT_MANAGER_STORAGE_DEFAULTS));
     expect(settings.values).toEqual({
       hidePromptManager: false,
+      promptTriggerMascotLogo: false,
       promptHistoryEnabled: false,
       slashPromptEnabled: true,
       promptInsertOnClickEnabled: false,

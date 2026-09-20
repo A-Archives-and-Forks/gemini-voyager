@@ -7,6 +7,7 @@ import { type CustomWebsitesOptions, useCustomWebsites } from './useCustomWebsit
 export const PROMPT_MANAGER_STORAGE_DEFAULTS = {
   [StorageKeys.PROMPT_CUSTOM_WEBSITES]: [],
   [StorageKeys.HIDE_PROMPT_MANAGER]: false,
+  [StorageKeys.PROMPT_TRIGGER_MASCOT_LOGO]: false,
   [StorageKeys.PROMPT_HISTORY_ENABLED]: false,
   [StorageKeys.SLASH_PROMPT_ENABLED]: true,
   [StorageKeys.PROMPT_INSERT_ON_CLICK]: false,
@@ -14,6 +15,7 @@ export const PROMPT_MANAGER_STORAGE_DEFAULTS = {
 
 export interface PromptManagerSettingsValues {
   hidePromptManager: boolean;
+  promptTriggerMascotLogo: boolean;
   promptHistoryEnabled: boolean;
   slashPromptEnabled: boolean;
   promptInsertOnClickEnabled: boolean;
@@ -21,6 +23,7 @@ export interface PromptManagerSettingsValues {
 
 const FLAG_KEYS = {
   hidePromptManager: StorageKeys.HIDE_PROMPT_MANAGER,
+  promptTriggerMascotLogo: StorageKeys.PROMPT_TRIGGER_MASCOT_LOGO,
   promptHistoryEnabled: StorageKeys.PROMPT_HISTORY_ENABLED,
   slashPromptEnabled: StorageKeys.SLASH_PROMPT_ENABLED,
   promptInsertOnClickEnabled: StorageKeys.PROMPT_INSERT_ON_CLICK,
@@ -34,6 +37,7 @@ export function usePromptManagerSettings(options: CustomWebsitesOptions) {
   const { hydrateFromStorage: hydrateWebsites, ...websites } = useCustomWebsites(options);
   const [values, setValues] = useState<PromptManagerSettingsValues>({
     hidePromptManager: false,
+    promptTriggerMascotLogo: false,
     promptHistoryEnabled: false,
     slashPromptEnabled: true,
     promptInsertOnClickEnabled: false,
@@ -43,6 +47,7 @@ export function usePromptManagerSettings(options: CustomWebsitesOptions) {
     (raw: Record<string, unknown>): void => {
       setValues({
         hidePromptManager: !!raw[StorageKeys.HIDE_PROMPT_MANAGER],
+        promptTriggerMascotLogo: raw[StorageKeys.PROMPT_TRIGGER_MASCOT_LOGO] === true,
         promptHistoryEnabled: raw[StorageKeys.PROMPT_HISTORY_ENABLED] === true,
         slashPromptEnabled: raw[StorageKeys.SLASH_PROMPT_ENABLED] !== false,
         promptInsertOnClickEnabled: raw[StorageKeys.PROMPT_INSERT_ON_CLICK] === true,

@@ -69,6 +69,7 @@ export const BACKUPABLE_SYNC_SETTINGS_DEFAULTS = {
   [StorageKeys.PROMPT_PANEL_LOCKED]: false,
   [StorageKeys.PROMPT_PANEL_POSITION]: null,
   [StorageKeys.PROMPT_TRIGGER_POSITION]: null,
+  [StorageKeys.PROMPT_TRIGGER_MASCOT_LOGO]: false,
   [StorageKeys.PROMPT_CUSTOM_WEBSITES]: [],
   [StorageKeys.PROMPT_THEME]: null,
   [StorageKeys.PROMPT_INSERT_ON_CLICK]: false,

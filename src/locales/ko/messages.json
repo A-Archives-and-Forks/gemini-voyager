@@ -1082,6 +1082,14 @@
     "message": "페이지의 프롬프트 관리자 플로팅 볼을 숨깁니다",
     "description": "Hint for hiding prompt manager feature"
   },
+  "promptTriggerMascotLogo": {
+    "message": "마스코트 로고 사용",
+    "description": "Show the Voyager mascot on the Prompt Manager floating ball"
+  },
+  "promptTriggerMascotLogoHint": {
+    "message": "플로팅 볼에 마스코트를 표시합니다. 인물 밖의 투명 영역은 사이트 테마 색을 따릅니다.",
+    "description": "Hint for the mascot floating-ball logo"
+  },
   "slashPromptEnabled": {
     "message": "슬래시로 프롬프트 빠르게 삽입",
     "description": "Enable slash prompt quick insertion toggle"

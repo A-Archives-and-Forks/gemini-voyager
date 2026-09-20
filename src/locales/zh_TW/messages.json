@@ -1042,6 +1042,14 @@
     "message": "隱藏頁面上的提示詞管理器懸浮球",
     "description": "隱藏提示詞管理器功能提示"
   },
+  "promptTriggerMascotLogo": {
+    "message": "使用看板娘 Logo",
+    "description": "在提示詞管理器懸浮球上顯示看板娘"
+  },
+  "promptTriggerMascotLogoHint": {
+    "message": "在懸浮球上顯示看板娘。人物以外的透明區域會跟隨各網站的主題色。",
+    "description": "看板娘懸浮球 Logo 提示"
+  },
   "slashPromptEnabled": {
     "message": "啟用斜線快速插入提示詞",
     "description": "啟用斜線快速插入提示詞開關"

@@ -52,6 +52,17 @@ export function PromptManagerSettingsCard({
           t={t}
         />
         <SettingToggleRow
+          id="prompt-trigger-mascot-logo"
+          settingId="promptTriggerMascotLogo"
+          label="promptTriggerMascotLogo"
+          hint="promptTriggerMascotLogoHint"
+          checked={values.promptTriggerMascotLogo}
+          onChange={(promptTriggerMascotLogo) => onChange({ promptTriggerMascotLogo })}
+          isVisible={isVisible}
+          unmountWhenHidden
+          t={t}
+        />
+        <SettingToggleRow
           id="prompt-history-enabled"
           settingId="promptHistoryEnabled"
           label="promptHistoryTitle"

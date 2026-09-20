@@ -1082,6 +1082,14 @@
     "message": "隐藏页面上的提示词管理器悬浮球",
     "description": "隐藏提示词管理器功能提示"
   },
+  "promptTriggerMascotLogo": {
+    "message": "使用看板娘 Logo",
+    "description": "在提示词管理器悬浮球上显示看板娘"
+  },
+  "promptTriggerMascotLogoHint": {
+    "message": "在悬浮球上显示看板娘。人物以外的透明区域会跟随各网站的主题色。",
+    "description": "看板娘悬浮球 Logo 提示"
+  },
   "slashPromptEnabled": {
     "message": "启用斜杠快速插入提示词",
     "description": "启用斜杠快速插入提示词开关"

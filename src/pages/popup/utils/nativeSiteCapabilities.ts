@@ -45,6 +45,7 @@ const AI_STUDIO_CAPABILITIES = {
   inputCollapse: ['enterSend'],
   promptManager: [
     'hidePromptManager',
+    'promptTriggerMascotLogo',
     'slashPromptEnabled',
     'promptInsertOnClick',
     'promptDataMigration',

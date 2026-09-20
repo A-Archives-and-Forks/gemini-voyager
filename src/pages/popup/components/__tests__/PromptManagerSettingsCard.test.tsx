@@ -27,6 +27,7 @@ describe('PromptManagerSettingsCard', () => {
       settings: {
         values: {
           hidePromptManager: false,
+          promptTriggerMascotLogo: false,
           promptHistoryEnabled: true,
           slashPromptEnabled: true,
           promptInsertOnClickEnabled: false,
@@ -68,9 +69,12 @@ describe('PromptManagerSettingsCard', () => {
   it('renders all flag values and reports just the toggled setting', () => {
     const input = (id: string) => container.querySelector<HTMLInputElement>(`#${id}`)!;
     expect(input('hide-prompt-manager').checked).toBe(false);
+    expect(input('prompt-trigger-mascot-logo').checked).toBe(false);
     expect(input('prompt-history-enabled').checked).toBe(true);
     expect(input('slash-prompt-enabled').checked).toBe(true);
     expect(input('prompt-insert-on-click').checked).toBe(false);
+    act(() => input('prompt-trigger-mascot-logo').click());
+    expect(props.settings.onChange).toHaveBeenCalledWith({ promptTriggerMascotLogo: true });
     act(() => input('prompt-insert-on-click').click());
     expect(props.settings.onChange).toHaveBeenCalledWith({ promptInsertOnClickEnabled: true });
   });

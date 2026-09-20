@@ -77,6 +77,11 @@ import { createPromptRowSurfaces } from './promptRowConfirm';
 import { getScrollHintState } from './scrollHint';
 import { formatStarredMessageTime } from './starredLibrary';
 import { sanitizeSelectedTags } from './tagFilterState';
+import {
+  applyTriggerLogoFromStorageChange,
+  createTriggerLogoImage,
+  mascotLogoFromRecord,
+} from './triggerLogo';
 
 type PanelPosition = { top: number; left: number };
 type TriggerPosition = { bottom: number; right: number };
@@ -479,6 +484,7 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
     let pmHiddenByUser = false;
     let changelogBadgeActive = false;
     let promptInsertOnClick = false;
+    let useMascotLogo = false;
     // Experiment: when on, the row itself takes the drag and its primary action
     // moves to pointerup. Flip it to compare against the handle before choosing.
     let promptRowDrag = false;
@@ -509,9 +515,11 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
       const result = await browser.storage.sync.get({
         [StorageKeys.PROMPT_INSERT_ON_CLICK]: false,
         [StorageKeys.PROMPT_ROW_DRAG]: false,
+        [StorageKeys.PROMPT_TRIGGER_MASCOT_LOGO]: false,
       });
       promptInsertOnClick = result?.[StorageKeys.PROMPT_INSERT_ON_CLICK] === true;
       promptRowDrag = result?.[StorageKeys.PROMPT_ROW_DRAG] === true;
+      useMascotLogo = mascotLogoFromRecord(result);
     } catch (error) {
       pmLogger.warn('Failed to check prompt click mode setting, falling back to copy behavior', {
         error,
@@ -588,21 +596,7 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
     const trigger = createEl('button', 'gv-pm-trigger');
     trigger.id = ID.trigger;
     trigger.setAttribute('aria-label', 'Prompt Manager');
-    const img = document.createElement('img');
-    img.width = 24;
-    img.height = 24;
-    img.alt = 'pm';
-    img.src = getRuntimeUrl('icon-32.png');
-    img.addEventListener(
-      'error',
-      () => {
-        // dev fallback
-        const devUrl = getRuntimeUrl('icon-32.png');
-        if (img.src !== devUrl) img.src = devUrl;
-      },
-      { once: true },
-    );
-    trigger.appendChild(img);
+    const img = createTriggerLogoImage(trigger, useMascotLogo, getRuntimeUrl);
     if (changelogBadgeActive) {
       trigger.classList.add('gv-pm-trigger-new');
     }
@@ -2352,6 +2346,7 @@ export async function startPromptManager(): Promise<{ destroy: () => void }> {
       if (area === 'sync' && changes[StorageKeys.PROMPT_INSERT_ON_CLICK]) {
         promptInsertOnClick = changes[StorageKeys.PROMPT_INSERT_ON_CLICK].newValue === true;
       }
+      applyTriggerLogoFromStorageChange(area, changes, trigger, img, getRuntimeUrl);
       if (area === 'sync' && changes[StorageKeys.PROMPT_ROW_DRAG]) {
         promptRowDrag = changes[StorageKeys.PROMPT_ROW_DRAG].newValue === true;
         renderActiveList();

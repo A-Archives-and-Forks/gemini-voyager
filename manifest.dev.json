@@ -17,6 +17,7 @@
         "dev-icon-32.png",
         "icon-32.png",
         "icon-128.png",
+        "mascot-logo.png",
         "fetchInterceptor.js",
         "claude-usage-observer.js",
         "response-complete-observer.js",

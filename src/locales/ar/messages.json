@@ -1082,6 +1082,14 @@
     "message": "إخفاء الزر العائم لمدير المطالبات على الصفحة",
     "description": "Hint for hiding prompt manager feature"
   },
+  "promptTriggerMascotLogo": {
+    "message": "استخدام شعار التميمة",
+    "description": "Show the Voyager mascot on the Prompt Manager floating ball"
+  },
+  "promptTriggerMascotLogoHint": {
+    "message": "عرض تميمة Voyager على الزر العائم. المناطق الشفافة تأخذ لون كل موقع.",
+    "description": "Hint for the mascot floating-ball logo"
+  },
   "slashPromptEnabled": {
     "message": "تمكين الإدراج السريع للمطالبات باستخدام /",
     "description": "Enable slash prompt quick insertion toggle"

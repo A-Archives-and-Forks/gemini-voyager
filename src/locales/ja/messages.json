@@ -1082,6 +1082,14 @@
     "message": "ページ上のプロンプトマネージャーのフローティングアイコンを非表示にします",
     "description": "Hint for hiding prompt manager feature"
   },
+  "promptTriggerMascotLogo": {
+    "message": "マスコットロゴを使う",
+    "description": "Show the Voyager mascot on the Prompt Manager floating ball"
+  },
+  "promptTriggerMascotLogoHint": {
+    "message": "フローティングボタンにマスコットを表示します。人物以外の透明部分は各サイトのテーマカラーになります。",
+    "description": "Hint for the mascot floating-ball logo"
+  },
   "slashPromptEnabled": {
     "message": "スラッシュでプロンプトをすばやく挿入",
     "description": "Enable slash prompt quick insertion toggle"

@@ -257,6 +257,12 @@ export const POPUP_SETTINGS_SEARCH_ITEMS = [
     'hidePromptManager',
     'hidePromptManagerHint',
   ]),
+  popupSearchTarget(
+    'promptManager',
+    'promptTriggerMascotLogo',
+    ['promptTriggerMascotLogo', 'promptTriggerMascotLogoHint'],
+    ['mascot kanban 看板娘 logo'],
+  ),
   popupSearchTarget('promptManager', 'promptHistoryEnabled', [
     'promptHistoryTitle',
     'promptHistoryEnabledHint',

@@ -29,15 +29,17 @@ describe('prompt form accent', () => {
     // The panel always carries data-gv-theme, so that layer wins over the base
     // rules — both must resolve the accent through the token, or a custom
     // colour only survives in whichever layer was updated.
-    const save = blocksFor(css, '.gv-pm-save');
-    expect(save.length).toBeGreaterThan(2);
+    for (const cls of ['.gv-pm-save', '.gv-pm-add', '.gv-pm-backup-btn']) {
+      const blocks = blocksFor(css, cls);
+      expect(blocks.length).toBeGreaterThan(2);
 
-    for (const [selector, body] of save) {
-      if (!/background:/.test(body)) continue;
-      expect(
-        /var\(--gv-pm-brand/.test(body),
-        `${selector} sets a background that does not come from the brand token`,
-      ).toBe(true);
+      for (const [selector, body] of blocks) {
+        if (!/background:/.test(body) || /::/.test(selector)) continue;
+        expect(
+          /var\(--gv-pm-brand/.test(body),
+          `${selector} sets a background that does not come from the brand token`,
+        ).toBe(true);
+      }
     }
   });
 
