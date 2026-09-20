@@ -31,6 +31,137 @@ describe('Gemini export adapter contract', () => {
     );
   });
 
+  it('exports licensed hero search images wrapped in Gemini image-buttons', () => {
+    const extracted = extractWithProductionAdapter(`
+      <p>Intro</p>
+      <div class="attachment-container search-images">
+        <response-element>
+          <single-image class="spark-licensed-center-host">
+            <div class="image-container spark-licensed-center hide-from-message-actions" data-full-size-image-uri="https://www.apple.com/newsroom/hero.jpg">
+              <button class="image-button">
+                <img class="spark-licensed-portrait hero-image loaded" alt="iPhone 18 Pro, AI generated" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHero" width="267" height="374" />
+              </button>
+              <div class="hero-caption-row">
+                <div class="caption gds-extended-caption hero-caption">iPhone 18 Pro 酒红配色与全新外观. Source: Apple</div>
+              </div>
+            </div>
+          </single-image>
+        </response-element>
+      </div>
+      <p>After</p>
+    `);
+
+    expect(extracted.hasImages).toBe(true);
+    expect(extracted.html).toContain('encrypted-tbn0.gstatic.com');
+    expect(extracted.html).toContain('iPhone 18 Pro 酒红配色与全新外观. Source: Apple');
+    expect(extracted.text).toContain('Intro');
+    expect(extracted.text).toContain('After');
+    expect(extracted.text).toContain('Source: Apple');
+  });
+
+  it('preserves classic Gemini search images and their source caption', () => {
+    const extracted = extractWithProductionAdapter(`
+      <p>Look:</p>
+      <div class="attachment-container search-images">
+        <response-element>
+          <single-image>
+            <div class="image-container" data-full-size-image-uri="https://example.com/full.jpg">
+              <img class="image" src="https://gstatic.example/thumb.jpg" alt="iCloud settings" />
+              <a class="source" href="https://www.dcard.tw/f/example">
+                <span class="label">Dcard</span>
+              </a>
+            </div>
+          </single-image>
+        </response-element>
+      </div>
+      <p>Next step</p>
+    `);
+
+    expect(extracted.hasImages).toBe(true);
+    expect(extracted.html).toContain('https://gstatic.example/thumb.jpg');
+    expect(extracted.html).toContain('gv-export-figure');
+    expect(extracted.html).toContain('Dcard');
+    expect(extracted.text).toContain('Look:');
+    expect(extracted.text).toContain('Next step');
+    expect(extracted.text).toContain('![iCloud settings](https://gstatic.example/thumb.jpg)');
+    expect(extracted.text.indexOf('Look:')).toBeLessThan(extracted.text.indexOf('gstatic.example'));
+    expect(extracted.text.indexOf('gstatic.example')).toBeLessThan(
+      extracted.text.indexOf('Next step'),
+    );
+  });
+
+  it('does not drop surrounding prose when a wrapper also contains a search image', () => {
+    const extracted = extractWithProductionAdapter(`
+      <div>
+        <p>before</p>
+        <div class="attachment-container search-images">
+          <div class="image-container" data-full-size-image-uri="https://example.com/full.jpg">
+            <img class="image" src="https://gstatic.example/phone.jpg" alt="Phone" />
+          </div>
+        </div>
+        <p>after</p>
+      </div>
+    `);
+
+    expect(extracted.hasImages).toBe(true);
+    expect(extracted.text).toContain('before');
+    expect(extracted.text).toContain('after');
+    expect(extracted.html).toContain('https://gstatic.example/phone.jpg');
+    expect(extracted.html).toContain('<p>before</p>');
+    expect(extracted.html).toContain('<p>after</p>');
+  });
+
+  it('keeps inline single-image illustrations between lists, including captions', () => {
+    const extracted = extractWithProductionAdapter(`
+      <ul><li>Enable iCloud Photos first.</li></ul>
+      <single-image>
+        <img src="https://gstatic.example/icloud.png" alt="iCloud Photos settings" />
+        <figcaption>iCloud 照片设置界面, 来源: Dcard</figcaption>
+      </single-image>
+      <ol><li>Confirm every photo is uploaded.</li></ol>
+    `);
+
+    expect(extracted.hasImages).toBe(true);
+    expect(extracted.html).toContain('https://gstatic.example/icloud.png');
+    expect(extracted.html).toContain('iCloud 照片设置界面, 来源: Dcard');
+    expect(extracted.text).toContain('Enable iCloud Photos first.');
+    expect(extracted.text).toContain('Confirm every photo is uploaded.');
+    expect(extracted.text).toContain('iCloud 照片设置界面, 来源: Dcard');
+  });
+
+  it('resolves lazy search-image placeholders via data-src', () => {
+    const extracted = extractWithProductionAdapter(`
+      <single-image>
+        <img src="about:blank" data-src="https://gstatic.example/lazy.jpg" alt="Lazy shot" />
+      </single-image>
+    `);
+
+    expect(extracted.hasImages).toBe(true);
+    expect(extracted.html).toContain('https://gstatic.example/lazy.jpg');
+    expect(extracted.html).not.toContain('about:blank');
+  });
+
+  it('picks up search images rendered beside the markdown container', () => {
+    DOMContentExtractor.setExportAdapter(resolveExportAdapter());
+    const assistant = document.createElement('message-content');
+    assistant.innerHTML = `
+      <div class="markdown">
+        <p>Intro</p>
+      </div>
+      <div class="attachment-container search-images">
+        <div class="image-container" data-full-size-image-uri="https://example.com/full.jpg">
+          <img class="image" src="https://gstatic.example/side.jpg" alt="Beside markdown" />
+        </div>
+      </div>
+    `;
+
+    const extracted = DOMContentExtractor.extractAssistantContent(assistant);
+
+    expect(extracted.hasImages).toBe(true);
+    expect(extracted.text).toContain('Intro');
+    expect(extracted.html).toContain('https://gstatic.example/side.jpg');
+  });
+
   it('preserves prose around a nested code block in DOM order', () => {
     const extracted = extractWithProductionAdapter(`
       <div>

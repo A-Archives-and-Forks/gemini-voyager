@@ -6,6 +6,7 @@ import type { SiteAdapter } from '@/features/plugins/types';
 
 import { resolveConversationRoot } from '../../conversationDom';
 import type { ExportPlatformAdapter } from './contract';
+import { collectGeminiAssistantImages, extractGeminiAssistantImage } from './geminiImages';
 
 function extractConversationId(): string | null {
   const appMatch = window.location.pathname.match(/\/app\/([^/?#]+)/);
@@ -132,93 +133,6 @@ function getUserAttachmentCandidates(element: HTMLElement): HTMLElement[] | unde
   return filePreviews.length > 0 ? filePreviews : undefined;
 }
 
-function emitImage(
-  image: HTMLImageElement,
-  htmlParts: string[],
-  textParts: string[],
-  flags: Pick<ExtractedContent, 'hasImages'>,
-  processedImageSrcs?: Set<string>,
-  fallbackAlt = 'Image',
-): void {
-  const src = image.getAttribute('src') || image.src || '';
-  if (!src || src === 'about:blank' || processedImageSrcs?.has(src)) return;
-
-  processedImageSrcs?.add(src);
-  flags.hasImages = true;
-  const alt = image.alt || fallbackAlt;
-  htmlParts.push(
-    `<img src="${DOMContentExtractor.escapeHtmlAttribute(src)}" alt="${DOMContentExtractor.escapeHtmlAttribute(alt)}" />`,
-  );
-  textParts.push(`\n![${alt.replace(/\]/g, '\\]')}](${src})\n`);
-}
-
-function extractAssistantImage(
-  child: Element,
-  htmlParts: string[],
-  textParts: string[],
-  flags: Pick<ExtractedContent, 'hasImages' | 'hasFormulas' | 'hasTables' | 'hasCode'>,
-  tagName?: string,
-  _DEBUG?: boolean,
-  processedImageSrcs?: Set<string>,
-): boolean | undefined {
-  const searchImageContainers = child.querySelectorAll(
-    '.attachment-container.search-images .image-container[data-full-size-image-uri]',
-  );
-  if (searchImageContainers.length > 0) {
-    for (const container of Array.from(searchImageContainers)) {
-      const image = container.querySelector<HTMLImageElement>('img.image');
-      const src = image?.src || '';
-      if (!image || !src || src === 'about:blank' || processedImageSrcs?.has(src)) continue;
-
-      processedImageSrcs?.add(src);
-      flags.hasImages = true;
-      const alt = image.alt || 'Search result image';
-      htmlParts.push(
-        `<img src="${DOMContentExtractor.escapeHtmlAttribute(src)}" alt="${DOMContentExtractor.escapeHtmlAttribute(alt)}" />`,
-      );
-      const sourceUrl = container.querySelector<HTMLAnchorElement>('a.source')?.href || '';
-      const fullSizeUri = container.getAttribute('data-full-size-image-uri') || '';
-      const linkUrl = fullSizeUri || sourceUrl;
-      const linkLabel =
-        container.querySelector('.source .label')?.textContent?.trim() || sourceUrl || linkUrl;
-      const imageMarkdown = `![${alt.replace(/\]/g, '\\]')}](${src})`;
-      textParts.push(
-        linkUrl
-          ? `\n${imageMarkdown}\n*Source: [${linkLabel}](${linkUrl})*\n`
-          : `\n${imageMarkdown}\n`,
-      );
-    }
-    return true;
-  }
-
-  const generatedImages = child.querySelectorAll<HTMLImageElement>(
-    'generated-image img, single-image img, .attachment-container.generated-images img',
-  );
-  if (generatedImages.length > 0) {
-    generatedImages.forEach((image) =>
-      emitImage(image, htmlParts, textParts, flags, processedImageSrcs, 'Generated image'),
-    );
-    return true;
-  }
-
-  if (
-    child.querySelector(
-      '.attachment-container.youtube img.thumbnail, youtube-block img.thumbnail, single-video img.thumbnail',
-    ) &&
-    DOMContentExtractor.processYouTubeCovers(child, htmlParts, textParts, flags)
-  ) {
-    return true;
-  }
-
-  // The generic walker used to own this fallback. Keep it in Gemini's adapter
-  // so standalone generated-UI screenshots and future plain images survive the
-  // platform split without teaching the shared extractor about Gemini DOM.
-  if (tagName === 'img') {
-    emitImage(child as HTMLImageElement, htmlParts, textParts, flags, processedImageSrcs);
-    return true;
-  }
-}
-
 function extractFormula(
   child: Element,
   flags: Pick<ExtractedContent, 'hasImages' | 'hasFormulas' | 'hasTables' | 'hasCode'>,
@@ -326,7 +240,8 @@ export function buildGeminiAdapter(site: SiteAdapter): ExportPlatformAdapter {
     extractUserImage,
     extractUserText,
     getUserAttachmentCandidates,
-    extractAssistantImage,
+    extractAssistantImage: extractGeminiAssistantImage,
+    collectAssistantImages: collectGeminiAssistantImages,
     extractFormula,
     extractCodeBlock,
     extractInlineFormula,

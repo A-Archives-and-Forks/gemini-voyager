@@ -70,6 +70,7 @@ function updateButtonLabelAndTooltip(
   button.setAttribute('aria-label', tooltip);
   button.title = tooltip;
   button.setAttribute('data-gv-copy-image-label', label);
+  button.setAttribute('data-gv-inline-figure', '1');
 
   return interactive;
 }

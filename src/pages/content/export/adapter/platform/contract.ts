@@ -36,6 +36,19 @@ export interface ExportPlatformAdapter {
     DEBUG?: boolean,
     processedImageSrcs?: Set<string>,
   ) => boolean | undefined;
+  /**
+   * Images rendered beside the markdown walk (search / generated attachments).
+   * Deduped via `processedImageSrcs`. Hosts inside `skipInside` were already
+   * visited in DOM order and must not be appended again.
+   */
+  collectAssistantImages?: (
+    root: Element,
+    htmlParts: string[],
+    textParts: string[],
+    flags: Pick<ExtractedContent, 'hasImages' | 'hasFormulas' | 'hasTables' | 'hasCode'>,
+    processedImageSrcs?: Set<string>,
+    skipInside?: Element | null,
+  ) => void;
   extractFormula: (
     child: Element,
     flags: Pick<ExtractedContent, 'hasImages' | 'hasFormulas' | 'hasTables' | 'hasCode'>,

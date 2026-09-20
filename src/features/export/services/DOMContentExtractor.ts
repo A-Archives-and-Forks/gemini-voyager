@@ -191,27 +191,29 @@ export class DOMContentExtractor {
       hasCode: false,
     };
 
-    // Find message-content first (contains main text and formulas)
-    // Use queryOutsideThoughts to avoid matching the message-content inside
-    // the expanded thinking/reasoning panel.
-    let messageContent = queryOutsideThoughts(element, 'message-content');
+    // Prefer the message-content we were given. querySelector skips the root, so
+    // passing <message-content> used to collapse onto an inner .markdown and
+    // drop sibling search/generated images (copy-as-image illustrations).
+    const givenMessageContent =
+      element.tagName.toLowerCase() === 'message-content' &&
+      !element.closest('model-thoughts, .thoughts-container, .thoughts-content')
+        ? element
+        : null;
+    let messageContent = givenMessageContent || queryOutsideThoughts(element, 'message-content');
 
     if (!messageContent) {
-      // Try markdown container
       messageContent = queryOutsideThoughts(
         element,
-        '.markdown-main-panel, ' + '.markdown, ' + '.model-response-text',
+        '.markdown-main-panel, .markdown, .model-response-text',
       );
     }
 
-    // If still not found, check if element itself is a valid container
-    if (!messageContent) {
-      if (
-        element.classList.contains('markdown') ||
-        element.tagName.toLowerCase() === 'message-content'
-      ) {
-        messageContent = element;
-      }
+    if (
+      !messageContent &&
+      (element.classList.contains('markdown') ||
+        element.tagName.toLowerCase() === 'message-content')
+    ) {
+      messageContent = element;
     }
 
     if (!messageContent) {
@@ -233,35 +235,14 @@ export class DOMContentExtractor {
     const textParts: string[] = [];
     const processedImageSrcs = new Set<string>();
 
-    // STRATEGY CHANGE: Instead of recursing through DOM (which misses Angular-rendered elements),
-    // process the .markdown div directly and then search for response-elements
     const markdownDiv = messageContent.querySelector('.markdown, .markdown-main-panel');
-
-    if (this.DEBUG) {
-      console.log('[DOMContentExtractor] messageContent tagName:', messageContent.tagName);
-      console.log('[DOMContentExtractor] messageContent className:', messageContent.className);
-      console.log('[DOMContentExtractor] markdownDiv found?', !!markdownDiv);
-    }
-
-    if (markdownDiv) {
-      if (this.DEBUG) {
-        console.log('[DOMContentExtractor] markdownDiv tagName:', markdownDiv.tagName);
-        console.log('[DOMContentExtractor] markdownDiv className:', markdownDiv.className);
-        console.log(
-          '[DOMContentExtractor] markdownDiv innerHTML preview:',
-          (markdownDiv as HTMLElement).innerHTML.substring(0, 300),
-        );
-      }
-
-      // First, process all direct children of markdown that are NOT response-element
-      this.processNodes(markdownDiv, htmlParts, textParts, result, processedImageSrcs);
-
-      // Note: response-element contents are processed by processNodes recursion above
-    } else {
-      // Fallback to old method
-      if (this.DEBUG) console.log('[DOMContentExtractor] No markdown div found, using fallback');
-      this.processNodes(messageContent, htmlParts, textParts, result, processedImageSrcs);
-    }
+    this.processNodes(
+      markdownDiv || messageContent,
+      htmlParts,
+      textParts,
+      result,
+      processedImageSrcs,
+    );
 
     // Additionally, look for code blocks and tables at the element level
     // These might be siblings to message-content in response-element containers
@@ -328,9 +309,21 @@ export class DOMContentExtractor {
     });
     // Note: tables and code-blocks were already processed via processNodes()
 
-    // YouTube covers not reached by processNodes (e.g. attachment areas rendered
-    // outside the markdown container). Deduped via the processedByGV marker.
-    this.processYouTubeCovers(messageContent, htmlParts, textParts, result);
+    const leftoverRoot =
+      (messageContent.closest(
+        'model-response, .model-response, .presented-response-container, .response-container, response-container',
+      ) as HTMLElement | null) || messageContent;
+    this.processYouTubeCovers(leftoverRoot, htmlParts, textParts, result);
+    if (markdownDiv) {
+      this.exportAdapter.collectAssistantImages?.(
+        leftoverRoot,
+        htmlParts,
+        textParts,
+        result,
+        processedImageSrcs,
+        markdownDiv,
+      );
+    }
 
     result.html = htmlParts.join('\n');
     // Clean up multiple newlines but preserve intentional spacing
@@ -730,7 +723,8 @@ export class DOMContentExtractor {
       element.tagName === 'SCRIPT' ||
       element.tagName === 'NOSCRIPT' ||
       element.tagName === 'TEMPLATE' ||
-      element.tagName === 'BUTTON' ||
+      (element.tagName === 'BUTTON' &&
+        !(element.classList.contains('image-button') && element.querySelector('img'))) ||
       element.tagName === 'MAT-ICON' ||
       // Gemini inline sources/citation chips (appear as link icons in export/print)
       element.tagName === 'SOURCES-CAROUSEL-INLINE' ||
@@ -762,7 +756,9 @@ export class DOMContentExtractor {
       element.classList.contains('nanobanana-indicator') ||
       // Generated image overlay controls (share/copy/download buttons)
       element.classList.contains('generated-image-controls') ||
-      element.classList.contains('hide-from-message-actions')
+      (element.classList.contains('hide-from-message-actions') &&
+        !element.matches('.image-container, single-image, generated-image') &&
+        !element.querySelector('img.hero-image, img.spark-licensed-portrait, img.image'))
     ) {
       return true;
     }
@@ -868,7 +864,7 @@ export class DOMContentExtractor {
         // Inline images
         if (el.tagName === 'IMG') {
           const imgEl = el as HTMLImageElement;
-          const src = imgEl.src || imgEl.getAttribute('src') || '';
+          const src = imgEl.currentSrc || imgEl.src || imgEl.getAttribute('src') || '';
           if (src && src !== 'about:blank') {
             const alt = imgEl.alt || 'Image';
             htmlParts.push(

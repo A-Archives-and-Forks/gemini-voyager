@@ -293,6 +293,16 @@ export class ImageExportService {
         margin: 12px 0;
       }
 
+      .gv-image-export-content figure.gv-export-figure {
+        margin: 12px 0;
+      }
+
+      .gv-image-export-content figure.gv-export-figure figcaption {
+        margin-top: 6px;
+        font-size: 0.85em;
+        color: #6b7280;
+      }
+
       ${buildMermaidExportStyles('.gv-image-export-content', {
         containerMargin: '20px auto',
         diagramSelector: '> img',
@@ -444,6 +454,16 @@ export class ImageExportService {
         height: auto;
         display: block;
         margin: 0.6em 0;
+      }
+
+      .gv-image-export-report-content figure.gv-export-figure {
+        margin: 0.6em 0;
+      }
+
+      .gv-image-export-report-content figure.gv-export-figure figcaption {
+        margin-top: 0.3em;
+        font-size: 0.85em;
+        color: #6b7280;
       }
 
       ${buildMermaidExportStyles('.gv-image-export-report-content', {
