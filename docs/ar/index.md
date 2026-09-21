@@ -5,7 +5,7 @@ gitChangelog: false
 hero:
   name: 'Voyager'
   text: 'نظام التشغيل المفقود لواجهات الويب الذكية.'
-  tagline: '.Gemini · Claude · ChatGPT — أخيراً، اكتمل'
+  tagline: '.Gemini · Claude · ChatGPT · DeepSeek — أخيراً، اكتمل'
   image:
     src: /logo.png
     alt: شعار Voyager

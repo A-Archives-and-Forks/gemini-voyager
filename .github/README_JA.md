@@ -2,7 +2,7 @@
   <img src="../docs/public/logo.png" alt="Voyager logo" width="120" height="120">
   <h3>AI 体験を、あなた好みに ✨</h3>
   <p>
-    <b>Gemini · Claude · ChatGPT、ついに完成。</b>
+    <b>Gemini · Claude · ChatGPT · DeepSeek、ついに完成。</b>
   </p>
 
   <p>
@@ -99,13 +99,15 @@ AI チャットボット — Gemini、Claude、ChatGPT — は強力ですが、
   - **[デフォルトモデル](https://voyager.nagi.fun/ja/guide/default-model)**: 新しい対話に使用するデフォルトのモデルを設定します。
   - **[最近の項目と Gem を非表示](https://voyager.nagi.fun/ja/guide/recents-hider)**: サイドバーの「最近」リストを非表示にして、集中力を高めます。
 
-### 🔌 Claude & ChatGPT
+### 🔌 Claude, ChatGPT & DeepSeek
 
-- **📍 Claude タイムライン**: 会話サイドバーでスター付きメッセージと検索を提供 — Gemini と同じナビゲーション体験を Claude でも。
+- **📍 タイムライン**: 会話サイドバーでスター付きメッセージと検索を提供 — Gemini と同じナビゲーション体験を Claude と DeepSeek でも。
 - **📊 Claude 使用量バー**: Claude インターフェース内でセッションと週間使用量を直接追跡。
-- **📐 数式コピー**: LaTeX と MathML ソースコードをワンクリックでコピー（Gemini と共有）。
-- **📏 快適な閲覧幅**: Claude と ChatGPT のチャット幅を調整し、より良い読書体験を。
+- **📐 数式コピー**: LaTeX と MathML ソースコードをワンクリックでコピー（Gemini と共有、DeepSeek でも利用可）。
+- **📏 快適な閲覧幅**: Claude、ChatGPT、DeepSeek のチャット幅を調整し、より良い読書体験を。
 - **🈶 CJK レンダリング修正**: Claude での日中韓文字のレンダリング問題を修正。
+- **⌨️ Vim 入力**: DeepSeek の入力欄で Vim 風のモーダル編集とカーソル移動。
+- **📜 コード折り返しなし**: DeepSeek では長いコード行を折り返さず横スクロールにし、インデントを保持。
 
 ### 🧩 どんなサイトでも — localhost も
 

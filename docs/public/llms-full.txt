@@ -1,14 +1,14 @@
 # Voyager -- Complete Reference
 
-> Voyager is an open-source (GPLv3) browser extension that adds timeline navigation, folder organization, prompt vault, chat export, and 20+ productivity features to Google Gemini and Google AI Studio. Works on Chrome, Edge, Firefox, Safari, Opera, and Brave.
+> Voyager is an open-source (GPLv3) browser extension that adds timeline navigation, folder organization, prompt vault, chat export, and 20+ productivity features to Google Gemini and Google AI Studio, and extends Claude, ChatGPT, and DeepSeek through its plugin engine. Works on Chrome, Edge, Firefox, Safari, Opera, and Brave.
 
 ## Project Overview
 
-Voyager is designed as a comprehensive operating system layer for Google Gemini. It addresses the gap between Gemini's conversational AI capabilities and the organizational tools users need to manage long conversations, save prompts, export data, and navigate complex chat histories.
+Voyager is designed as a comprehensive workspace layer for AI chat. It addresses the gap between what chat assistants do well and the organizational tools users need to manage long conversations, save prompts, export data, and navigate complex chat histories. Gemini and AI Studio get the full first-party feature set; Claude, ChatGPT, and DeepSeek are supported as plugin platforms through the Voyager Plugin Engine; and the Prompt Manager can be pointed at any site you add, local apps included.
 
 The extension is built with TypeScript and React, uses Manifest V3 for cross-browser compatibility, and stores all data locally in the browser using `chrome.storage`. Optional Google Drive sync is available for cross-device backup. Voyager collects no user data, has no analytics, and no third-party servers.
 
-- **Version**: 1.4.3
+- **Version**: 1.9.0
 - **License**: GPLv3
 - **Author**: Jesse Zhang
 - **Repository**: https://github.com/Nagi-ovo/voyager
@@ -39,7 +39,11 @@ Edge users can keep using the Edge Add-ons build, which remains maintained for m
 |----------|--------------|
 | Google Gemini (gemini.google.com) | Full -- all features |
 | Google AI Studio (aistudio.google.com) | Partial -- folders, prompts, sidebar, formula copy |
-| Gemini for Enterprise (business.gemini.google.com) | Prompt Manager only |
+| Gemini for Enterprise (business.gemini.google) | Prompt Manager only |
+| Claude (claude.ai) | Plugin platform -- timeline, usage bar, reading width, CJK render fix |
+| ChatGPT (chatgpt.com, chat.openai.com) | Plugin platform -- reading width |
+| DeepSeek (chat.deepseek.com) | Plugin platform -- timeline, formula copy, reading width, Vim input, code wrapping |
+| Any site added in the popup (localhost included) | Prompt Manager |
 
 ## Core Features
 
@@ -135,7 +139,7 @@ Back up folders, prompt library, and starred messages to Google Drive.
 
 One-click copy for mathematical formulas in LaTeX and MathML (Word-compatible) source codes. When Gemini renders a formula, Voyager adds copy buttons for both formats.
 
-**Availability**: Both Gemini and AI Studio. All browsers.
+**Availability**: Gemini and AI Studio, plus DeepSeek via the plugin engine. All browsers.
 
 ## Gemini Exclusive Features
 
@@ -213,6 +217,52 @@ Adjust the chat font size for comfortable reading. Increase or decrease text siz
 
 Switch between snow, rain, and sakura petal visual effects from the extension popup. Decorative overlays for your chat interface.
 
+## Plugin Platform Features
+
+Beyond the first-party Gemini and AI Studio integration, Voyager extends other chat sites through the Voyager Plugin Engine -- declarative JSON plugins that describe selectors and behavior per site. See https://voyager.nagi.fun/en/plugins.
+
+### Timeline
+
+Conversation sidebar with starred messages and search -- the same navigation flow as the Gemini timeline.
+
+**Availability**: Claude, DeepSeek.
+
+### Claude Usage Bar
+
+Track your session and weekly usage directly in the Claude interface.
+
+**Availability**: Claude.
+
+### Comfortable Reading Width
+
+Widen the conversation into one centered, adjustable reading column.
+
+**Availability**: Claude, ChatGPT, DeepSeek.
+
+### CJK Render Fix
+
+Fixes rendering issues with Chinese, Japanese, and Korean characters.
+
+**Availability**: Claude.
+
+### Vim Input
+
+Vim-style modal editing and cursor navigation in the prompt composer.
+
+**Availability**: DeepSeek.
+
+### Code Wrapping
+
+Long code lines scroll sideways instead of wrapping, so indentation survives. Wrapping can be turned back on per preference.
+
+**Availability**: DeepSeek.
+
+### Prompt Manager Anywhere
+
+Add any site in the extension popup and the Prompt Manager follows you there, including local apps such as DeepSeek Harness on localhost.
+
+**Availability**: Any user-added site.
+
 ## Privacy and Security
 
 Voyager is designed with privacy as a core principle:
@@ -245,7 +295,8 @@ Voyager is designed with privacy as a core principle:
 - **Testing**: Vitest with jsdom
 - **Storage**: chrome.storage.local (primary), chrome.storage.sync (settings), chrome.storage.session (temporary)
 - **Cloud sync**: Google Drive API with OAuth2 (drive.file scope)
-- **Supported sites**: gemini.google.com, business.gemini.google.com, aistudio.google.com, aistudio.google.cn
+- **Supported sites**: gemini.google.com, business.gemini.google, aistudio.google.com, aistudio.google.cn (first-party); claude.ai, chatgpt.com, chat.openai.com, chat.deepseek.com (plugin platforms); any user-added site for the Prompt Manager
+- **Plugin engine**: declarative JSON plugins per site, see https://voyager.nagi.fun/en/plugins
 
 ## Community
 

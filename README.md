@@ -2,7 +2,7 @@
   <img src="docs/public/logo.png" alt="Voyager logo" width="120" height="120">
   <h3>Make Your AI Experience Truly Yours ✨</h3>
   <p>
-    <b>Gemini · Claude · ChatGPT — finally, complete.</b>
+    <b>Gemini · Claude · ChatGPT · DeepSeek — finally, complete.</b>
   </p>
 
   <p>
@@ -99,15 +99,17 @@ That's why I built **Voyager**. It's a companion that helps you keep your AI con
   - **[Default Model](https://voyager.nagi.fun/en/guide/default-model)**: Set your favorite model as default.
   - **[Hide Recent Items](https://voyager.nagi.fun/en/guide/recents-hider)**: Hide "Recent" list in the sidebar to reduce distraction.
 
-### 🔌 Claude & ChatGPT
+### 🔌 Claude, ChatGPT & DeepSeek
 
 Powered by the [Voyager Plugin Engine](https://voyager.nagi.fun/en/plugins), these features extend your experience beyond Gemini:
 
-- **📍 Claude Timeline**: Conversation sidebar with starred messages and search — the same navigation flow, now on Claude.
+- **📍 Timeline**: Conversation sidebar with starred messages and search — the same navigation flow, now on Claude and DeepSeek.
 - **📊 Claude Usage Bar**: Track your session and weekly usage directly in the Claude interface.
-- **📐 Formula Copy**: One-click copy for LaTeX and MathML source codes (shared with Gemini).
-- **📖 Comfortable Reading Width**: Adjust chat width for a better reading experience on Claude and ChatGPT.
+- **📐 Formula Copy**: One-click copy for LaTeX and MathML source codes (shared with Gemini; also on DeepSeek).
+- **📖 Comfortable Reading Width**: Adjust chat width for a better reading experience on Claude, ChatGPT, and DeepSeek.
 - **🈶 CJK Render Fix**: Fix CJK character rendering issues on Claude.
+- **⌨️ Vim Input**: Vim-style modal editing and cursor navigation in the DeepSeek composer.
+- **📜 Code Wrapping**: On DeepSeek, long code lines scroll sideways instead of wrapping, so indentation survives.
 
 ### 🧩 Any Site — Even Localhost
 

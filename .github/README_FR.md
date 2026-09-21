@@ -2,7 +2,7 @@
   <img src="../docs/public/logo.png" alt="Voyager logo" width="120" height="120">
   <h3>Créez votre propre expérience IA ✨</h3>
   <p>
-    <b>Gemini · Claude · ChatGPT — enfin, complet.</b>
+    <b>Gemini · Claude · ChatGPT · DeepSeek — enfin, complet.</b>
   </p>
 
   <p>
@@ -99,13 +99,15 @@ C'est pourquoi nous avons créé **Voyager**. Plus qu'un simple outil, c'est un 
   - **[Modèle par Défaut](https://voyager.nagi.fun/fr/guide/default-model)** : Définissez votre modèle préféré par défaut.
   - **[Masquer les éléments récents et Gems](https://voyager.nagi.fun/fr/guide/recents-hider)** : Masquer la liste "Récents" dans la barre latérale pour réduire les distractions.
 
-### 🔌 Claude & ChatGPT
+### 🔌 Claude, ChatGPT & DeepSeek
 
-- **Claude Timeline** : Barre latérale de conversation avec messages favoris et recherche — la même navigation, maintenant sur Claude.
+- **Timeline** : Barre latérale de conversation avec messages favoris et recherche — la même navigation, maintenant sur Claude et DeepSeek.
 - **Claude Usage Bar** : Suivez votre utilisation de session et hebdomadaire directement dans l'interface Claude.
-- **Copie de formules** : Copie en un clic des codes sources LaTeX et MathML (partagé avec Gemini).
-- **Largeur de lecture confortable** : Ajustez la largeur de chat pour une meilleure expérience de lecture sur Claude et ChatGPT.
+- **Copie de formules** : Copie en un clic des codes sources LaTeX et MathML (partagé avec Gemini ; également sur DeepSeek).
+- **Largeur de lecture confortable** : Ajustez la largeur de chat pour une meilleure expérience de lecture sur Claude, ChatGPT et DeepSeek.
 - **Correction CJK** : Correction des problèmes de rendu des caractères CJK sur Claude.
+- **Saisie Vim** : Édition modale et déplacement du curseur façon Vim dans le champ de saisie DeepSeek.
+- **Code sans retour à la ligne** : Sur DeepSeek, les longues lignes de code défilent horizontalement au lieu de passer à la ligne, préservant l'indentation.
 
 ### 🧩 N'importe quel site — même en localhost
 

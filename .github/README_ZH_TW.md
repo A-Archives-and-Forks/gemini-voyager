@@ -2,7 +2,7 @@
   <img src="../docs/public/logo.png" alt="Voyager logo" width="120" height="120">
   <h3>打造屬於你的 AI 體驗 ✨</h3>
   <p>
-    <b>Gemini · Claude · ChatGPT，終於完整了。</b>
+    <b>Gemini · Claude · ChatGPT · DeepSeek，終於完整了。</b>
   </p>
 
   <p>
@@ -105,13 +105,15 @@
   - **[預設模型](https://voyager.nagi.fun/zh_TW/guide/default-model)**: 為新對話設置預設選中的模型。
   - **[隱藏最近項目和 Gem](https://voyager.nagi.fun/zh_TW/guide/recents-hider)**: 隱藏側邊欄的”最近”列表，減少干擾。
 
-### 🔌 Claude & ChatGPT
+### 🔌 Claude, ChatGPT & DeepSeek
 
-- **📍 Claude 時間線**: 對話側邊欄，支持星標訊息和搜尋——同樣的導航體驗，現在也能在 Claude 上使用。
+- **📍 時間線**: 對話側邊欄，支持星標訊息和搜尋——同樣的導航體驗，現在也能在 Claude 和 DeepSeek 上使用。
 - **📊 Claude 用量條**: 直接在 Claude 介面中追蹤會話和每週用量。
-- **📐 公式複製**: 一鍵複製 LaTeX 和 MathML 源碼（與 Gemini 共享）。
-- **📏 舒適閱讀寬度**: 調整 Claude 和 ChatGPT 的對話寬度，獲得更好的閱讀體驗。
+- **📐 公式複製**: 一鍵複製 LaTeX 和 MathML 源碼（與 Gemini 共享，DeepSeek 上同樣可用）。
+- **📏 舒適閱讀寬度**: 調整 Claude、ChatGPT 和 DeepSeek 的對話寬度，獲得更好的閱讀體驗。
 - **🔤 CJK 渲染修復**: 修復 Claude 上的中日韓字元渲染問題。
+- **⌨️ Vim 輸入**: 在 DeepSeek 的輸入框裡用 Vim 模式編輯和移動游標。
+- **📜 程式碼不換行**: DeepSeek 上的長程式碼行改為橫向捲動，縮排不會被折斷。
 
 ### 🧩 任意站台，包括本機
 

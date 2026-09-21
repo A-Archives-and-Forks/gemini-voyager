@@ -2,7 +2,7 @@
   <img src="../docs/public/logo.png" alt="Voyager logo" width="120" height="120">
   <h3>나만의 AI 경험을 만들어 보세요 ✨</h3>
   <p>
-    <b>Gemini · Claude · ChatGPT, 드디어 완성.</b>
+    <b>Gemini · Claude · ChatGPT · DeepSeek, 드디어 완성.</b>
   </p>
 
   <p>
@@ -99,13 +99,15 @@
   - **[기본 모델](https://voyager.nagi.fun/ko/guide/default-model)**: 좋아하는 모델을 기본값으로 설정하세요.
   - **[최근 항목 숨기기](https://voyager.nagi.fun/ko/guide/recents-hider)**: 사이드바에서 "최근" 목록을 숨겨 산만함을 줄입니다.
 
-### 🔌 Claude & ChatGPT
+### 🔌 Claude, ChatGPT & DeepSeek
 
-- **📍 Claude 타임라인**: 대화 사이드바에서 별표 메시지와 검색 지원 — Gemini와 동일한 탐색 경험을 Claude에서도.
+- **📍 타임라인**: 대화 사이드바에서 별표 메시지와 검색 지원 — Gemini와 동일한 탐색 경험을 Claude와 DeepSeek에서도.
 - **📊 Claude 사용량 바**: Claude 인터페이스에서 세션 및 주간 사용량을 직접 추적.
-- **📐 수식 복사**: LaTeX 및 MathML 소스 코드를 원클릭 복사 (Gemini와 공유).
-- **📏 편안한 읽기 너비**: Claude와 ChatGPT의 대화 너비를 조절하여 더 나은 읽기 경험 제공.
+- **📐 수식 복사**: LaTeX 및 MathML 소스 코드를 원클릭 복사 (Gemini와 공유, DeepSeek에서도 사용 가능).
+- **📏 편안한 읽기 너비**: Claude, ChatGPT, DeepSeek의 대화 너비를 조절하여 더 나은 읽기 경험 제공.
 - **🔧 CJK 렌더링 수정**: Claude에서의 한중일 문자 렌더링 문제 수정.
+- **⌨️ Vim 입력**: DeepSeek 입력창에서 Vim 방식의 모달 편집과 커서 이동.
+- **📜 코드 줄바꿈 해제**: DeepSeek에서 긴 코드 줄을 줄바꿈하지 않고 가로 스크롤하여 들여쓰기를 유지.
 
 ### 🧩 모든 사이트 — localhost 까지
 
