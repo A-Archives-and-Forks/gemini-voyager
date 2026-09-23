@@ -21,10 +21,25 @@ const DEFAULT_EXPIRES_IN_SECONDS = 3600;
 
 /**
  * Desktop-type client used only by Firefox. Google does not treat an installed
- * app's secret as confidential (RFC 8252); PKCE is what protects the code.
- * Empty until the client exists: Firefox then keeps its legacy redirect.
+ * app's secret as confidential (RFC 8252); PKCE is what protects the code. The
+ * secret still stays out of the repository: only the Firefox build injects it
+ * from `VOYAGER_FIREFOX_OAUTH_CLIENT_SECRET`. Without it, Firefox keeps its
+ * legacy redirect.
  */
-export const FIREFOX_DESKTOP_OAUTH_CLIENT = { id: '', secret: '' } as const;
+function firefoxClientSecret(): string {
+  try {
+    // Keep this access static so Vite can replace it at build time.
+    const value: unknown = import.meta.env.VOYAGER_FIREFOX_OAUTH_CLIENT_SECRET;
+    return typeof value === 'string' ? value.trim() : '';
+  } catch {
+    return '';
+  }
+}
+
+export const FIREFOX_DESKTOP_OAUTH_CLIENT = {
+  id: '462948120910-ie15573ui4srfhcn94pkiesnf7fl7f8b.apps.googleusercontent.com',
+  secret: firefoxClientSecret(),
+} as const;
 
 export interface GoogleAccessToken {
   accessToken: string;

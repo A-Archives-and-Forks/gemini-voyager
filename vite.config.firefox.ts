@@ -1,12 +1,19 @@
 import { ManifestV3Export, crx } from '@crxjs/vite-plugin';
 import { resolve } from 'path';
-import { defineConfig, mergeConfig } from 'vite';
+import { defineConfig, loadEnv, mergeConfig } from 'vite';
 
 import pkg from './package.json';
 import baseConfig, { baseBuildOptions, baseManifest } from './vite.config.base';
 
 const outDir = resolve(__dirname, 'dist_firefox');
 const firefoxVersionOverride = process.env.VOYAGER_FIREFOX_VERSION?.trim();
+// loadEnv reads .env files and falls back to the process environment (CI secrets).
+const firefoxOAuthClientSecret =
+  loadEnv(
+    'production',
+    process.cwd(),
+    'VOYAGER_FIREFOX_OAUTH_',
+  ).VOYAGER_FIREFOX_OAUTH_CLIENT_SECRET?.trim() ?? '';
 if (firefoxVersionOverride && !/^\d+(?:\.\d+){0,3}$/.test(firefoxVersionOverride)) {
   throw new Error(`Invalid Firefox extension version: ${firefoxVersionOverride}`);
 }
@@ -93,6 +100,11 @@ export default mergeConfig(
   defineConfig({
     define: {
       'import.meta.env.VOYAGER_BUILD_TARGET': JSON.stringify('firefox'),
+      // Desktop OAuth client secret for the Firefox loopback sign-in. It comes
+      // from the environment (.env locally, a CI secret in release) so it never
+      // lands in the repository; Chromium bundles do not receive it.
+      'import.meta.env.VOYAGER_FIREFOX_OAUTH_CLIENT_SECRET':
+        JSON.stringify(firefoxOAuthClientSecret),
     },
     plugins: [
       crx({
