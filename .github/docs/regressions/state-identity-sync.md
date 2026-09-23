@@ -181,3 +181,18 @@ mirrors, clear markers, or Drive sync.
 - **Guard:** `src/pages/content/__tests__/nativeFeatureLifecycle.test.ts` (every registered
   feature: `start → stop leaves the page as it found it`) and
   `src/pages/content/__tests__/featureLifecycle.test.ts` (toggle ordering).
+
+## Google OAuth redirects must stay on domains we can verify
+
+- **Trap:** Google brand verification requires every authorized domain to be verified in Search
+  Console. Registering `https://<id>.chromiumapp.org/` or `https://<hash>.extensions.allizom.org/`
+  as redirect URIs adds `chromiumapp.org` and `allizom.org`, which we cannot verify. A relay on our
+  own domain works for Chromium, which only watches the final hop, but Firefox rejects any
+  `redirect_uri` other than `getRedirectURL()` or `http://127.0.0.1/mozoauth2/<hash>` with
+  `redirect_uri not allowed`, before Google is ever contacted.
+- **Rule:** Chromium sends `redirect_uri=https://voyager.nagi.fun/oauth/callback/` with
+  `state=<extension id>.<nonce>`; the relay forwards only to allowlisted ids, and the extension
+  rejects a mismatched state. Firefox uses the loopback with a Desktop client and PKCE. A new Chrome
+  or Edge listing id goes into the allowlist in `docs/public/oauth/callback/relay.js`; the Cloud
+  Console keeps the single relay URI.
+- **Guard:** `src/core/services/__tests__/googleOAuthWebFlow.test.ts`.

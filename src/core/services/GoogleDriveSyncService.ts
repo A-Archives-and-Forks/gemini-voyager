@@ -12,6 +12,7 @@
  * - gemini-voyager-starred.json
  * - gemini-voyager-highlights.json (account-scoped; independent from legacy sync data)
  */
+import { runGoogleWebAuthFlow } from '@/core/services/googleOAuthWebFlow';
 import type { FolderData } from '@/core/types/folder';
 import { isHighlightExportPayloadV1 } from '@/core/types/highlight';
 import type {
@@ -865,40 +866,27 @@ export class GoogleDriveSyncService {
       return null;
     }
 
-    const redirectUrl = chrome.identity.getRedirectURL();
-    console.log('[GoogleDriveSyncService] Auth flow starting with redirectUrl:', redirectUrl);
-    const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
-    authUrl.searchParams.set('client_id', clientId);
-    authUrl.searchParams.set('redirect_uri', redirectUrl);
-    authUrl.searchParams.set('response_type', 'token');
-    authUrl.searchParams.set('scope', scopes);
-
     try {
-      const responseUrl = await new Promise<string>((resolve, reject) => {
-        chrome.identity.launchWebAuthFlow(
-          { url: authUrl.toString(), interactive: true },
-          (response) => {
-            if (chrome.runtime.lastError) {
-              reject(new Error(chrome.runtime.lastError.message));
-            } else if (response) {
-              resolve(response);
-            } else {
-              reject(new Error('No response from auth flow'));
-            }
-          },
-        );
+      const granted = await runGoogleWebAuthFlow({
+        clientId,
+        scopes,
+        redirectURL: chrome.identity.getRedirectURL(),
+        launch: (url) =>
+          new Promise<string>((resolve, reject) => {
+            chrome.identity.launchWebAuthFlow({ url, interactive: true }, (response) => {
+              if (chrome.runtime.lastError) {
+                reject(new Error(chrome.runtime.lastError.message));
+              } else if (response) {
+                resolve(response);
+              } else {
+                reject(new Error('No response from auth flow'));
+              }
+            });
+          }),
       });
-
-      const url = new URL(responseUrl);
-      const hashParams = new URLSearchParams(url.hash.substring(1));
-      const accessToken = hashParams.get('access_token');
-      const expiresIn = parseInt(hashParams.get('expires_in') || '3600', 10);
-
-      if (accessToken) {
-        await this.saveToken(accessToken, expiresIn);
-        return accessToken;
-      }
-      return null;
+      if (!granted) return null;
+      await this.saveToken(granted.accessToken, granted.expiresIn);
+      return granted.accessToken;
     } catch (error) {
       console.error('[GoogleDriveSyncService] Auth flow failed:', error);
       return null;

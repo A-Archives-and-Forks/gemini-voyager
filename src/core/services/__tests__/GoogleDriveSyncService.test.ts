@@ -249,9 +249,9 @@ describe('GoogleDriveSyncService authentication', () => {
       typeof vi.fn
     >;
     launchWebAuthFlowMock.mockImplementationOnce(
-      (_details: { url: string; interactive: boolean }, callback: (response?: string) => void) => {
+      (details: { url: string; interactive: boolean }, callback: (response?: string) => void) => {
         callback(
-          'https://test-extension.chromiumapp.org/#access_token=legacy-token&expires_in=3600',
+          `https://test-extension.chromiumapp.org/#state=${new URL(details.url).searchParams.get('state')}&access_token=legacy-token&expires_in=3600`,
         );
       },
     );
@@ -283,9 +283,9 @@ describe('GoogleDriveSyncService authentication', () => {
       typeof vi.fn
     >;
     launchWebAuthFlowMock.mockImplementation(
-      (_details: { url: string; interactive: boolean }, callback: (response?: string) => void) => {
+      (details: { url: string; interactive: boolean }, callback: (response?: string) => void) => {
         callback(
-          'https://test-extension.chromiumapp.org/#access_token=legacy-token&expires_in=3600',
+          `https://test-extension.chromiumapp.org/#state=${new URL(details.url).searchParams.get('state')}&access_token=legacy-token&expires_in=3600`,
         );
       },
     );
@@ -340,9 +340,9 @@ describe('GoogleDriveSyncService authentication', () => {
       typeof vi.fn
     >;
     launchWebAuthFlowMock.mockImplementation(
-      (_details: { url: string; interactive: boolean }, callback: (response?: string) => void) => {
+      (details: { url: string; interactive: boolean }, callback: (response?: string) => void) => {
         callback(
-          'https://test-extension.chromiumapp.org/#access_token=legacy-fallback-token&expires_in=3600',
+          `https://test-extension.chromiumapp.org/#state=${new URL(details.url).searchParams.get('state')}&access_token=legacy-fallback-token&expires_in=3600`,
         );
       },
     );
