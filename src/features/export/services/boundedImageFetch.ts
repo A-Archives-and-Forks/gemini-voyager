@@ -3,9 +3,16 @@ import {
   parseAllowedRuntimeImageUrl,
 } from '@/core/utils/runtimeImageFetch';
 
+/** PDF and PNG re-fetch at most this many images. Markdown archives do not use this cap. */
 export const MAX_EXPORT_IMAGE_COUNT = 40;
 export const MAX_EXPORT_IMAGE_BYTES = 8 * 1024 * 1024;
 export const MAX_EXPORT_IMAGE_TOTAL_BYTES = 40 * 1024 * 1024;
+/**
+ * Markdown archives hold each image once, as a Blob part, so they can keep far
+ * more than PDF and PNG inlining. This stays as a guard for tabs where the
+ * browser keeps every Blob in memory.
+ */
+export const MAX_MARKDOWN_ARCHIVE_IMAGE_BYTES = 256 * 1024 * 1024;
 export const EXPORT_IMAGE_FETCH_CONCURRENCY = 3;
 
 const FETCH_TIMEOUT_MS = 10_000;
@@ -61,22 +68,34 @@ function awaitWithTimeout<T>(
   });
 }
 
-async function fetchWithTimeout(
+/**
+ * Runs the request and the body read under one idle timer. Each body chunk
+ * restarts it, so a large image on a slow link still arrives, while a stalled
+ * body or a cancelled export aborts the read instead of waiting forever.
+ */
+async function fetchWithTimeout<T>(
   url: string,
   credentials: RequestCredentials,
-  signal?: AbortSignal,
-  timeoutMs = FETCH_TIMEOUT_MS,
-): Promise<Response> {
+  signal: AbortSignal | undefined,
+  timeoutMs: number,
+  read: (response: Response, keepAlive: () => void) => Promise<T>,
+): Promise<T> {
   const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+  let timeout = 0;
+  const keepAlive = () => {
+    window.clearTimeout(timeout);
+    timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+  };
   const abort = () => controller.abort();
+  keepAlive();
   signal?.addEventListener('abort', abort, { once: true });
   try {
-    return await fetch(url, {
+    const response = await fetch(url, {
       credentials,
       mode: 'cors',
       signal: controller.signal,
     });
+    return await read(response, keepAlive);
   } finally {
     window.clearTimeout(timeout);
     signal?.removeEventListener('abort', abort);
@@ -86,6 +105,7 @@ async function fetchWithTimeout(
 async function readBoundedResponse(
   response: Response,
   budget: ImageFetchBudget,
+  keepAlive: () => void,
 ): Promise<BoundedImage | null> {
   if (!response.ok) return null;
   const contentType = normalizeImageType(response.headers.get('Content-Type'));
@@ -109,6 +129,7 @@ async function readBoundedResponse(
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
+    keepAlive();
     if (!value) continue;
     totalBytes += value.byteLength;
     if (totalBytes > MAX_EXPORT_IMAGE_BYTES || totalBytes > budget.remainingBytes) {
@@ -157,9 +178,12 @@ export async function fetchBoundedExportImage(
 
   if (/^blob:/i.test(rawUrl)) {
     try {
-      return await readBoundedResponse(
-        await fetchWithTimeout(rawUrl, 'same-origin', signal, timeoutMs),
-        budget,
+      return await fetchWithTimeout(
+        rawUrl,
+        'same-origin',
+        signal,
+        timeoutMs,
+        (response, keepAlive) => readBoundedResponse(response, budget, keepAlive),
       );
     } catch {
       return null;
@@ -176,17 +200,20 @@ export async function fetchBoundedExportImage(
 
   try {
     const credentials: RequestCredentials = url.origin === location.origin ? 'include' : 'omit';
-    const direct = await readBoundedResponse(
-      await fetchWithTimeout(url.href, credentials, signal, timeoutMs),
-      budget,
+    const direct = await fetchWithTimeout(
+      url.href,
+      credentials,
+      signal,
+      timeoutMs,
+      (response, keepAlive) => readBoundedResponse(response, budget, keepAlive),
     );
     if (direct) return direct;
   } catch {
     // Trusted extension-runtime fallback below.
   }
 
-  if (!isTrustedRuntimeUrl(url)) return null;
   if (signal?.aborted) throw new DOMException('Export cancelled', 'AbortError');
+  if (!isTrustedRuntimeUrl(url)) return null;
   try {
     const runtimeImage = await awaitWithTimeout(
       fetchImageViaExtensionRuntime(url.href),

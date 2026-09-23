@@ -98,10 +98,65 @@ output.
   implemented by removing later image nodes from the render tree, conflating bounded network
   inlining with content preservation.
 - **Rule:** Inline at most 40 images, but leave every remaining rendered image and its original
-  source intact for the browser renderer.
+  source intact for the browser renderer. This cap is only for PDF and PNG inlining. Markdown
+  archives stream every fetched image and must not reuse the slice.
 - **Guard:** `src/features/export/services/__tests__/ImageExportService.test.ts` and
   `src/features/export/services/__tests__/PDFPrintService.test.ts`
   (`preserves images beyond the inlining fetch cap`).
+
+## Markdown archives must keep every image instead of stopping at 40
+
+- **Trap:** Markdown export saved exactly 40 images into `assets/` and left the rest as remote
+  links, with no notice. `downloadMarkdownOrZip` sliced the URL list with
+  `MAX_EXPORT_IMAGE_COUNT` before fetching, then held every accepted blob in JSZip until
+  `generateAsync` copied the whole archive again.
+- **Rule:** Do not cap the image count. Write each image into the zip as a Blob part as soon as it
+  arrives and drop its bytes, so only the fetches in flight sit in the JS heap. Keep the total under
+  `MAX_MARKDOWN_ARCHIVE_IMAGE_BYTES` and a single image under `MAX_EXPORT_IMAGE_BYTES`, and tell
+  the user when any image stays a remote link.
+- **Guard:** `src/features/export/services/__tests__/markdownImageArchive.test.ts`
+  (`archives every image of a long conversation in order`),
+  `src/features/export/services/__tests__/ConversationExportService.test.ts`
+  (`stores image bytes in the zip without a 40-image cutoff`),
+  `src/features/export/services/__tests__/streamingZip.test.ts`.
+
+## Export image timeouts must cover the body, not just the headers
+
+- **Trap:** `fetchWithTimeout` cleared its timer and dropped the cancel listener as soon as the
+  response headers arrived. A body that stalled after that left `reader.read()` waiting forever,
+  and cancelling the export could not stop it. With no 40-image cap, one stuck image hangs the
+  whole Markdown archive.
+- **Rule:** Keep one `AbortController` alive until the body is read. Restart an idle timer on
+  every chunk so slow but moving downloads finish, and forward the export signal the whole time.
+  A single image that cannot be read keeps its link and counts as omitted.
+- **Guard:** `src/features/export/services/__tests__/boundedImageFetch.test.ts`
+  (`gives up on an image whose body stalls after the headers`,
+  `stops reading a stalled body when the export is cancelled`),
+  `src/features/export/services/__tests__/markdownImageArchive.test.ts`
+  (`keeps the link of an image it cannot read and still downloads the rest`).
+
+## Export temp files must not go into the page's private file system
+
+- **Trap:** An earlier draft streamed the archive into `navigator.storage.getDirectory()`. From a
+  content script that is the host page's origin, so a full conversation sat in Gemini's storage,
+  readable by page scripts and shared across `/u/<index>/` accounts. `<a download>` never reports
+  completion, so the file could only be swept on a later export, and never if none followed.
+- **Rule:** Build the archive from Blob parts in the content script. If an export ever outgrows
+  that, move packaging to an extension-owned context with `downloads`, which reports completion,
+  instead of borrowing page storage.
+- **Guard:** `src/features/export/services/__tests__/markdownImageArchive.test.ts`
+  (`archives every image of a long conversation in order`).
+
+## Zip entries carry a wall clock, not a build-time constant
+
+- **Trap:** The streaming writer packed a hardcoded `2026-01-01 00:00` into every DOS date field,
+  so every extracted file showed that date no matter when it was exported, and the constant only
+  gets more wrong each year. JSZip had been writing a real timestamp.
+- **Rule:** Derive the DOS stamp from the clock once per archive and share it across every entry,
+  keeping the two-second resolution and the 1980-2107 range the format allows.
+- **Guard:** `src/features/export/services/__tests__/streamingZip.test.ts`
+  (`encodes a wall-clock time into the DOS date and time fields`,
+  `stamps every entry with the time the archive was written`).
 
 ## Mermaid must honor Gemini explicit light theme
 

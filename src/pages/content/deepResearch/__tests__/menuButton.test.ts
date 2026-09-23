@@ -406,9 +406,13 @@ describe('applyDeepResearchDownloadButtonI18n', () => {
       'utf8',
     );
 
-    expect(code).toContain("format === 'pdf'");
-    expect(code).toContain('isSafari()');
-    expect(code).toContain('showExportToast(');
-    expect(code).toContain("t('export_toast_safari_pdf_ready')");
+    expect(code).toContain('reportFinishedExport(result, format, t)');
+    const notice = readFileSync(
+      resolve(process.cwd(), 'src/features/export/ui/exportResultNotice.ts'),
+      'utf8',
+    );
+    expect(notice).toContain("format === 'pdf'");
+    expect(notice).toContain('isSafari()');
+    expect(notice).toContain("t('export_toast_safari_pdf_ready')");
   });
 });

@@ -20,13 +20,8 @@ import { DeepResearchPDFPrintService } from './DeepResearchPDFPrintService';
 import { ImageExportService } from './ImageExportService';
 import { MarkdownFormatter } from './MarkdownFormatter';
 import { PDFPrintService } from './PDFPrintService';
-import {
-  EXPORT_IMAGE_FETCH_CONCURRENCY,
-  MAX_EXPORT_IMAGE_COUNT,
-  MAX_EXPORT_IMAGE_TOTAL_BYTES,
-  fetchBoundedExportImage,
-  mapWithConcurrency,
-} from './boundedImageFetch';
+import { MAX_EXPORT_IMAGE_TOTAL_BYTES, fetchBoundedExportImage } from './boundedImageFetch';
+import { packageMarkdownImages } from './markdownImageArchive';
 
 /**
  * Main export service
@@ -230,13 +225,18 @@ export class ConversationExportService {
 
     const filename =
       options.filename || this.generateFilename('md', metadata.title, metadata.platform);
-    const finalFilename = await this.downloadMarkdownOrZip(
+    const archived = await this.downloadMarkdownOrZip(
       markdown,
       filename,
       'chat.md',
       options.signal,
     );
-    return { success: true, format: 'markdown' as ExportFormat, filename: finalFilename };
+    return {
+      success: true,
+      format: 'markdown' as ExportFormat,
+      filename: archived.filename,
+      omittedImageCount: archived.omittedImageCount,
+    };
   }
 
   /**
@@ -321,7 +321,7 @@ export class ConversationExportService {
       ? filename.split('/').pop() || 'report.md'
       : 'report.md';
 
-    const finalFilename = await this.downloadMarkdownOrZip(
+    const archived = await this.downloadMarkdownOrZip(
       markdown,
       filename,
       mdEntryName,
@@ -330,7 +330,8 @@ export class ConversationExportService {
     return {
       success: true,
       format: 'markdown' as ExportFormat,
-      filename: finalFilename,
+      filename: archived.filename,
+      omittedImageCount: archived.omittedImageCount,
     };
   }
 
@@ -457,77 +458,24 @@ export class ConversationExportService {
     filename: string,
     markdownEntryName: string,
     signal?: AbortSignal,
-  ): Promise<string> {
+  ): Promise<{ filename: string; omittedImageCount: number }> {
     this.assertNotAborted(signal);
     const normalizedFilename = filename.toLowerCase().endsWith('.md') ? filename : `${filename}.md`;
-
-    const imageUrls = MarkdownFormatter.extractImageUrls(markdown);
-
-    if (imageUrls.length === 0) {
+    if (MarkdownFormatter.extractImageUrls(markdown).length === 0) {
       MarkdownFormatter.download(markdown, normalizedFilename);
-      return normalizedFilename;
+      return { filename: normalizedFilename, omittedImageCount: 0 };
     }
 
-    // Load JSZip on demand: image-packaged Markdown export is a rare, click-driven
-    // action, so JSZip stays out of the statically-imported content-script chunk.
-    const { default: JSZip } = await import('jszip');
-    const zip = new JSZip();
-    const assetsFolder = zip.folder('assets');
-    const mapping = new Map<string, string>();
-
-    const budget = { remainingBytes: MAX_EXPORT_IMAGE_TOTAL_BYTES };
-    const fetchedByOrder = await mapWithConcurrency(
-      imageUrls.slice(0, MAX_EXPORT_IMAGE_COUNT),
-      EXPORT_IMAGE_FETCH_CONCURRENCY,
-      async (url) => {
-        // For Google images, request original size (=s0) instead of the display thumbnail
-        const fetchUrl = this.toOriginalSizeUrl(url);
-        const fetched = signal
-          ? await this.fetchImageForMarkdownPackaging(fetchUrl, budget, signal)
-          : await this.fetchImageForMarkdownPackaging(fetchUrl, budget);
-        if (!fetched) return null;
-        return {
-          url,
-          blob: fetched.blob,
-          contentType: fetched.contentType,
-        };
-      },
-    );
-
-    let index = 1;
-    this.assertNotAborted(signal);
-    for (const item of fetchedByOrder) {
-      if (!item) continue;
-      const extension = this.pickImageExtension(item.contentType, item.url);
-      const fileName = `img-${String(index++).padStart(3, '0')}.${extension}`;
-      const base64Payload = await this.blobToBase64Payload(item.blob);
-      if (!base64Payload) continue;
-      assetsFolder?.file(fileName, base64Payload, { base64: true });
-      mapping.set(item.url, `assets/${fileName}`);
-    }
-
-    const packagedMarkdown = MarkdownFormatter.rewriteImageUrls(markdown, mapping);
-    zip.file(markdownEntryName, packagedMarkdown);
-
-    const zipBlob = await zip.generateAsync({ type: 'blob' });
-    this.assertNotAborted(signal);
-    const zipFilename = normalizedFilename.replace(/\.md$/i, '.zip');
-    const url = URL.createObjectURL(zipBlob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = zipFilename;
-    document.body.appendChild(anchor);
-    anchor.click();
-    setTimeout(() => {
-      try {
-        document.body.removeChild(anchor);
-      } catch {
-        /* ignore */
-      }
-      URL.revokeObjectURL(url);
-    }, 0);
-
-    return zipFilename;
+    return await packageMarkdownImages({
+      markdown,
+      normalizedFilename,
+      markdownEntryName,
+      signal,
+      fetchImage: (url, budget, fetchSignal) =>
+        this.fetchImageForMarkdownPackaging(url, budget, fetchSignal),
+      toOriginalSizeUrl: (url) => this.toOriginalSizeUrl(url),
+      pickExtension: (contentType, url) => this.pickImageExtension(contentType, url),
+    });
   }
 
   /**
@@ -562,23 +510,6 @@ export class ConversationExportService {
     const match = url.split('?')[0].match(/\.(png|jpg|jpeg|gif|webp|svg)$/i);
     if (match) return match[1].toLowerCase() === 'jpeg' ? 'jpg' : match[1].toLowerCase();
     return 'bin';
-  }
-
-  private static blobToBase64Payload(blob: Blob): Promise<string | null> {
-    return new Promise((resolve) => {
-      try {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const dataUrl = String(reader.result || '');
-          const commaIndex = dataUrl.indexOf(',');
-          resolve(commaIndex >= 0 ? dataUrl.slice(commaIndex + 1) : null);
-        };
-        reader.onerror = () => resolve(null);
-        reader.readAsDataURL(blob);
-      } catch {
-        resolve(null);
-      }
-    });
   }
 
   private static async fetchImageForMarkdownPackaging(

@@ -586,6 +586,7 @@ describe('ConversationExportService', () => {
       expect(fetchSpy).toHaveBeenCalledWith(
         'https://example.com/chart.png',
         expect.objectContaining({ remainingBytes: expect.any(Number) }),
+        undefined,
       );
     });
 
@@ -627,53 +628,53 @@ describe('ConversationExportService', () => {
       expect(mapping.get('https://example.com/fast.png')).toBe('assets/img-002.png');
     });
 
-    it('stores markdown image assets as base64 payloads for Firefox JSZip compatibility', async () => {
-      const imageUrl = 'https://example.com/photo.jpg';
-      vi.spyOn(MarkdownFormatter, 'extractImageUrls').mockReturnValue([imageUrl]);
-      vi.spyOn(MarkdownFormatter, 'rewriteImageUrls').mockImplementation((markdown) => markdown);
+    it('stores image bytes in the zip without a 40-image cutoff', async () => {
+      const imageUrls = Array.from(
+        { length: 41 },
+        (_, index) => `https://example.com/photo-${index}.jpg`,
+      );
+      vi.spyOn(MarkdownFormatter, 'extractImageUrls').mockReturnValue(imageUrls);
+      vi.spyOn(MarkdownFormatter, 'rewriteImageUrls').mockImplementation(
+        (markdown, mapping) => `${markdown}\n${mapping.size}`,
+      );
 
       vi.spyOn(
         ConversationExportService as unknown as {
           fetchImageForMarkdownPackaging: () => Promise<unknown>;
         },
         'fetchImageForMarkdownPackaging',
-      ).mockResolvedValue({
+      ).mockImplementation(async () => ({
         blob: new Blob(['jpeg-bytes'], { type: 'image/jpeg' }),
         contentType: 'image/jpeg',
-      });
+      }));
 
-      let capturedAssetPayload: unknown;
-      let capturedAssetOptions: unknown;
-      type JSZipFileFn = (name: unknown, data?: unknown, options?: unknown) => unknown;
-      const originalFile = (JSZip.prototype as unknown as { file: JSZipFileFn }).file;
-      vi.spyOn(JSZip.prototype as unknown as { file: JSZipFileFn }, 'file').mockImplementation(
-        function (this: unknown, name: unknown, data?: unknown, options?: unknown) {
-          if (typeof name === 'string' && name.startsWith('img-')) {
-            capturedAssetPayload = data;
-            capturedAssetOptions = options;
-          }
-          return originalFile.call(this, name, data, options);
-        },
-      );
-
-      const finalFilename = await (
+      const archived = (await (
         ConversationExportService as unknown as Record<string, (...args: unknown[]) => unknown>
-      ).downloadMarkdownOrZip(`![photo](${imageUrl})`, 'chat.md', 'chat.md');
+      ).downloadMarkdownOrZip(
+        imageUrls.map((url) => `![](${url})`).join('\n'),
+        'chat.md',
+        'chat.md',
+      )) as { filename: string; omittedImageCount: number };
 
-      expect(finalFilename).toBe('chat.zip');
-      expect(typeof capturedAssetPayload).toBe('string');
-      expect(capturedAssetPayload).toBeTruthy();
-      expect(capturedAssetOptions).toMatchObject({ base64: true });
+      expect(archived).toEqual({ filename: 'chat.zip', omittedImageCount: 0 });
+      const createObjectURLMock = global.URL.createObjectURL as unknown as {
+        mock: { calls: Array<[Blob]> };
+      };
+      const zip = await JSZip.loadAsync(createObjectURLMock.mock.calls[0][0]);
+      expect(Object.keys(zip.files).filter((name) => name.startsWith('assets/'))).toHaveLength(41);
+      expect(await zip.file('assets/img-041.jpg')?.async('string')).toBe('jpeg-bytes');
     });
 
     it('packages inline data images as zip assets instead of leaving base64 in markdown', async () => {
       const dataUrl = 'data:image/png;base64,aGVsbG8=';
 
-      const finalFilename = await (
+      const archived = (await (
         ConversationExportService as unknown as Record<string, (...args: unknown[]) => unknown>
-      ).downloadMarkdownOrZip(`![Interactive UI](${dataUrl})`, 'chat.md', 'chat.md');
+      ).downloadMarkdownOrZip(`![Interactive UI](${dataUrl})`, 'chat.md', 'chat.md')) as {
+        filename: string;
+      };
 
-      expect(finalFilename).toBe('chat.zip');
+      expect(archived.filename).toBe('chat.zip');
 
       const createObjectURLMock = global.URL.createObjectURL as unknown as {
         mock: { calls: Array<[Blob]> };

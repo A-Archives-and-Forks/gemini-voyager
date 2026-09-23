@@ -826,6 +826,10 @@
     "message": "You can now press Command + P to export PDF.",
     "description": "Safari-specific toast shown after PDF export is prepared"
   },
+  "export_toast_images_omitted": {
+    "message": "{count} images stayed as links because they could not be saved into the archive.",
+    "description": "Toast when markdown export leaves some images as remote links"
+  },
   "export_dialog_safari_markdown_hint": {
     "message": "Note: Due to Safari limitations, images in chat history cannot be extracted. For complete export, use PDF export.",
     "description": "Warning about image references in Safari markdown export"

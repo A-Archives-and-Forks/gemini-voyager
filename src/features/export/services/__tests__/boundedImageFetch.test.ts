@@ -81,6 +81,54 @@ describe('bounded export image fetching', () => {
     expect(cancelled).toBe(true);
   });
 
+  function stallingFetch(): { cancelled: () => boolean } {
+    let cancelled = false;
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (_input, init) => {
+      const stream = new ReadableStream<Uint8Array>({
+        start(controller) {
+          controller.enqueue(new Uint8Array([1, 2]));
+          // The body stops here. Only aborting the request can end the read.
+          init?.signal?.addEventListener('abort', () => {
+            cancelled = true;
+            controller.error(new DOMException('aborted', 'AbortError'));
+          });
+        },
+      });
+      return new Response(stream, { status: 200, headers: { 'Content-Type': 'image/png' } });
+    });
+    return { cancelled: () => cancelled };
+  }
+
+  it('gives up on an image whose body stalls after the headers', async () => {
+    const stall = stallingFetch();
+
+    await expect(
+      fetchBoundedExportImage(
+        'https://example.com/stall.png',
+        { remainingBytes: 1024 },
+        undefined,
+        20,
+      ),
+    ).resolves.toBeNull();
+    expect(stall.cancelled()).toBe(true);
+  });
+
+  it('stops reading a stalled body when the export is cancelled', async () => {
+    const stall = stallingFetch();
+    const controller = new AbortController();
+
+    const result = fetchBoundedExportImage(
+      'https://example.com/stall.png',
+      { remainingBytes: 1024 },
+      controller.signal,
+      60_000,
+    );
+    setTimeout(() => controller.abort(), 10);
+
+    await expect(result).rejects.toThrow(/cancelled/);
+    expect(stall.cancelled()).toBe(true);
+  });
+
   it('caps concurrent work', async () => {
     let active = 0;
     let peak = 0;

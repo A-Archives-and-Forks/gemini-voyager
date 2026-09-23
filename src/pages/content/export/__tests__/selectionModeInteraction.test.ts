@@ -48,12 +48,17 @@ describe('selection mode interaction', () => {
   });
 
   it('wires Safari PDF success path to runtime toast guidance', () => {
-    const code = readFileSync(resolve(process.cwd(), 'src/pages/content/export/index.ts'), 'utf8');
+    const notice = readFileSync(
+      resolve(process.cwd(), 'src/features/export/ui/exportResultNotice.ts'),
+      'utf8',
+    );
+    const page = readFileSync(resolve(process.cwd(), 'src/pages/content/export/index.ts'), 'utf8');
 
-    expect(code).toContain("format === 'pdf'");
-    expect(code).toContain('isSafari()');
-    expect(code).toContain('showExportToast(');
-    expect(code).toContain("t('export_toast_safari_pdf_ready')");
+    expect(notice).toContain("format === 'pdf'");
+    expect(notice).toContain('isSafari()');
+    expect(notice).toContain('showExportToast(');
+    expect(notice).toContain("t('export_toast_safari_pdf_ready')");
+    expect(page).toContain('reportFinishedExport(result, state.format, t)');
   });
 
   it('aligns selection bar and export progress toast with shared alignment hook', () => {

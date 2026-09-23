@@ -826,6 +826,10 @@
     "message": "今すぐ Command + P を押して PDF を書き出せます。",
     "description": "Safari-specific toast shown after PDF export is prepared"
   },
+  "export_toast_images_omitted": {
+    "message": "{count} 枚の画像はアーカイブに入らず、Markdown には元のリンクを残しました。",
+    "description": "Toast when markdown export leaves some images as remote links"
+  },
   "export_dialog_safari_markdown_hint": {
     "message": "注意：Safari の制限により、チャット履歴内の画像は抽出できません。完全にエクスポートするには、PDF エクスポートを使用してください。",
     "description": "Warning about image references in Safari markdown export"

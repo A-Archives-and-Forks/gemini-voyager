@@ -201,4 +201,6 @@ export interface ExportResult {
   format: ExportFormat;
   filename?: string;
   error?: string;
+  /** Images left as remote links because they were not written into the archive. */
+  omittedImageCount?: number;
 }

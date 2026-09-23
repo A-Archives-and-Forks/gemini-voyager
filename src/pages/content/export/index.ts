@@ -32,6 +32,7 @@ import {
 import { ExportDialog } from '../../../features/export/ui/ExportDialog';
 import { resolveExportErrorMessage } from '../../../features/export/ui/ExportErrorMessage';
 import { showExportToast } from '../../../features/export/ui/ExportToast';
+import { reportFinishedExport } from '../../../features/export/ui/exportResultNotice';
 import { isServerTurnId } from '../fork/turnId';
 import { historyTimestampStore } from '../timestamp/historyTimestamps';
 import { watchRouteChanges } from '../utils/routeWatcher';
@@ -1859,10 +1860,8 @@ async function performFinalExport(
 
       if (!result.success) {
         alert(resolveExportErrorMessage(result.error, t));
-      } else if (state.format === 'pdf' && isSafari()) {
-        showExportToast(t('export_toast_safari_pdf_ready'), {
-          autoDismissMs: 5000,
-        });
+      } else {
+        reportFinishedExport(result, state.format, t);
       }
     } catch (error) {
       if (!isAbortError(error)) {

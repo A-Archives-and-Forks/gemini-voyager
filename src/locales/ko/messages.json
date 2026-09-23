@@ -826,6 +826,10 @@
     "message": "이제 Command + P 를 눌러 PDF 를 내보낼 수 있습니다.",
     "description": "Safari-specific toast shown after PDF export is prepared"
   },
+  "export_toast_images_omitted": {
+    "message": "이미지 {count}장은 압축 파일에 넣지 못했습니다. Markdown에는 원래 링크가 남아 있습니다.",
+    "description": "Toast when markdown export leaves some images as remote links"
+  },
   "export_dialog_safari_markdown_hint": {
     "message": "안내: Safari 제한으로 인해 채팅 기록의 이미지를 추출할 수 없습니다. 전체 내보내기가 필요하면 PDF 내보내기를 사용하세요.",
     "description": "Warning about image references in Safari markdown export"

@@ -826,6 +826,10 @@
     "message": "现在可以按 Command + P 导出 PDF。",
     "description": "Safari 中完成导出准备后的提示"
   },
+  "export_toast_images_omitted": {
+    "message": "有 {count} 张图片没能放进压缩包，Markdown 里仍保留原来的链接。",
+    "description": "Markdown 导出有图片未能写入压缩包时的提示"
+  },
   "export_dialog_safari_markdown_hint": {
     "message": "提醒：由于 Safari 限制，无法提取聊天记录中的图片，如需完整导出，建议使用 PDF 导出",
     "description": "关于 Safari Markdown 导出无法提取图片的警告"
