@@ -8,6 +8,9 @@ const CHAT_INPUT_SELECTORS = [
   'textarea',
 ] as const;
 
+/** Every chat input candidate as one selector list, for layout-free matching. */
+export const CHAT_INPUT_SELECTOR = CHAT_INPUT_SELECTORS.join(', ');
+
 function isVisibleElement(element: Element): element is HTMLElement {
   return element instanceof HTMLElement && element.getBoundingClientRect().height > 0;
 }

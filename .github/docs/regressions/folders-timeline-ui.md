@@ -573,3 +573,15 @@ drop, or hover layout.
   preference; a setting change must not discard values already being entered.
 - **Guard:** `src/pages/content/prompt/__tests__/templateFillAction.test.ts` exercises the real
   manager's fill surface and storage listener, then checks delivery before and after reopening.
+
+## Body-wide observers must not measure layout per mutation record
+
+- **Trap:** Loading each page of older Gemini sidebar chats got slower as the list grew; a user
+  reported the list freezing (#1040). Quote Reply's body observer resolved the live chat input for
+  every mutation record, and that lookup calls `getBoundingClientRect()`. Gemini appends sidebar
+  rows individually, so each page forced repeated synchronous layout over the growing sidebar.
+- **Rule:** Filter body-wide observer records with selectors (`closest`, `matches`,
+  `querySelector`) only. Resolve live elements or read geometry after the debounce, once, and only
+  when a record is relevant.
+- **Guard:** `src/pages/content/quoteReply/__tests__/renderedQuotes.test.ts`
+  (`does not measure layout while unrelated rows stream into the page`).
