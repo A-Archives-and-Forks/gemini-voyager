@@ -156,4 +156,4 @@ A: 支持！只需在一个浏览器导出，在另一个浏览器导入即可�
 ## 反馈与支持
 
 如有问题或建议，请访问：
-https://github.com/Nagi-ovo/voyager/issues/36
+https://github.com/voyager-crew/voyager/issues/36

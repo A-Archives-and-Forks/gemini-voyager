@@ -18,12 +18,12 @@
   </p>
 
   <p>
-    <a href="https://trendshift.io/repositories/16094" target="_blank"><img src="https://trendshift.io/api/badge/repositories/16094" alt="Nagi-ovo%2Fvoyager | Trendshift" width="250" height="55"/></a>
-    <a href="https://www.star-history.com/nagi-ovo/voyager" target="_blank">
+    <a href="https://trendshift.io/repositories/16094" target="_blank"><img src="https://trendshift.io/api/badge/repositories/16094" alt="voyager-crew%2Fvoyager | Trendshift" width="250" height="55"/></a>
+    <a href="https://www.star-history.com/voyager-crew/voyager" target="_blank">
      <picture>
-       <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=Nagi-ovo/voyager&type=rank&theme=dark" />
-       <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=Nagi-ovo/voyager&type=rank" />
-       <img alt="Star History Rank" src="https://api.star-history.com/badge?repo=Nagi-ovo/voyager&type=rank" width="193" height="55" />
+       <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=voyager-crew/voyager&type=rank&theme=dark" />
+       <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=voyager-crew/voyager&type=rank" />
+       <img alt="Star History Rank" src="https://api.star-history.com/badge?repo=voyager-crew/voyager&type=rank" width="193" height="55" />
      </picture>
     </a>
     <a href="https://www.producthunt.com/products/gemini-voyager?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-gemini-voyager" target="_blank" rel="noopener noreferrer"><img alt="Voyager - AI conversation tools for Gemini, Claude, and ChatGPT | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1064704&amp;theme=light&amp;t=1768842096186"></a>
@@ -140,7 +140,7 @@
     <img src="https://img.shields.io/badge/Firefox%20Add--ons-FF7139?style=for-the-badge&logo=firefox&logoColor=white" alt="Firefox Add-ons" height="36">
   </a>
   &nbsp;&nbsp;
-  <a href="https://github.com/Nagi-ovo/voyager/releases/latest/" target="_blank">
+  <a href="https://github.com/voyager-crew/voyager/releases/latest/" target="_blank">
     <img src="https://img.shields.io/badge/Safari-000000?style=for-the-badge&logo=safari&logoColor=white" alt="Safari Скачать" height="36">
   </a>
 </div>
@@ -156,8 +156,8 @@
 ## ☕ Поддержать проект
 
 <div align="center">
-  <a href="https://github.com/Nagi-ovo/voyager">
-    <img src="https://raw.githubusercontent.com/Nagi-ovo/voyager/main/docs/public/assets/sponsors.svg" width="1000px" />
+  <a href="https://github.com/voyager-crew/voyager">
+    <img src="https://raw.githubusercontent.com/voyager-crew/voyager/main/docs/public/assets/sponsors.svg" width="1000px" />
   </a>
 </div>
 
@@ -206,12 +206,12 @@
 
 ## 🤝 Участие в разработке
 
-[<img src="https://devin.ai/assets/askdeepwiki.png" alt="Ask DeepWiki" height="20"/>](https://deepwiki.com/Nagi-ovo/voyager)
+[<img src="https://devin.ai/assets/askdeepwiki.png" alt="Ask DeepWiki" height="20"/>](https://deepwiki.com/voyager-crew/voyager)
 
 Мы приветствуем любую помощь!
 
-- **Issues**: Только воспроизводимые ошибки — используйте шаблон [отчета об ошибке](https://github.com/Nagi-ovo/voyager/issues/new?template=bug_report.yml).
-- **Discussions**: [Запросы функций, идеи и вопросы](https://github.com/Nagi-ovo/voyager/discussions) публикуйте здесь, а не в issues.
+- **Issues**: Только воспроизводимые ошибки — используйте шаблон [отчета об ошибке](https://github.com/voyager-crew/voyager/issues/new?template=bug_report.yml).
+- **Discussions**: [Запросы функций, идеи и вопросы](https://github.com/voyager-crew/voyager/discussions) публикуйте здесь, а не в issues.
 - **Pull Requests**: Ознакомьтесь с [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 Спасибо, что помогаете делать Voyager лучше! ❤️
@@ -220,8 +220,8 @@
 
 Особая благодарность всем участникам за их вклад в Voyager ❤️
 
-<a href="https://github.com/Nagi-ovo/voyager/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Nagi-ovo/voyager&max=200&columns=14" />
+<a href="https://github.com/voyager-crew/voyager/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=voyager-crew/voyager&max=200&columns=14" />
 </a>
 
 ---
@@ -262,11 +262,11 @@ Gemini — товарный знак Google LLC. Claude — товарный з�
 ---
 
 <div align="center">
-  <a href="https://www.star-history.com/#Nagi-ovo/voyager&type=date&legend=top-left">
+  <a href="https://www.star-history.com/#voyager-crew/voyager&type=date&legend=top-left">
    <picture>
-     <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Nagi-ovo/voyager&type=date&theme=dark&legend=top-left" />
-     <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Nagi-ovo/voyager&type=date&legend=top-left" />
-     <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Nagi-ovo/voyager&type=date&legend=top-left" />
+     <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=voyager-crew/voyager&type=date&theme=dark&legend=top-left" />
+     <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=voyager-crew/voyager&type=date&legend=top-left" />
+     <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=voyager-crew/voyager&type=date&legend=top-left" />
    </picture>
   </a>
   <p>Сделано с ❤️ Jesse Zhang</p>

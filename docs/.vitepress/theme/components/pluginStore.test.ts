@@ -16,7 +16,7 @@ import {
 describe('resolveSourceUrl', () => {
   it('resolves a relative source against the catalog base', () => {
     expect(resolveSourceUrl(MARKETPLACE_URL, 'sites/foo/plugins/bar/plugin.json')).toBe(
-      'https://raw.githubusercontent.com/Nagi-ovo/voyager/main/src/features/plugins/catalog/sites/foo/plugins/bar/plugin.json',
+      'https://raw.githubusercontent.com/voyager-crew/voyager/main/src/features/plugins/catalog/sites/foo/plugins/bar/plugin.json',
     );
   });
 

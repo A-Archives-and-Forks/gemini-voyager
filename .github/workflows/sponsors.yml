@@ -10,7 +10,7 @@ on:
 
 jobs:
   update-sponsors:
-    if: contains(fromJSON('["Nagi-ovo/voyager", "voyager-crew/voyager"]'), github.repository)
+    if: github.repository == 'voyager-crew/voyager'
     runs-on: ubuntu-latest
     permissions:
       contents: write

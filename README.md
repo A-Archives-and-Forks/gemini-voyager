@@ -18,12 +18,12 @@
   </p>
 
   <p>
-    <a href="https://trendshift.io/repositories/16094" target="_blank"><img src="https://trendshift.io/api/badge/repositories/16094" alt="Nagi-ovo%2Fvoyager | Trendshift" width="250" height="55"/></a>
-    <a href="https://www.star-history.com/nagi-ovo/voyager" target="_blank">
+    <a href="https://trendshift.io/repositories/16094" target="_blank"><img src="https://trendshift.io/api/badge/repositories/16094" alt="voyager-crew%2Fvoyager | Trendshift" width="250" height="55"/></a>
+    <a href="https://www.star-history.com/voyager-crew/voyager" target="_blank">
      <picture>
-       <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=Nagi-ovo/voyager&type=rank&theme=dark" />
-       <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=Nagi-ovo/voyager&type=rank" />
-       <img alt="Star History Rank" src="https://api.star-history.com/badge?repo=Nagi-ovo/voyager&type=rank" width="193" height="55" />
+       <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=voyager-crew/voyager&type=rank&theme=dark" />
+       <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=voyager-crew/voyager&type=rank" />
+       <img alt="Star History Rank" src="https://api.star-history.com/badge?repo=voyager-crew/voyager&type=rank" width="193" height="55" />
      </picture>
     </a>
     <a href="https://www.producthunt.com/products/gemini-voyager?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-gemini-voyager" target="_blank" rel="noopener noreferrer"><img alt="Voyager - AI conversation tools for Gemini, Claude, and ChatGPT | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1064704&amp;theme=light&amp;t=1768842096186"></a>
@@ -142,7 +142,7 @@ Add any site in the extension popup and the Prompt Manager follows you there, lo
     <img src="https://img.shields.io/badge/Firefox%20Add--ons-FF7139?style=for-the-badge&logo=firefox&logoColor=white" alt="Firefox Add-ons" height="36">
   </a>
   &nbsp;&nbsp;
-  <a href="https://github.com/Nagi-ovo/voyager/releases/latest/" target="_blank">
+  <a href="https://github.com/voyager-crew/voyager/releases/latest/" target="_blank">
     <img src="https://img.shields.io/badge/Safari-000000?style=for-the-badge&logo=safari&logoColor=white" alt="Safari Download" height="36">
   </a>
 </div>
@@ -158,8 +158,8 @@ For **manual installation** or **development builds**, please refer to the [Inst
 ## ☕ Support This Project
 
 <div align="center">
-  <a href="https://github.com/Nagi-ovo/voyager">
-    <img src="https://raw.githubusercontent.com/Nagi-ovo/voyager/main/docs/public/assets/sponsors.svg" width="1000px" />
+  <a href="https://github.com/voyager-crew/voyager">
+    <img src="https://raw.githubusercontent.com/voyager-crew/voyager/main/docs/public/assets/sponsors.svg" width="1000px" />
   </a>
 </div>
 
@@ -233,12 +233,12 @@ I highly recommend **[Typeless (typeless.com)](https://www.typeless.com/refer?co
 
 ## 🤝 Contributing & Development
 
-[<img src="https://devin.ai/assets/askdeepwiki.png" alt="Ask DeepWiki" height="20"/>](https://deepwiki.com/Nagi-ovo/voyager)
+[<img src="https://devin.ai/assets/askdeepwiki.png" alt="Ask DeepWiki" height="20"/>](https://deepwiki.com/voyager-crew/voyager)
 
 We welcome contributions! Whether you want to report bugs, suggest features, improve documentation, or submit code:
 
-- **Issues**: Reproducible bugs only — use the [bug report](https://github.com/Nagi-ovo/voyager/issues/new?template=bug_report.yml) template
-- **Discussions**: [Feature requests, ideas, and questions](https://github.com/Nagi-ovo/voyager/discussions) — not Issues
+- **Issues**: Reproducible bugs only — use the [bug report](https://github.com/voyager-crew/voyager/issues/new?template=bug_report.yml) template
+- **Discussions**: [Feature requests, ideas, and questions](https://github.com/voyager-crew/voyager/discussions) — not Issues
 - **Pull Requests**: Check out [CONTRIBUTING.md](./.github/CONTRIBUTING.md) for guidelines
 
 <details>
@@ -271,8 +271,8 @@ Thank you for helping make Voyager better! ❤️
 
 Special thanks to all contributors for their contributions to Voyager ❤️
 
-<a href="https://github.com/Nagi-ovo/voyager/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Nagi-ovo/voyager&max=200&columns=14" />
+<a href="https://github.com/voyager-crew/voyager/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=voyager-crew/voyager&max=200&columns=14" />
 </a>
 
 ---
@@ -315,11 +315,11 @@ Gemini is a trademark of Google LLC. Claude is a trademark of Anthropic, PBC. Ch
 ---
 
 <div align="center">
-  <a href="https://www.star-history.com/#Nagi-ovo/voyager&type=date&legend=top-left">
+  <a href="https://www.star-history.com/#voyager-crew/voyager&type=date&legend=top-left">
    <picture>
-     <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Nagi-ovo/voyager&type=date&theme=dark&legend=top-left" />
-     <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Nagi-ovo/voyager&type=date&legend=top-left" />
-     <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Nagi-ovo/voyager&type=date&legend=top-left" />
+     <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=voyager-crew/voyager&type=date&theme=dark&legend=top-left" />
+     <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=voyager-crew/voyager&type=date&legend=top-left" />
+     <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=voyager-crew/voyager&type=date&legend=top-left" />
    </picture>
   </a>
   <p>Made with ❤️ by Jesse Zhang</p>
