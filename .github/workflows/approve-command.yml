@@ -6,7 +6,7 @@ on:
 
 jobs:
   approve-contributor:
-    if: github.repository == 'Nagi-ovo/voyager' && startsWith(github.event.comment.body, '/approve')
+    if: contains(fromJSON('["Nagi-ovo/voyager", "voyager-crew/voyager"]'), github.repository) && startsWith(github.event.comment.body, '/approve')
     runs-on: ubuntu-latest
     permissions:
       contents: read
