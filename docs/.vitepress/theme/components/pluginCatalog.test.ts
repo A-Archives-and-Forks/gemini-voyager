@@ -50,10 +50,10 @@ describe('readCatalog', () => {
     }
   });
 
-  it('folds the DeepSeek variant of a shared feature into the same card', () => {
+  it.each(['Formula Copy', 'Vim Input'])('folds every platform of %s into one card', (feature) => {
     const groups = groupPluginsByFeature([...NATIVE_PLUGINS, ...catalog]);
-    const formulaCopy = groups.find((g) => displayName(g[0].name) === 'Formula Copy');
-    const keys = formulaCopy?.flatMap((p) => platformsFromMatches(p.matches).map((pl) => pl.key));
+    const group = groups.find((g) => displayName(g[0].name) === feature);
+    const keys = group?.flatMap((p) => platformsFromMatches(p.matches).map((pl) => pl.key));
     expect(keys).toEqual(expect.arrayContaining(['claude', 'chatgpt', 'deepseek']));
   });
 });

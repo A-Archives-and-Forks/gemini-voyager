@@ -6,9 +6,9 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import type { PluginManifest } from './pluginStore';
+import { type PluginManifest, type StorePlugin, toStorePlugin } from './pluginStore';
 
-export type CatalogPlugin = PluginManifest & { official: boolean };
+export type CatalogPlugin = StorePlugin;
 
 export const CATALOG_DIR = resolve(
   dirname(fileURLToPath(import.meta.url)),
@@ -26,10 +26,8 @@ function readJson(path: string): unknown {
 }
 
 /**
- * Read every plugin listed in `marketplace.json`, keeping only the fields the
- * store renders: manifests also carry CSS and settings that would otherwise
- * ship in the page payload. A missing manifest fails the build rather than
- * silently dropping a card.
+ * Read every plugin listed in `marketplace.json`. A missing manifest fails the
+ * build rather than silently dropping a card.
  */
 export function readCatalog(catalogDir: string = CATALOG_DIR): CatalogPlugin[] {
   const market = readJson(resolve(catalogDir, 'marketplace.json')) as {
@@ -37,25 +35,6 @@ export function readCatalog(catalogDir: string = CATALOG_DIR): CatalogPlugin[] {
   };
   return (market.plugins ?? []).map((entry) => {
     const m = readJson(resolve(catalogDir, entry.source)) as PluginManifest;
-    const i18n = m.i18n
-      ? Object.fromEntries(
-          Object.entries(m.i18n).map(([loc, v]) => [
-            loc,
-            { name: v.name, description: v.description },
-          ]),
-        )
-      : undefined;
-    return {
-      id: m.id,
-      name: m.name,
-      version: m.version,
-      description: m.description,
-      category: m.category,
-      homepage: m.homepage,
-      matches: m.matches,
-      theme: m.theme?.brand ? { brand: m.theme.brand } : undefined,
-      i18n,
-      official: entry.official === true,
-    };
+    return toStorePlugin(m, entry.official === true);
   });
 }

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { BUILTIN_PLUGINS } from '../../../../src/features/plugins/builtin';
 import {
   CATEGORY_FALLBACKS,
   CONTRIBUTE,
@@ -78,10 +79,8 @@ describe('localeKey', () => {
 });
 
 describe('NATIVE_PLUGINS', () => {
-  it('lists the first-party JS plugins bundled with the extension', () => {
-    const ids = NATIVE_PLUGINS.map((p) => p.id);
-    expect(ids).toContain('voyager.formula-copy');
-    expect(ids).toContain('voyager.claude-timeline');
+  it('lists every plugin bundled with the extension', () => {
+    expect(NATIVE_PLUGINS.map((p) => p.id)).toEqual(BUILTIN_PLUGINS.map((p) => p.id));
   });
 
   it('marks every native plugin official, productivity, with a source link', () => {

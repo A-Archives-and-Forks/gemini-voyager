@@ -316,13 +316,15 @@ while an active plugin has domOps`).
 - **Guard:** `src/pages/background/__tests__/contentScriptRegistration.test.ts`
   (`drops only the ids that exist so a never-registered companion cannot block the batch`).
 
-## The docs plugin store draws platforms from the extension's shared logos
+## The docs plugin store imports the extension's logos and builtin plugins
 
-- **Trap:** The docs store kept its own copy of the platform marks and host list. When DeepSeek
-  plugins shipped, their cards fell back to a generic puzzle icon, lost their platform chip and
-  kept the `DeepSeek ·` prefix, so they did not merge with the same feature on Claude and ChatGPT.
-- **Rule:** Docs components import `PLATFORM_LOGOS` from `src/core/icons/platformLogos.ts` and
-  only add the host list (`docs/.vitepress/theme/components/pluginStore.ts`). Never hand-copy
-  marks. A new platform needs its host there before its catalog plugins appear correctly.
+- **Trap:** The docs store kept hand copies of the platform marks and of the builtin plugin list.
+  When DeepSeek plugins shipped, their cards fell back to a generic puzzle icon and did not merge
+  with the same feature elsewhere; the builtin copy still listed two of five plugins, so Vim Input
+  showed as DeepSeek-only although Claude and ChatGPT had it too.
+- **Rule:** Docs components import `PLATFORM_LOGOS` (`src/core/icons/platformLogos.ts`) and
+  `BUILTIN_PLUGINS` (`src/features/plugins/builtin/index.ts`) and only add the host list
+  (`docs/.vitepress/theme/components/pluginStore.ts`). Never hand-copy extension data into the
+  docs; a new platform needs its host there before its plugins appear correctly.
 - **Guard:** `docs/.vitepress/theme/components/pluginCatalog.test.ts`
-  (`gives every catalog plugin a known platform`).
+  (`gives every catalog plugin a known platform`, `folds every platform of Vim Input into one card`).
