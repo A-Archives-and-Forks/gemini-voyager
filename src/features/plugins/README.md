@@ -91,7 +91,7 @@ because `import.meta.glob` does not exist under Bun.) Sites today are `chatgpt`,
 every site and plugin before publishing.
 
 `catalog/marketplace.json` is **not** that mapping table. It is only the index
-the docs plugin-store page fetches, and a test keeps it in sync with discovery,
+the docs plugin-store page reads at build time, and a test keeps it in sync with discovery,
 so a new plugin also needs an entry there whose `source` is the catalog-relative
 path (`sites/deepseek/plugins/reading-width/plugin.json`).
 

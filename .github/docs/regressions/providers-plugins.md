@@ -315,3 +315,14 @@ while an active plugin has domOps`).
   companion id into an unregister call.
 - **Guard:** `src/pages/background/__tests__/contentScriptRegistration.test.ts`
   (`drops only the ids that exist so a never-registered companion cannot block the batch`).
+
+## The docs plugin store draws platforms from the extension's shared logos
+
+- **Trap:** The docs store kept its own copy of the platform marks and host list. When DeepSeek
+  plugins shipped, their cards fell back to a generic puzzle icon, lost their platform chip and
+  kept the `DeepSeek ·` prefix, so they did not merge with the same feature on Claude and ChatGPT.
+- **Rule:** Docs components import `PLATFORM_LOGOS` from `src/core/icons/platformLogos.ts` and
+  only add the host list (`docs/.vitepress/theme/components/pluginStore.ts`). Never hand-copy
+  marks. A new platform needs its host there before its catalog plugins appear correctly.
+- **Guard:** `docs/.vitepress/theme/components/pluginCatalog.test.ts`
+  (`gives every catalog plugin a known platform`).

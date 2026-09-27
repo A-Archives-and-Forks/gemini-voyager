@@ -261,3 +261,14 @@ output.
 - **Guard:** `src/features/prompt/model/__tests__/promptMarkdown.test.ts`
   (`keeps angle-bracket placeholders visible instead of letting them be sanitized away`,
   `pins the defect it fixes: the default pipeline eats the rest of the sentence`).
+
+## A hidden popover still widens the page it overflows
+
+- **Trap:** The plugin store's "how to open the popup" preview is `visibility: hidden` until
+  hover, but an absolutely positioned hidden box still counts toward the scroll width. At 400px
+  it pushed the page to 437px and every phone visitor could scroll the whole page sideways.
+- **Rule:** A hover preview that can extend past the viewport switches to `position: fixed` on
+  narrow screens (`docs/.vitepress/theme/components/PluginStore.vue`), or is constrained to the
+  viewport. Check `scrollWidth` against `clientWidth` at 400px after adding one.
+- **Guard:** Manual: open `/plugins` at 400px wide and compare
+  `document.documentElement.scrollWidth` with `clientWidth`.
