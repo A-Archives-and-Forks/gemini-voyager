@@ -11,8 +11,8 @@
   },
   "theme": {
     "hostSelector": "html",
-    "lightSelector": "html.light",
-    "darkSelector": "html.dark"
+    "lightSelector": "html[data-theme=\"light\"]",
+    "darkSelector": "html[data-theme=\"dark\"]"
   },
   "brandColor": "#0ea5e9",
   "capabilities": ["chat", "sidebar", "composer", "darkMode"],
