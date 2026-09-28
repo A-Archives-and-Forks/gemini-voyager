@@ -19,11 +19,11 @@
 
   <p>
     <a href="https://trendshift.io/repositories/16094" target="_blank"><img src="https://trendshift.io/api/badge/repositories/16094" alt="voyager-crew%2Fvoyager | Trendshift" width="250" height="55"/></a>
-    <a href="https://www.star-history.com/voyager-crew/voyager" target="_blank">
+    <a href="https://www.star-history.com/Nagi-ovo/voyager" target="_blank">
      <picture>
-       <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=voyager-crew/voyager&type=rank&theme=dark" />
-       <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=voyager-crew/voyager&type=rank" />
-       <img alt="Star History Rank" src="https://api.star-history.com/badge?repo=voyager-crew/voyager&type=rank" width="193" height="55" />
+       <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=Nagi-ovo/voyager&type=rank&theme=dark" />
+       <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=Nagi-ovo/voyager&type=rank" />
+       <img alt="Star History Rank" src="https://api.star-history.com/badge?repo=Nagi-ovo/voyager&type=rank" width="193" height="55" />
      </picture>
     </a>
     <a href="https://www.producthunt.com/products/gemini-voyager?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-gemini-voyager" target="_blank" rel="noopener noreferrer"><img alt="Voyager - AI conversation tools for Gemini, Claude, and ChatGPT | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1064704&amp;theme=light&amp;t=1768842096186"></a>
@@ -78,7 +78,7 @@
 
 - **📂 [폴더 관리](https://voyager.nagi.fun/ko/guide/folders)**: 드래그 앤 드롭을 지원하는 2 단계 폴더 계층 구조로 대화를 정리하세요.
   - **Gemini**: **계정 분리 모드** 및 **사용자 지정 폴더 색상**을 지원합니다.
-- **💡 [프롬프트 저장소](https://voyager.nagi.fun/ko/guide/prompts)**: Gemini, AI Studio 및 [사용자 지정 웹사이트](https://voyager.nagi.fun/ko/guide/custom-websites)에서 프롬프트를 저장하고 재사용하세요.
+- **💡 [프롬프트 저장소](https://voyager.nagi.fun/ko/guide/prompts)**: Gemini, AI Studio 및 [사용자 지정 웹사이트](https://voyager.nagi.fun/ko/guide/prompts#어디서나-사용-가능)에서 프롬프트를 저장하고 재사용하세요.
 - **☁️ [클라우드 동기화](https://voyager.nagi.fun/ko/guide/cloud-sync)**: 폴더와 프롬프트를 Google Drive 에 동기화하세요.
 - **📐 수식 복사**: LaTeX 및 MathML (Word) 소스 코드를 클릭 한 번으로 복사하세요.
 - **🌦️ 시각 효과**: 설정 패널에서 **눈**, **시네마틱 비**, **벚꽃잎** 효과를 전환하여 계절 분위기를 연출하세요.
@@ -185,9 +185,9 @@ Voyager 가 도움이 되었다면 커피 한 잔을 후원해 주세요. 지속
       <td align="center">
         <a href="https://afdian.com/a/nagi-ovo" target="_blank">
           <picture>
-            <source media="(prefers-color-scheme: dark)" srcset="https://afdian-connect.deno.dev/profile.svg?slug=nagi-ovo&bg_color=%230d1117&text_color=%23dedbd7&border_color=%232e343d" />
-            <source media="(prefers-color-scheme: light)" srcset="https://afdian-connect.deno.dev/profile.svg?slug=nagi-ovo" />
-            <img alt="Nagi-ovo's Profile" src="https://afdian-connect.deno.dev/profile.svg?slug=nagi-ovo" height="160" />
+            <source media="(prefers-color-scheme: dark)" srcset="https://afdian-connect.vercel.app/profile.svg?slug=nagi-ovo&bg_color=%230d1117&text_color=%23dedbd7&border_color=%232e343d" />
+            <source media="(prefers-color-scheme: light)" srcset="https://afdian-connect.vercel.app/profile.svg?slug=nagi-ovo" />
+            <img alt="Nagi-ovo's Profile" src="https://afdian-connect.vercel.app/profile.svg?slug=nagi-ovo" height="160" />
           </picture>
         </a><br>
         <sub><b>Afdian</b></sub>
@@ -283,7 +283,7 @@ Voyager에 기여해 주신 모든 기여자분들께 특별히 감사드립니�
 
 - **[gemini-watermark-remover](https://github.com/journey-ad/gemini-watermark-remover) / [GeminiWatermarkTool](https://github.com/allenk/GeminiWatermarkTool)** - Image Refinement 는 이 프로젝트들을 바탕으로 적용되었습니다. 관련 제3자 MIT 고지는 [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)에 보존되어 있습니다.
 
-- **[Gemini Helper](https://github.com/urzeye/tampermonkey-scripts)** - 기본 모델 고정 로직에는 Gemini Helper 에서 참고한 상호작용 아이디어가 포함되어 있으며, 소스 코드 수준의 attribution 을 유지하고 있습니다.
+- **[Gemini Helper](https://greasyfork.org/scripts/558318-gemini-helper)** - 기본 모델 고정 로직에는 Gemini Helper 에서 참고한 상호작용 아이디어가 포함되어 있으며, 소스 코드 수준의 attribution 을 유지하고 있습니다.
 
 - **[cordis](https://github.com/cordiverse/cordis)** - 플러그인 런타임의 사이드 이펙트 원장(`PluginScope`)은 cordis fiber 모델의 effect/해제 수명주기 설계를 참고했습니다.
 

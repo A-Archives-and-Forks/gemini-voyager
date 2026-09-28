@@ -19,11 +19,11 @@
 
   <p>
     <a href="https://trendshift.io/repositories/16094" target="_blank"><img src="https://trendshift.io/api/badge/repositories/16094" alt="voyager-crew%2Fvoyager | Trendshift" width="250" height="55"/></a>
-    <a href="https://www.star-history.com/voyager-crew/voyager" target="_blank">
+    <a href="https://www.star-history.com/Nagi-ovo/voyager" target="_blank">
      <picture>
-       <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=voyager-crew/voyager&type=rank&theme=dark" />
-       <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=voyager-crew/voyager&type=rank" />
-       <img alt="Star History Rank" src="https://api.star-history.com/badge?repo=voyager-crew/voyager&type=rank" width="193" height="55" />
+       <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=Nagi-ovo/voyager&type=rank&theme=dark" />
+       <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=Nagi-ovo/voyager&type=rank" />
+       <img alt="Star History Rank" src="https://api.star-history.com/badge?repo=Nagi-ovo/voyager&type=rank" width="193" height="55" />
      </picture>
     </a>
     <a href="https://www.producthunt.com/products/gemini-voyager?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-gemini-voyager" target="_blank" rel="noopener noreferrer"><img alt="Voyager - AI conversation tools for Gemini, Claude, and ChatGPT | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1064704&amp;theme=light&amp;t=1768842096186"></a>
@@ -78,7 +78,7 @@
 
 - **📂 [文件夹管理](https://voyager.nagi.fun/guide/folders)**: 支持 **多级目录**、**拖拽排序** 及 **Google Drive 同步**。
   - **Gemini**: 支持 **多账号隔离模式** 及 **自定义文件夹颜色**。
-- **💡 [提示词库](https://voyager.nagi.fun/guide/prompts)**: 跨平台同步提示词，支持 Gemini、AI Studio 及 [自定义网站](https://voyager.nagi.fun/guide/custom-websites)。
+- **💡 [提示词库](https://voyager.nagi.fun/guide/prompts)**: 跨平台同步提示词，支持 Gemini、AI Studio 及 [自定义网站](https://voyager.nagi.fun/guide/prompts#任何网站皆可用)。
 - **☁️ [云同步](https://voyager.nagi.fun/guide/cloud-sync)**: 支持将文件夹和提示词库同步到 Google Drive。
 - **📐 公式复制**: 一键复制 LaTeX 和 MathML (Word) 源码。
 - **🌦️ 视觉特效**: 在设置面板里一键切换 **飘雪**、**电影感雨滴** 或 **樱花飘落**，给页面增加季节氛围。
@@ -188,9 +188,9 @@
       <td align="center">
         <a href="https://afdian.com/a/nagi-ovo" target="_blank">
           <picture>
-            <source media="(prefers-color-scheme: dark)" srcset="https://afdian-connect.deno.dev/profile.svg?slug=nagi-ovo&bg_color=%230d1117&text_color=%23dedbd7&border_color=%232e343d" />
-            <source media="(prefers-color-scheme: light)" srcset="https://afdian-connect.deno.dev/profile.svg?slug=nagi-ovo" />
-            <img alt="Nagi-ovo's Profile" src="https://afdian-connect.deno.dev/profile.svg?slug=nagi-ovo" height="160" />
+            <source media="(prefers-color-scheme: dark)" srcset="https://afdian-connect.vercel.app/profile.svg?slug=nagi-ovo&bg_color=%230d1117&text_color=%23dedbd7&border_color=%232e343d" />
+            <source media="(prefers-color-scheme: light)" srcset="https://afdian-connect.vercel.app/profile.svg?slug=nagi-ovo" />
+            <img alt="Nagi-ovo's Profile" src="https://afdian-connect.vercel.app/profile.svg?slug=nagi-ovo" height="160" />
           </picture>
         </a><br>
         <sub><b>爱发电</b></sub>
@@ -286,7 +286,7 @@ bun run build:all      # Chrome + Firefox + Safari
 
 - **[gemini-watermark-remover](https://github.com/journey-ad/gemini-watermark-remover) / [GeminiWatermarkTool](https://github.com/allenk/GeminiWatermarkTool)** - Image Refinement 基于这些项目适配而来，相关第三方 MIT 声明保留在 [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)。
 
-- **[Gemini Helper](https://github.com/urzeye/tampermonkey-scripts)** - 默认模型锁定功能中的部分交互逻辑参考自 Gemini Helper，并已在源码中保留 attribution。
+- **[Gemini Helper](https://greasyfork.org/scripts/558318-gemini-helper)** - 默认模型锁定功能中的部分交互逻辑参考自 Gemini Helper，并已在源码中保留 attribution。
 
 - **[cordis](https://github.com/cordiverse/cordis)** - 插件运行时的副作用账本（`PluginScope`）借鉴了 cordis fiber 模型的 effect/卸载生命周期设计。
 

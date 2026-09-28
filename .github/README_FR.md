@@ -19,11 +19,11 @@
 
   <p>
     <a href="https://trendshift.io/repositories/16094" target="_blank"><img src="https://trendshift.io/api/badge/repositories/16094" alt="voyager-crew%2Fvoyager | Trendshift" width="250" height="55"/></a>
-    <a href="https://www.star-history.com/voyager-crew/voyager" target="_blank">
+    <a href="https://www.star-history.com/Nagi-ovo/voyager" target="_blank">
      <picture>
-       <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=voyager-crew/voyager&type=rank&theme=dark" />
-       <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=voyager-crew/voyager&type=rank" />
-       <img alt="Star History Rank" src="https://api.star-history.com/badge?repo=voyager-crew/voyager&type=rank" width="193" height="55" />
+       <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=Nagi-ovo/voyager&type=rank&theme=dark" />
+       <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=Nagi-ovo/voyager&type=rank" />
+       <img alt="Star History Rank" src="https://api.star-history.com/badge?repo=Nagi-ovo/voyager&type=rank" width="193" height="55" />
      </picture>
     </a>
     <a href="https://www.producthunt.com/products/gemini-voyager?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-gemini-voyager" target="_blank" rel="noopener noreferrer"><img alt="Voyager - AI conversation tools for Gemini, Claude, and ChatGPT | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1064704&amp;theme=light&amp;t=1768842096186"></a>
@@ -78,7 +78,7 @@ C'est pourquoi nous avons créé **Voyager**. Plus qu'un simple outil, c'est un 
 
 - **📂 [Dossiers](https://voyager.nagi.fun/fr/guide/folders)** : Organisez vos chats dans une hiérarchie à deux niveaux avec support du **glisser-déposer** et **synchronisation Google Drive**.
   - **Gemini** : Support du **mode d'isolation de compte** et **couleurs de dossiers personnalisées**.
-- **💡 [Coffre-fort de Prompts](https://voyager.nagi.fun/fr/guide/prompts)** : Enregistrez et réutilisez vos meilleurs prompts sur Gemini, AI Studio et [sites personnalisés](https://voyager.nagi.fun/fr/guide/custom-websites).
+- **💡 [Coffre-fort de Prompts](https://voyager.nagi.fun/fr/guide/prompts)** : Enregistrez et réutilisez vos meilleurs prompts sur Gemini, AI Studio et [sites personnalisés](https://voyager.nagi.fun/fr/guide/prompts#disponible-partout).
 - **☁️ [Sincronisation Cloud](https://voyager.nagi.fun/fr/guide/cloud-sync)** : Synchronisez vos dossiers et coffre-fort de prompts avec Google Drive.
 - **📐 Copie de Formules**: Copie en un clic des codes sources LaTeX et MathML (Word).
 - **🌦️ Effets Visuels** : Ajoutez une ambiance saisonnière avec **neige**, **pluie cinématique** ou **pétales de sakura** depuis le panneau de paramètres.
@@ -185,9 +185,9 @@ Si Voyager facilite votre vie, considérez m'offrir un café. Cela aide à maint
       <td align="center">
         <a href="https://afdian.com/a/nagi-ovo" target="_blank">
           <picture>
-            <source media="(prefers-color-scheme: dark)" srcset="https://afdian-connect.deno.dev/profile.svg?slug=nagi-ovo&bg_color=%230d1117&text_color=%23dedbd7&border_color=%232e343d" />
-            <source media="(prefers-color-scheme: light)" srcset="https://afdian-connect.deno.dev/profile.svg?slug=nagi-ovo" />
-            <img alt="Nagi-ovo's Profile" src="https://afdian-connect.deno.dev/profile.svg?slug=nagi-ovo" height="160" />
+            <source media="(prefers-color-scheme: dark)" srcset="https://afdian-connect.vercel.app/profile.svg?slug=nagi-ovo&bg_color=%230d1117&text_color=%23dedbd7&border_color=%232e343d" />
+            <source media="(prefers-color-scheme: light)" srcset="https://afdian-connect.vercel.app/profile.svg?slug=nagi-ovo" />
+            <img alt="Nagi-ovo's Profile" src="https://afdian-connect.vercel.app/profile.svg?slug=nagi-ovo" height="160" />
           </picture>
         </a><br>
         <sub><b>Afdian</b></sub>
@@ -234,7 +234,7 @@ Un grand merci à tous les contributeurs pour leurs contributions à Voyager ❤
 
 - **[gemini-watermark-remover](https://github.com/journey-ad/gemini-watermark-remover) / [GeminiWatermarkTool](https://github.com/allenk/GeminiWatermarkTool)** - Image Refinement est adapté de ces projets. Les mentions MIT tierces conservées figurent dans [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md).
 
-- **[Gemini Helper](https://github.com/urzeye/tampermonkey-scripts)** - La logique de verrouillage du modèle par défaut inclut des idées d’interaction adaptées de Gemini Helper, avec une attribution conservée dans le code source.
+- **[Gemini Helper](https://greasyfork.org/scripts/558318-gemini-helper)** - La logique de verrouillage du modèle par défaut inclut des idées d’interaction adaptées de Gemini Helper, avec une attribution conservée dans le code source.
 
 - **[cordis](https://github.com/cordiverse/cordis)** - Le registre d'effets du runtime de plugins (`PluginScope`) s'inspire du cycle de vie effet/libération du modèle fiber de cordis.
 

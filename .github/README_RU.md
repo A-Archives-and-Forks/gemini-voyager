@@ -19,11 +19,11 @@
 
   <p>
     <a href="https://trendshift.io/repositories/16094" target="_blank"><img src="https://trendshift.io/api/badge/repositories/16094" alt="voyager-crew%2Fvoyager | Trendshift" width="250" height="55"/></a>
-    <a href="https://www.star-history.com/voyager-crew/voyager" target="_blank">
+    <a href="https://www.star-history.com/Nagi-ovo/voyager" target="_blank">
      <picture>
-       <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=voyager-crew/voyager&type=rank&theme=dark" />
-       <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=voyager-crew/voyager&type=rank" />
-       <img alt="Star History Rank" src="https://api.star-history.com/badge?repo=voyager-crew/voyager&type=rank" width="193" height="55" />
+       <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=Nagi-ovo/voyager&type=rank&theme=dark" />
+       <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=Nagi-ovo/voyager&type=rank" />
+       <img alt="Star History Rank" src="https://api.star-history.com/badge?repo=Nagi-ovo/voyager&type=rank" width="193" height="55" />
      </picture>
     </a>
     <a href="https://www.producthunt.com/products/gemini-voyager?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-gemini-voyager" target="_blank" rel="noopener noreferrer"><img alt="Voyager - AI conversation tools for Gemini, Claude, and ChatGPT | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1064704&amp;theme=light&amp;t=1768842096186"></a>
@@ -78,7 +78,7 @@
 
 - **📂 [Организация по папкам](https://voyager.nagi.fun/ru/guide/folders)**: Группируйте чаты в двухуровневую иерархию папок с поддержкой **перетаскивания** и **синхронизации с Google Drive**.
   - **Gemini**: Поддержка **режима изоляции аккаунтов** и **пользовательских цветов папок**.
-- **💡 [Хранилище промптов](https://voyager.nagi.fun/ru/guide/prompts)**: Сохраняйте и повторно используйте лучшие промпты в Gemini, AI Studio и на [любых сайтах](https://voyager.nagi.fun/ru/guide/custom-websites).
+- **💡 [Хранилище промптов](https://voyager.nagi.fun/ru/guide/prompts)**: Сохраняйте и повторно используйте лучшие промпты в Gemini, AI Studio и на [любых сайтах](https://voyager.nagi.fun/ru/guide/prompts#доступно-везде).
 - **☁️ [Облачная синхронизация](https://voyager.nagi.fun/ru/guide/cloud-sync)**: Синхронизируйте папки и хранилище промптов с Google Drive.
 - **📐 Копирование формул**: Копирование исходного кода LaTeX и MathML (Word) в один клик.
 - **🌦️ Визуальные эффекты**: Добавьте сезонную атмосферу с **снегом**, **кинематографическим дождём** или **падающими лепестками сакуры** из панели настроек.
@@ -185,9 +185,9 @@
       <td align="center">
         <a href="https://afdian.com/a/nagi-ovo" target="_blank">
           <picture>
-            <source media="(prefers-color-scheme: dark)" srcset="https://afdian-connect.deno.dev/profile.svg?slug=nagi-ovo&bg_color=%230d1117&text_color=%23dedbd7&border_color=%232e343d" />
-            <source media="(prefers-color-scheme: light)" srcset="https://afdian-connect.deno.dev/profile.svg?slug=nagi-ovo" />
-            <img alt="Nagi-ovo's Profile" src="https://afdian-connect.deno.dev/profile.svg?slug=nagi-ovo" height="160" />
+            <source media="(prefers-color-scheme: dark)" srcset="https://afdian-connect.vercel.app/profile.svg?slug=nagi-ovo&bg_color=%230d1117&text_color=%23dedbd7&border_color=%232e343d" />
+            <source media="(prefers-color-scheme: light)" srcset="https://afdian-connect.vercel.app/profile.svg?slug=nagi-ovo" />
+            <img alt="Nagi-ovo's Profile" src="https://afdian-connect.vercel.app/profile.svg?slug=nagi-ovo" height="160" />
           </picture>
         </a><br>
         <sub><b>Afdian</b></sub>
@@ -234,7 +234,7 @@
 
 - **[gemini-watermark-remover](https://github.com/journey-ad/gemini-watermark-remover) / [GeminiWatermarkTool](https://github.com/allenk/GeminiWatermarkTool)** - Image Refinement адаптирован на основе этих проектов. Сохраненные сторонние MIT-уведомления находятся в [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md).
 
-- **[Gemini Helper](https://github.com/urzeye/tampermonkey-scripts)** - Логика фиксации модели по умолчанию включает идеи взаимодействия, адаптированные из Gemini Helper, с сохранённой атрибуцией на уровне исходного кода.
+- **[Gemini Helper](https://greasyfork.org/scripts/558318-gemini-helper)** - Логика фиксации модели по умолчанию включает идеи взаимодействия, адаптированные из Gemini Helper, с сохранённой атрибуцией на уровне исходного кода.
 
 - **[cordis](https://github.com/cordiverse/cordis)** - Реестр побочных эффектов плагинного рантайма (`PluginScope`) заимствует дизайн жизненного цикла эффектов и освобождения из fiber-модели cordis.
 

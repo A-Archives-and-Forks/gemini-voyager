@@ -19,11 +19,11 @@
 
   <p>
     <a href="https://trendshift.io/repositories/16094" target="_blank"><img src="https://trendshift.io/api/badge/repositories/16094" alt="voyager-crew%2Fvoyager | Trendshift" width="250" height="55"/></a>
-    <a href="https://www.star-history.com/voyager-crew/voyager" target="_blank">
+    <a href="https://www.star-history.com/Nagi-ovo/voyager" target="_blank">
      <picture>
-       <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=voyager-crew/voyager&type=rank&theme=dark" />
-       <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=voyager-crew/voyager&type=rank" />
-       <img alt="Star History Rank" src="https://api.star-history.com/badge?repo=voyager-crew/voyager&type=rank" width="193" height="55" />
+       <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=Nagi-ovo/voyager&type=rank&theme=dark" />
+       <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=Nagi-ovo/voyager&type=rank" />
+       <img alt="Star History Rank" src="https://api.star-history.com/badge?repo=Nagi-ovo/voyager&type=rank" width="193" height="55" />
      </picture>
     </a>
     <a href="https://www.producthunt.com/products/gemini-voyager?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-gemini-voyager" target="_blank" rel="noopener noreferrer"><img alt="Voyager - AI conversation tools for Gemini, Claude, and ChatGPT | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1064704&amp;theme=light&amp;t=1768842096186"></a>
@@ -78,7 +78,7 @@ AI チャットボット — Gemini、Claude、ChatGPT — は強力ですが、
 
 - **📂 [フォルダ管理](https://voyager.nagi.fun/ja/guide/folders)**: **階層構造**、**ドラッグ＆ドロップによる並べ替え**、**Google ドライブ同期**をサポート。
   - **Gemini**: **マルチアカウント分離モード**と**カスタムフォルダカラー**をサポート。
-- **💡 [プロンプト管理](https://voyager.nagi.fun/ja/guide/prompts)**: プロンプトを保存して再利用。Gemini、AI Studio、[カスタムサイト](https://voyager.nagi.fun/ja/guide/custom-websites)で使用可能。
+- **💡 [プロンプト管理](https://voyager.nagi.fun/ja/guide/prompts)**: プロンプトを保存して再利用。Gemini、AI Studio、[カスタムサイト](https://voyager.nagi.fun/ja/guide/prompts#あらゆるサイトで利用可能)で使用可能。
 - **☁️ [クラウド同期](https://voyager.nagi.fun/ja/guide/cloud-sync)**: フォルダとプロンプトを Google ドライブに同期します。
 - **📐 数式コピー**: LaTeX および MathML (Word) のソースコードを一クリックでコピー。
 - **🌦️ ビジュアルエフェクト**: **雪**、**映画的な雨**、**桜の花びら**で季節の雰囲気を演出。設定パネルから切り替え可能。
@@ -185,9 +185,9 @@ Voyager がお役に立ちましたら、コーヒー一杯分のご支援をい
       <td align="center">
         <a href="https://afdian.com/a/nagi-ovo" target="_blank">
           <picture>
-            <source media="(prefers-color-scheme: dark)" srcset="https://afdian-connect.deno.dev/profile.svg?slug=nagi-ovo&bg_color=%230d1117&text_color=%23dedbd7&border_color=%232e343d" />
-            <source media="(prefers-color-scheme: light)" srcset="https://afdian-connect.deno.dev/profile.svg?slug=nagi-ovo" />
-            <img alt="Nagi-ovo's Profile" src="https://afdian-connect.deno.dev/profile.svg?slug=nagi-ovo" height="160" />
+            <source media="(prefers-color-scheme: dark)" srcset="https://afdian-connect.vercel.app/profile.svg?slug=nagi-ovo&bg_color=%230d1117&text_color=%23dedbd7&border_color=%232e343d" />
+            <source media="(prefers-color-scheme: light)" srcset="https://afdian-connect.vercel.app/profile.svg?slug=nagi-ovo" />
+            <img alt="Nagi-ovo's Profile" src="https://afdian-connect.vercel.app/profile.svg?slug=nagi-ovo" height="160" />
           </picture>
         </a><br>
         <sub><b>Afdian</b></sub>
@@ -255,7 +255,7 @@ Voyager に貢献してくださったすべてのコントリビューターに
 
 - **[gemini-watermark-remover](https://github.com/journey-ad/gemini-watermark-remover) / [GeminiWatermarkTool](https://github.com/allenk/GeminiWatermarkTool)** - Image Refinement はこれらのプロジェクトをもとに適応されています。関連する第三者の MIT notice は [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md) に記載しています。
 
-- **[Gemini Helper](https://github.com/urzeye/tampermonkey-scripts)** - デフォルトモデル固定機能の一部のインタラクション設計は Gemini Helper を参考にしており、ソースコード上にも attribution を残しています。
+- **[Gemini Helper](https://greasyfork.org/scripts/558318-gemini-helper)** - デフォルトモデル固定機能の一部のインタラクション設計は Gemini Helper を参考にしており、ソースコード上にも attribution を残しています。
 
 - **[cordis](https://github.com/cordiverse/cordis)** - プラグインランタイムの副作用台帳（`PluginScope`）は、cordis の fiber モデルにおける effect／破棄ライフサイクル設計を参考にしています。
 

@@ -19,7 +19,7 @@
 
 طريقة بسيطة لتقديم قهوة كشكر.
 
-[<img src="https://img.shields.io/badge/Buy_Me_a_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="اشتري لي قهوة" height="50"/>](https://buymeacoffee.com/nagiovo)
+[<img src="https://img.shields.io/badge/Buy_Me_a_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="اشتري لي قهوة" height="50"/>](https://www.buymeacoffee.com/Nag1ovo)
 
 ### ⭐ نجمة على GitHub
 
